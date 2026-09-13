@@ -5,6 +5,8 @@ from pathlib import Path
 import sounddevice as sd, numpy as np, matplotlib.pyplot as plt
 from scipy.io import wavfile
 
+import analizador as an
+
 FS, SEG = 48000, 5
 DISPOSITIVO = 0           # pon aquí el número del paso 2
 
@@ -44,8 +46,8 @@ while carpeta.exists():           # misma etiqueta el mismo día: -2, -3...
 carpeta.mkdir(parents=True)
 wavfile.write(carpeta / "captura.wav", FS, x)
 
-pico, rms = np.max(np.abs(x)), np.sqrt(np.mean(x**2))
-pico_db, rms_db = 20*np.log10(pico+1e-12), 20*np.log10(rms+1e-12)
+pico, rms = float(np.max(np.abs(x))), an.rms(x)
+pico_db, rms_db = an.pico_dbfs(x), an.rms_dbfs(x)
 print(f"Pico: {pico:.4f}  ({pico_db:.1f} dBFS)")
 print(f"RMS:  {rms:.4f}  ({rms_db:.1f} dBFS)")
 
@@ -56,19 +58,18 @@ condiciones = {
     "frecuencia_muestreo_hz": FS,
     "duracion_s": SEG,
     "volumen_entrada_sistema": volumen,
-    "pico_dbfs": round(float(pico_db), 2),
-    "rms_dbfs": round(float(rms_db), 2),
+    "pico_dbfs": round(pico_db, 2),
+    "rms_dbfs": round(rms_db, 2),
     "notas": args.notas,
 }
 (carpeta / "condiciones.json").write_text(json.dumps(condiciones, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-X = np.abs(np.fft.rfft(x * np.hanning(len(x))))
-f = np.fft.rfftfreq(len(x), 1/FS)
+f, espectro_db = an.espectro(x, FS)
 
 fig, (a1, a2) = plt.subplots(2, 1, figsize=(9, 6))
 a1.plot(np.arange(len(x))/FS, x); a1.set_xlabel("segundos")
-a2.semilogx(f, 20*np.log10(X/np.max(X) + 1e-12))
-a2.set_xlim(20, 20000); a2.set_ylim(-100, 5); a2.set_xlabel("Hz"); a2.set_ylabel("dB")
+a2.semilogx(f, espectro_db)
+a2.set_xlim(20, 20000); a2.set_ylim(-160, 5); a2.set_xlabel("Hz"); a2.set_ylabel("dBFS")
 a2.grid(True, which="both", alpha=.3)
 plt.tight_layout(); plt.savefig(carpeta / "captura.png", dpi=120)
 
