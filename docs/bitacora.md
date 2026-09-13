@@ -237,3 +237,20 @@ Qué se decidió y por qué:
 - En vez de una recta ajusta razón² = a·f² + b. Con el ruido del ADC presente, la recta da una pendiente entre 0 y 20 que depende de cuánto domina cada uno; el ajuste separa las dos partes y da un jitter equivalente.
 - Tres veredictos y no dos: si el término que crece con f suma menos de 1 dB en el tono más agudo, lo que se puede afirmar es que no hay efecto detectable, no que no hay jitter.
 - Capacidad nueva, mutación nueva, como costumbre: 4 mutaciones atacan la pendiente, el término de ruido de fondo, la corrección por ancho de banda y el ancho fijo de la banda. La regla quedó escrita en el README.
+
+## Fase 14: un solo dominio de reloj para el audio (2026-09-13)
+
+Qué se midió: nada en hardware. Se revisaron las hojas del PCM5102A (SLAS859C), del PCM1808 y del RP2040, y páginas de la comunidad sobre el módulo del PCM5102A.
+
+Condiciones: PCM1808 en modo maestro a 256 fS, con fS de 48 kHz.
+
+Resultado: el PCM5102A puede trabajar con el BCK y el LRCK del PCM1808 en modo de 3 hilos, con SCK a tierra y su PLL generando el reloj desde BCK. 64 BCK por trama a 48 kHz está en la tabla 11 de su hoja y el formato I2S de 24 bits es compatible. Queda una duda: el historial de revisiones dice que en la revisión A se quitó 48 kHz con reloj de la PLL, aunque la revisión C lo lista.
+
+Qué se decidió y por qué:
+
+- El PCM5102A usa el BCK y el LRCK del PCM1808, con SCK a tierra. La parte de audio queda en un solo dominio de reloj y el Pico es esclavo por los dos lados.
+- Modo de 3 hilos y no de 4, para no llevar 12.288 MHz hasta el DAC. El de 4 hilos, con SCKI también en el SCK del DAC, sigue siendo un solo dominio y queda como opción.
+- Configuración: MD1 y MD0 del PCM1808 en alto y FMT en bajo; en el PCM5102A, FMT, FLT y DEMP en bajo y XSMT en alto. En el módulo, puentes 1L, 2L, 3H y 4L y SCK a GND, a confirmar con multímetro porque vienen de fuentes de la comunidad.
+- GPIO16 a GPIO19 del Pico para BCK, LRCK, DOUT y DIN, como propuesta.
+
+Detalle y diagrama de conexiones en docs/dominio-de-reloj.md.
