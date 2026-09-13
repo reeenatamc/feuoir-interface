@@ -139,7 +139,19 @@ ls /dev/cu.usbmodem*
 screen /dev/cu.usbmodemXXXX
 ```
 
-Para guardar el resultado con sus condiciones, un informe completo, de inicio_informe a fin_informe, va a mediciones/<fecha>-verificacion-reloj/ junto con cómo estaban los puentes. Compilado en build-externo, espera GPOUT0 apagado y mide en GPIO20 la salida del oscilador externo.
+Compilado en build-externo, espera GPOUT0 apagado y mide en GPIO20 la salida del oscilador externo.
+
+El informe no se copia a mano. leer_verificacion.py lee el puerto, espera un informe completo y lo guarda con sus condiciones en mediciones/<fecha>-<etiqueta>/, igual que medir.py. --puentes es obligatorio, porque el firmware no puede saber cómo están los puentes:
+
+```
+.venv/bin/python leer_verificacion.py gpout0-puente --puentes "GPIO21 puenteado a GPIO20"
+```
+
+Guarda informe.txt, con las líneas tal como llegaron, y condiciones.json, con fecha, puerto, puentes, notas, modo del firmware y cada chequeo con su valor, lo esperado y el resultado. Termina con código 1 si el informe trae fallas o si no llega uno completo en 10 s. Sin placa se prueba con un pseudo terminal que hace de puerto:
+
+```
+.venv/bin/python tests/lectura_sin_placa.py
+```
 
 La parte que decodifica los registros y arma el informe (firmware/informe.c) no toca hardware y se prueba en la Mac:
 

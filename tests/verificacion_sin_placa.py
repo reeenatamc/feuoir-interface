@@ -16,19 +16,23 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 
 
-def main():
+def compilar_informe(carpeta):
+    """Compila informe.c con los casos de prueba en carpeta y devuelve la ruta del ejecutable."""
     cc = shutil.which("cc")
     if not cc:
         sys.exit("FALLA  no hay compilador de C (cc) en el PATH")
+    ejecutable = Path(carpeta) / "informe_prueba"
+    r = subprocess.run([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(RAIZ / "firmware"),
+                        str(RAIZ / "tests" / "informe_prueba.c"), str(RAIZ / "firmware" / "informe.c"),
+                        "-o", str(ejecutable)], capture_output=True, text=True)
+    if r.returncode:
+        sys.exit(f"FALLA  informe.c no compila en la Mac:\n{r.stderr}")
+    return ejecutable
+
+
+def main():
     with tempfile.TemporaryDirectory(prefix="informe-") as tmp:
-        ejecutable = Path(tmp) / "informe_prueba"
-        r = subprocess.run([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(RAIZ / "firmware"),
-                            str(RAIZ / "tests" / "informe_prueba.c"), str(RAIZ / "firmware" / "informe.c"),
-                            "-o", str(ejecutable)], capture_output=True, text=True)
-        if r.returncode:
-            print(f"FALLA  informe.c no compila en la Mac:\n{r.stderr}", file=sys.stderr)
-            sys.exit(1)
-        r = subprocess.run([str(ejecutable)], capture_output=True, text=True)
+        r = subprocess.run([str(compilar_informe(tmp))], capture_output=True, text=True)
         print(r.stdout, end="")
         if r.returncode:
             print("\nFALLA  la parte del firmware que no toca hardware no pasa sus casos", file=sys.stderr)

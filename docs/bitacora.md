@@ -206,3 +206,18 @@ Qué se decidió y por qué:
 - La tolerancia es el doble de la exactitud del contador cuando la frecuencia sale del mismo cristal (PLL y GPOUT0), y 1000 ppm con el oscilador externo, que detecta una pieza equivocada sin juzgar su exactitud.
 - GPIO20 tiene pull-down para que sin puente lea cero y el informe diga que falta el puente, en vez de medir ruido.
 - Cada medición tiene un límite de 1 s, para que un contador que no termina no cuelgue el firmware.
+
+## Fase 12: lectura del informe de verificación (2026-09-13)
+
+Qué se midió: nada en hardware. Se probó leer_verificacion.py con un pseudo terminal en lugar del puerto USB.
+
+Condiciones: macOS 26.5.2 y Python 3.12.0, solo con la biblioteca estándar. Los informes de prueba salen de firmware/informe.c compilado en la Mac, así que tienen el formato real del firmware.
+
+Resultado: pasan los 13 casos de tests/lectura_sin_placa.py, con un informe sin fallas que llega después de la cola de otro, un informe con DC50 sin activar y un informe incompleto. No se probó con el puerto USB real.
+
+Qué se decidió y por qué:
+
+- El informe del firmware se guarda con un script y no copiándolo a mano: un dato que depende de que alguien se acuerde de copiarlo va contra la convención del proyecto.
+- --puentes es obligatorio. El firmware no puede saber cómo están los puentes, y sin ese dato el informe no se puede interpretar.
+- Si el puerto se abre a mitad de un informe, ese pedazo se descarta y se espera el siguiente inicio_informe.
+- Un informe con fallas igual se guarda, y el script termina con código 1.

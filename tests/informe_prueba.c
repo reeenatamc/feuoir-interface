@@ -51,7 +51,24 @@ static void comprobar(const char *nombre, lecturas_t l, int fallas_esperadas, co
     }
 }
 
-int main(void) {
+static void imprimir(const char *texto) {
+    printf("%s\n", texto);
+}
+
+int main(int argc, char **argv) {
+    // Con una opción imprime un informe con el formato del firmware, para tests/lectura_sin_placa.py.
+    if (argc > 1) {
+        lecturas_t l = en_orden();
+        if (strcmp(argv[1], "--imprimir-sin-dc50") == 0) {
+            l.gpout0_ctrl &= ~INF_GPOUT_CTRL_DC50;
+        } else if (strcmp(argv[1], "--imprimir") != 0) {
+            fprintf(stderr, "opción desconocida: %s\n", argv[1]);
+            return 2;
+        }
+        informe_escribir(&l, 7, imprimir);
+        return 0;
+    }
+
     comprobar("todo en orden", en_orden(), 0, (const char *[]){
         "inicio_informe=1 modo=gpout0",
         "pll_fbdiv=128 esperado=128 resultado=ok",
