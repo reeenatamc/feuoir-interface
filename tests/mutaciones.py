@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""Comprueba que calibrar.py sigue atrapando errores inyectados en analizador.py.
+"""Comprueba que las pruebas siguen atrapando errores inyectados en analizador.py y en la app.
 
     .venv/bin/python tests/mutaciones.py
 
 Copia analizador.py y calibrar.py a una carpeta temporal, inyecta un error a la vez y corre
-calibrar.py sobre esa copia. Cada error tiene que hacer fallar la calibración. Antes corre una
-copia sin cambios como control, que tiene que pasar: si el control falla, que fallen las copias
-con errores no demuestra nada.
+calibrar.py sobre esa copia. Cada error tiene que hacer fallar la calibración. Con la app de
+medición hace lo mismo: copia analizador.py, app/ y tests/app_sin_ventana.py, inyecta un error en
+app/ y corre esa prueba. Antes de cada tanda corre una copia sin cambios como control, que tiene
+que pasar: si el control falla, que fallen las copias con errores no demuestra nada.
 
-Cada mutación reemplaza un texto que tiene que aparecer exactamente una vez en analizador.py.
-Si alguien cambia analizador.py y un texto deja de aparecer, el script falla. Hay que actualizar
+Cada mutación reemplaza un texto que tiene que aparecer exactamente una vez en su archivo.
+Si alguien cambia el archivo y un texto deja de aparecer, el script falla. Hay que actualizar
 esa mutación para que siga inyectando el mismo error, no borrarla.
 
 Guarda el resultado con sus condiciones en calibraciones/<fecha>-mutaciones/resultados.json y
-termina con código 1 si algún error pasa sin detectarse, si falta un texto o si el control no pasa.
+termina con código 1 si algún error pasa sin detectarse, si falta un texto o si un control no pasa.
 """
 import argparse, hashlib, json, os, platform, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
@@ -67,6 +68,29 @@ MUTACIONES = [
      'sal["fase_rad"] - ent["fase_rad"]', 'ent["fase_rad"] - sal["fase_rad"]'),
 ]
 
+# Los archivos que necesita tests/app_sin_ventana.py para correr en una carpeta aparte
+ARCHIVOS_APP = ["analizador.py", "app/__init__.py", "app/procesado.py", "app/fuentes.py", "app/mediciones.py",
+                "app/servidor.py", "tests/app_sin_ventana.py"]
+
+# nombre, error que simula, archivo, texto original, texto que lo reemplaza
+MUTACIONES_APP = [
+    ("saturacion_con_muestras_salteadas", "detector de saturación que mira una muestra de cada dos",
+     "app/procesado.py", "pico = float(np.max(np.abs(x)))", "pico = float(np.max(np.abs(x[::2])))"),
+    ("pico_sin_sostener_entre_bloques", "pico del cuadro que se queda con el último bloque en vez del máximo",
+     "app/procesado.py", "self._pico_cuadro = max(self._pico_cuadro, pico)", "self._pico_cuadro = pico"),
+    ("espectro_reducido_con_minimo", "reducción del espectro que se queda con el mínimo de cada tramo",
+     "app/procesado.py", "np.maximum.reduceat(", "np.minimum.reduceat("),
+    ("espectro_en_vivo_con_hann", "espectro en vivo con Hann, que baja el pico de un tono que cae entre bins",
+     "app/procesado.py", 'VENTANA_ESPECTRO = "flattop"', 'VENTANA_ESPECTRO = "hann"'),
+    ("fuente_sintetica_nivel_en_potencia", "nivel de la fuente sintética con 10**(dB/10) en vez de 10**(dB/20)",
+     "app/fuentes.py", 'a = 10**(s["nivel_dbfs"]/20)', 'a = 10**(s["nivel_dbfs"]/10)'),
+    ("medicion_marcada_tarde", "medición en curso marcada recién cuando arranca su tarea",
+     "app/servidor.py", '        motor.midiendo = pedido["medicion"]\n', ""),
+    ("cuadros_esperando_a_cada_conexion", "emisor que espera a que cada conexión reciba el cuadro: una lenta frena a todas",
+     "app/servidor.py", '            for cliente in list(app["clientes"]):\n                cliente.mandar_cuadro(texto)\n',
+     '            await asyncio.gather(*(cliente.ws.send_str(texto) for cliente in list(app["clientes"])))\n'),
+]
+
 
 def sha256(texto):
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()
@@ -82,6 +106,21 @@ def correr_calibracion(carpeta, analizador, calibrar, python, limite_s):
         return {"codigo_salida": None, "tiempo_agotado": True, "pruebas_que_fallan": []}
     fallan = [linea.split()[1] for linea in r.stderr.splitlines()
               if linea.startswith(("FALLA ", "ERROR ")) and len(linea.split()) > 1]
+    return {"codigo_salida": r.returncode, "tiempo_agotado": False, "pruebas_que_fallan": fallan}
+
+
+def correr_app(carpeta, archivos, python, limite_s):
+    carpeta.mkdir()
+    for relativa, texto in archivos.items():
+        (carpeta / relativa).parent.mkdir(parents=True, exist_ok=True)
+        (carpeta / relativa).write_text(texto, encoding="utf-8")
+    try:
+        r = subprocess.run([python, "tests/app_sin_ventana.py"], cwd=carpeta, capture_output=True, text=True,
+                           timeout=limite_s)
+    except subprocess.TimeoutExpired:
+        return {"codigo_salida": None, "tiempo_agotado": True, "pruebas_que_fallan": []}
+    fallan = [linea[len("FALLA "):].split("  (")[0].strip() for linea in r.stdout.splitlines()
+              if linea.startswith("FALLA ")]
     return {"codigo_salida": r.returncode, "tiempo_agotado": False, "pruebas_que_fallan": fallan}
 
 
@@ -102,22 +141,38 @@ def carpeta_nueva(ahora):
     return carpeta
 
 
+def registrar(resultados, nombre, descripcion, archivo, prueba, original, reemplazo, r):
+    detectada = r["codigo_salida"] != 0
+    resultados.append({"mutacion": nombre, "error_simulado": descripcion, "archivo": archivo, "prueba": prueba,
+                       "texto_original": original, "reemplazo": reemplazo, **r, "detectada": detectada})
+    if detectada:
+        motivo = "; ".join(r["pruebas_que_fallan"]) or "tiempo agotado"
+        print(f"ok     {nombre}: la atrapa {motivo}")
+    else:
+        print(f"SOBREVIVE  {nombre}: {prueba} pasó con el error inyectado ({descripcion})", file=sys.stderr)
+
+
 def main():
-    p = argparse.ArgumentParser(description="Comprueba que calibrar.py atrapa errores inyectados en analizador.py")
+    p = argparse.ArgumentParser(description="Comprueba que las pruebas atrapan errores inyectados en analizador.py y en la app")
     p.add_argument("--trabajos", type=int, default=3,
-                   help="calibraciones corriendo a la vez; por defecto 3 para no llenar la memoria")
-    p.add_argument("--limite-s", type=float, default=900, help="tiempo máximo de cada calibración, en segundos")
+                   help="pruebas corriendo a la vez; por defecto 3 para no llenar la memoria")
+    p.add_argument("--limite-s", type=float, default=900, help="tiempo máximo de cada prueba, en segundos")
     args = p.parse_args()
 
     ahora = datetime.now().astimezone()
     python = str(PYTHON_VENV) if PYTHON_VENV.exists() else sys.executable
     analizador = (RAIZ / "analizador.py").read_text(encoding="utf-8")
     calibrar = (RAIZ / "calibrar.py").read_text(encoding="utf-8")
+    app = {relativa: (RAIZ / relativa).read_text(encoding="utf-8") for relativa in ARCHIVOS_APP}
+    total = len(MUTACIONES) + len(MUTACIONES_APP)
 
+    archivo_de = {nombre: "analizador.py" for nombre, *_ in MUTACIONES}
+    archivo_de.update({nombre: archivo for nombre, _, archivo, _, _ in MUTACIONES_APP})
     apariciones = {nombre: analizador.count(original) for nombre, _, original, _ in MUTACIONES}
+    apariciones.update({nombre: app[archivo].count(original) for nombre, _, archivo, original, _ in MUTACIONES_APP})
     faltan = [nombre for nombre, veces in apariciones.items() if veces != 1]
     for nombre in faltan:
-        print(f"FALTA  {nombre}: el texto a reemplazar aparece {apariciones[nombre]} veces en analizador.py "
+        print(f"FALTA  {nombre}: el texto a reemplazar aparece {apariciones[nombre]} veces en {archivo_de[nombre]} "
               "y tiene que aparecer una sola", file=sys.stderr)
 
     resultados = []
@@ -133,34 +188,43 @@ def main():
                                      calibrar, python, args.limite_s)
                            for nombre, _, original, reemplazo in aplicables]
                 for (nombre, descripcion, original, reemplazo), futuro in zip(aplicables, futuros):
-                    r = futuro.result()
-                    detectada = r["codigo_salida"] != 0
-                    resultados.append({"mutacion": nombre, "error_simulado": descripcion,
-                                       "texto_original": original, "reemplazo": reemplazo,
-                                       **r, "detectada": detectada})
-                    if detectada:
-                        motivo = ", ".join(r["pruebas_que_fallan"]) or "tiempo agotado"
-                        print(f"ok     {nombre}: la atrapa {motivo}")
-                    else:
-                        print(f"SOBREVIVE  {nombre}: calibrar.py pasó con el error inyectado ({descripcion})",
-                              file=sys.stderr)
+                    registrar(resultados, nombre, descripcion, "analizador.py", "calibrar.py", original, reemplazo,
+                              futuro.result())
         else:
             print(f"FALLA  control: calibrar.py no pasa con analizador.py sin cambios "
-                  f"(código {control['codigo_salida']}); no se corren las mutaciones", file=sys.stderr)
+                  f"(código {control['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
+
+        control_app = correr_app(tmp / "control-app", app, python, args.limite_s)
+        control_app_pasa = control_app["codigo_salida"] == 0
+        if control_app_pasa:
+            print("ok     control: tests/app_sin_ventana.py pasa con app/ sin cambios")
+            aplicables = [m for m in MUTACIONES_APP if apariciones[m[0]] == 1]
+            with ThreadPoolExecutor(max_workers=args.trabajos) as ex:
+                futuros = [ex.submit(correr_app, tmp / nombre, {**app, archivo: app[archivo].replace(original, reemplazo)},
+                                     python, args.limite_s)
+                           for nombre, _, archivo, original, reemplazo in aplicables]
+                for (nombre, descripcion, archivo, original, reemplazo), futuro in zip(aplicables, futuros):
+                    registrar(resultados, nombre, descripcion, archivo, "tests/app_sin_ventana.py", original, reemplazo,
+                              futuro.result())
+        else:
+            print(f"FALLA  control: tests/app_sin_ventana.py no pasa con app/ sin cambios "
+                  f"(código {control_app['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
 
     sobreviven = [r["mutacion"] for r in resultados if not r["detectada"]]
     informe = {
         "fecha_hora": ahora.isoformat(timespec="seconds"),
         "analizador_sha256": sha256(analizador),
         "calibrar_sha256": sha256(calibrar),
-        "python_de_las_calibraciones": python,
+        "app_sha256": {relativa: sha256(texto) for relativa, texto in app.items()},
+        "python_de_las_pruebas": python,
         "versiones": versiones(python),
         "plataforma": platform.platform(),
         "condiciones": {"trabajos": args.trabajos, "limite_s": args.limite_s},
         "control": {**control, "pasa": control_pasa},
+        "control_app": {**control_app, "pasa": control_app_pasa},
         "textos_no_encontrados": {nombre: apariciones[nombre] for nombre in faltan},
         "resumen": {
-            "mutaciones": len(MUTACIONES),
+            "mutaciones": total,
             "corridas": len(resultados),
             "detectadas": sum(r["detectada"] for r in resultados),
             "sobreviven": sobreviven,
@@ -171,10 +235,10 @@ def main():
     ruta = carpeta / "resultados.json"
     ruta.write_text(json.dumps(informe, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    if faltan or sobreviven or not control_pasa or len(resultados) != len(MUTACIONES):
+    if faltan or sobreviven or not control_pasa or not control_app_pasa or len(resultados) != total:
         print(f"\nMUTACIONES FALLIDAS. Detalle en {os.path.relpath(ruta)}", file=sys.stderr)
         sys.exit(1)
-    print(f"\nLas {len(MUTACIONES)} mutaciones hicieron fallar la calibración. Guardado en {os.path.relpath(ruta)}")
+    print(f"\nLas {total} mutaciones hicieron fallar sus pruebas. Guardado en {os.path.relpath(ruta)}")
 
 
 if __name__ == "__main__":
