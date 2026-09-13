@@ -134,3 +134,12 @@ Qué se decidió y por qué:
 - Corre primero una copia sin cambios como control. Si el control fallara, que fallen las copias con errores no demostraría nada. La corrida suelta de la fase 1 no tenía control.
 - Cada mutación reemplaza un texto que tiene que aparecer exactamente una vez en analizador.py. Si un cambio lo hace desaparecer, el script falla en vez de saltarse esa mutación en silencio, y hay que actualizarla.
 - Tres calibraciones en paralelo por defecto, para no llenar la memoria de la Mac.
+
+## 2026-09-13: el espectro de captura.png cambió de escala
+
+Desde el commit e32c257 (Extrae el análisis a analizador.py), el espectro de captura.png está en dBFS absolutos. Antes estaba en dB relativos a su propio máximo. Las gráficas de antes y de después no se pueden comparar entre sí.
+
+- Antes: 0 dB era el pico más alto de cada espectro, así que cada gráfica tenía su propia referencia. El eje vertical decía dB e iba de -100 a 5.
+- Después: 0 dBFS es el fondo de escala del conversor, la misma referencia para todas las capturas. El eje vertical dice dBFS y va de -160 a 5.
+
+Para saber de qué lado está una gráfica alcanza con mirar el rótulo del eje vertical. Los valores pico_dbfs y rms_dbfs de condiciones.json no cambiaron: la fórmula es la misma, y en 300 capturas simuladas dieron idénticos a dos decimales con el código de antes y con el de después.
