@@ -265,6 +265,54 @@ def test_thd_n_banda_angosta():
               20*np.log10(np.sqrt(2*lateral**2 + 2*fuera**2)/A), 1e-3, "dB", banda_hz=[20, 20000], **c)
 
 
+# Prueba de jitter
+
+def tonos_con_jitter(fs, duracion_s, jitter_rms, ruido_rms, semilla):
+    """Una captura por tono de FRECUENCIAS_PRUEBA_JITTER a -1 dBFS, con jitter blanco y ruido aditivo.
+
+    ruido_rms puede ser un número o una función de la frecuencia del tono.
+    """
+    rng = np.random.default_rng(semilla)
+    n = int(fs*duracion_s)
+    t = np.arange(n) / fs
+    tonos = []
+    for f in an.FRECUENCIAS_PRUEBA_JITTER:
+        tau = rng.normal(0.0, jitter_rms, n)
+        ruido = ruido_rms(f) if callable(ruido_rms) else ruido_rms
+        tonos.append((f, 10**(-1/20)*np.sin(2*np.pi*f*(t + tau)) + rng.normal(0.0, ruido, n)))
+    return tonos
+
+
+def test_prueba_jitter():
+    fs, duracion = 48000, 2.0
+    c0 = dict(fs_hz=fs, duracion_tono_s=duracion, amplitud_dbfs=-1.0, media_banda_hz=400,
+              frecuencias_hz=list(an.FRECUENCIAS_PRUEBA_JITTER))
+
+    # Solo jitter blanco de 1 ns: 20 dB por década y el jitter de vuelta.
+    r = an.prueba_jitter(tonos_con_jitter(fs, duracion, 1e-9, 0.0, 101), fs)
+    c = dict(c0, jitter_rms_s=1e-9, ruido_rms=0.0, semilla=101, veredicto=r["veredicto"])
+    verificar("pendiente_solo_jitter", r["pendiente_db_por_decada"], 20.0, 0.3, "dB/década", **c)
+    verificar("veredicto_solo_jitter_es_compatible", r["veredicto"] == "compatible_con_jitter", 1, 0, "", **c)
+    verificar("jitter_equivalente_solo_jitter", r["jitter_rms_equivalente_s"]*1e9, 1.0, 0.05, "ns", **c)
+
+    # Solo ruido blanco, sin jitter: la pendiente queda cerca de 0 y no hay efecto que atribuir.
+    r = an.prueba_jitter(tonos_con_jitter(fs, duracion, 0.0, 1e-5, 102), fs)
+    c = dict(c0, jitter_rms_s=0.0, ruido_rms=1e-5, semilla=102, veredicto=r["veredicto"])
+    verificar("pendiente_solo_ruido", r["pendiente_db_por_decada"], 0.0, 1.0, "dB/década", **c)
+    verificar("veredicto_solo_ruido_es_sin_efecto", r["veredicto"] == "sin_efecto_detectable", 1, 0, "", **c)
+
+    # Ruido y 1 ns de jitter: el ruido domina en los tonos graves y el jitter en los agudos.
+    r = an.prueba_jitter(tonos_con_jitter(fs, duracion, 1e-9, 1e-5, 103), fs)
+    c = dict(c0, jitter_rms_s=1e-9, ruido_rms=1e-5, semilla=103, veredicto=r["veredicto"])
+    verificar("veredicto_ruido_y_jitter_es_compatible", r["veredicto"] == "compatible_con_jitter", 1, 0, "", **c)
+    verificar("jitter_equivalente_ruido_y_jitter", r["jitter_rms_equivalente_s"]*1e9, 1.0, 0.1, "ns", **c)
+
+    # Ruido que crece 40 dB por década, sin jitter: crece con la frecuencia pero no como el jitter.
+    r = an.prueba_jitter(tonos_con_jitter(fs, duracion, 0.0, lambda f: 2e-6*(f/1000)**2, 104), fs)
+    c = dict(c0, jitter_rms_s=0.0, ruido_rms="2e-6*(f/1000)**2", semilla=104, veredicto=r["veredicto"])
+    verificar("veredicto_ruido_40_db_por_decada_no_es_jitter", r["veredicto"] == "no_compatible", 1, 0, "", **c)
+
+
 PRUEBAS = [
     test_seno_pico_rms,
     test_ruido_blanco_rms,
@@ -274,6 +322,7 @@ PRUEBAS = [
     test_thd_n_armonico_1pc,
     test_thd_n_con_ruido,
     test_thd_n_banda_angosta,
+    test_prueba_jitter,
     test_snr,
     test_generador_tono,
     test_generador_barrido_log,

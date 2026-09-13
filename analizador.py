@@ -6,7 +6,7 @@ senoidal a fondo de escala tiene pico 0 dBFS y RMS -3.01 dBFS.
 Cada función está verificada contra señales sintéticas en calibrar.py.
 """
 import numpy as np
-from scipy import signal
+from scipy import optimize, signal
 
 EPS = 1e-12   # evita log10(0) en capturas en silencio
 
@@ -217,3 +217,60 @@ def respuesta_en_frecuencia(salida, fs, segmentos, entrada=None, descarte=0.2):
             fila["fase_grados"] = float((fase + 180) % 360 - 180)
         filas.append(fila)
     return filas
+
+
+# Prueba de jitter
+
+FRECUENCIAS_PRUEBA_JITTER = (1000.0, 1468.0, 2154.0, 3162.0, 4642.0, 6813.0, 10000.0)   # 7 tonos de 1 a 10 kHz
+
+
+def prueba_jitter(tonos, fs, media_banda_hz=400.0, umbral_db=1.0, tolerancia_db=1.0):
+    """Prueba de pendiente: decide si el ruido cerca de un tono crece con su frecuencia como el del jitter.
+
+    tonos es una lista de pares (frecuencia_hz, captura), una captura por tono y todos al mismo nivel;
+    FRECUENCIAS_PRUEBA_JITTER son los tonos de 1 a 10 kHz. Para cada tono mide thd_n en una banda de
+    ancho fijo centrada en él, de f - media_banda_hz a f + media_banda_hz, que deja afuera los
+    armónicos y mantiene constante el ruido de fondo que entra. El jitter mete un ruido que crece con
+    f² en potencia, 20 dB por década; el ruido propio del ADC no depende del tono. Por eso ajusta
+    razón² = a*f² + b con a y b no negativos.
+
+    veredicto:
+      compatible_con_jitter   el ajuste queda dentro de tolerancia_db y a*f² suma al menos
+                              umbral_db en el tono más agudo
+      sin_efecto_detectable   el ajuste queda dentro de tolerancia_db y a*f² suma menos que eso
+      no_compatible           los puntos no siguen a*f² + b
+
+    Devuelve también la pendiente de la recta de thd_n en dB contra log10(f), en dB por década, y el
+    jitter RMS equivalente suponiendo jitter blanco, repartido de 0 a fs/2.
+    """
+    f = np.array([float(fr) for fr, _ in tonos])
+    thd_db = np.array([thd_n(x, fs, f0=fr, banda=(fr - media_banda_hz, fr + media_banda_hz))["db"]
+                       for fr, x in tonos])
+    pendiente = float(np.polyfit(np.log10(f), thd_db, 1)[0])
+
+    r2 = 10**(thd_db/10)
+    fe = f / np.max(f)                                   # escala para que el ajuste esté bien condicionado
+    A = np.column_stack([fe**2, np.ones_like(fe)]) / r2[:, None]   # error relativo en cada punto
+    (a_escalado, b), _ = optimize.nnls(A, np.ones_like(fe))
+    a = a_escalado / np.max(f)**2
+    residuo_max_db = float(np.max(np.abs(thd_db - 10*np.log10(a*f**2 + b + EPS**2))))
+    aporte_db = float(10*np.log10((a*np.max(f)**2 + b + EPS**2) / (b + EPS**2)))
+    fraccion = 2*media_banda_hz / (fs/2)
+
+    if residuo_max_db > tolerancia_db:
+        veredicto = "no_compatible"
+    elif aporte_db >= umbral_db:
+        veredicto = "compatible_con_jitter"
+    else:
+        veredicto = "sin_efecto_detectable"
+    return {
+        "frecuencias_hz": f.tolist(),
+        "thd_n_db": thd_db.tolist(),
+        "pendiente_db_por_decada": pendiente,
+        "coeficiente_f2": float(a),
+        "piso": float(b),
+        "residuo_max_db": residuo_max_db,
+        "aporte_jitter_db": aporte_db,
+        "jitter_rms_equivalente_s": float(np.sqrt(a/fraccion) / (2*np.pi)),
+        "veredicto": veredicto,
+    }

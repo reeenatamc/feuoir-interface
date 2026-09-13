@@ -221,3 +221,19 @@ Qué se decidió y por qué:
 - --puentes es obligatorio. El firmware no puede saber cómo están los puentes, y sin ese dato el informe no se puede interpretar.
 - Si el puerto se abre a mitad de un informe, ese pedazo se descarta y se espera el siguiente inicio_informe.
 - Un informe con fallas igual se guarda, y el script termina con código 1.
+
+## Fase 13: prueba de jitter por pendiente (2026-09-13)
+
+Qué se midió: la prueba de pendiente de analizador.py contra capturas sintéticas con jitter conocido, armadas con numpy en calibrar.py.
+
+Condiciones: 7 tonos de 1 a 10 kHz a -1 dBFS, 2 s por tono, fS de 48 kHz y banda de ±400 Hz alrededor de cada tono. Cuatro casos: solo jitter blanco de 1 ns, solo ruido blanco de 1e-5 RMS, ruido con 1 ns de jitter, y ruido que crece 40 dB por década sin jitter. Semillas fijas.
+
+Resultado: calibraciones/2026-09-13-calibracion-4 pasa las 13 pruebas con 180 chequeos. Con solo jitter, pendiente de 19.88 dB por década, jitter equivalente de 1.002 ns y compatible_con_jitter. Con solo ruido, pendiente de -0.12 dB por década y sin_efecto_detectable. Con ruido y jitter, 1.004 ns y compatible_con_jitter. Con el ruido de 40 dB por década, no_compatible. tests/mutaciones.py detecta las 20 mutaciones, y las 4 nuevas las atrapa test_prueba_jitter (calibraciones/2026-09-13-mutaciones-3).
+
+Qué se decidió y por qué:
+
+- La pendiente de 20 dB por década pasa a ser un procedimiento con nombre, analizador.prueba_jitter. Es la prueba que se va a correr para comparar GPOUT0 contra el oscilador externo.
+- Mide en una banda de ancho fijo alrededor de cada tono y no en toda la banda de audio. Así deja afuera los armónicos, que en los tonos agudos saldrían de la banda y bajarían el THD+N justo donde el jitter lo sube, y el ruido de fondo que entra es el mismo en todos los tonos.
+- En vez de una recta ajusta razón² = a·f² + b. Con el ruido del ADC presente, la recta da una pendiente entre 0 y 20 que depende de cuánto domina cada uno; el ajuste separa las dos partes y da un jitter equivalente.
+- Tres veredictos y no dos: si el término que crece con f suma menos de 1 dB en el tono más agudo, lo que se puede afirmar es que no hay efecto detectable, no que no hay jitter.
+- Capacidad nueva, mutación nueva, como costumbre: 4 mutaciones atacan la pendiente, el término de ruido de fondo, la corrección por ancho de banda y el ancho fijo de la banda. La regla quedó escrita en el README.

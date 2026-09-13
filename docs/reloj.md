@@ -128,7 +128,7 @@ La firma del jitter es que su efecto crece 20 dB por década con la frecuencia d
 
 Procedimiento, cuando funcione la captura por el Pico, en la misma sesión y cambiando solo el jumper:
 
-- thd_n con tonos de 1 kHz y de 10 kHz al mismo nivel. Si empeora el agudo y no el de 1 kHz, hay ruido que depende de la frecuencia del tono.
+- analizador.prueba_jitter, con una captura por cada tono de FRECUENCIAS_PRUEBA_JITTER (7 tonos de 1 a 10 kHz al mismo nivel), en cada posición del jumper. Mide THD+N en una banda de ±400 Hz alrededor de cada tono, ajusta razón² = a·f² + b y responde compatible_con_jitter, sin_efecto_detectable o no_compatible, con la pendiente en dB por década y el jitter RMS equivalente. Entre GPOUT0 y el oscilador externo se comparan ese veredicto y ese jitter equivalente. Está validada en calibrar.py contra capturas con jitter conocido.
 - snr_db con la entrada sin señal. Tiene que dar lo mismo en las dos posiciones del jumper; si cambia, lo que cambió no es jitter.
 - thd_n en una banda angosta alrededor del tono, por ejemplo f ± 200 Hz, para medir las faldas: en la simulación da -84.0 dB con jitter lento contra -114.9 dB sin él. calibrar.py verifica esta medición en test_thd_n_banda_angosta.
 - espectro para ver la forma, con cuidado cerca del tono. Si el tono no cae justo en un bin, la fuga de la ventana Hann tapa lo que está a menos de unos 20 Hz: con 10000.37 Hz, la zona de 2 a 20 Hz da -93 dBc con y sin jitter, mientras thd_n en banda angosta sigue viendo la diferencia (-84.1 contra -115.0 dB). Con un tono de la tarjeta USB muestreado por el reloj del Pico, en la práctica el tono no va a caer justo en un bin.

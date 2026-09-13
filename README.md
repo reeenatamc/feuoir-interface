@@ -48,6 +48,7 @@ El análisis y las señales de prueba. medir.py lo importa y calibrar.py lo veri
 - thd_n: THD+N relativo a la fundamental, limitado por defecto a la banda de 20 Hz a 20 kHz. Un armónico con el 1 % de la amplitud de la fundamental da 1.000 %.
 - snr_db: relación señal a ruido con dos capturas, una con el tono de prueba en la entrada y otra sin señal.
 - respuesta_en_frecuencia: nivel, ganancia y fase de cada tono de un barrido escalonado, relativos a la captura de entrada del circuito.
+- prueba_jitter: con una captura por tono de 1 a 10 kHz, mide THD+N en una banda fija alrededor de cada tono, ajusta cuánto crece con la frecuencia y responde si el patrón es compatible con jitter. Da también la pendiente en dB por década y un jitter RMS equivalente.
 - tono, barrido_log, frecuencias_log y barrido_escalonado: señales para excitar el circuito cuando exista.
 
 ## calibrar.py
@@ -57,6 +58,7 @@ Antes de confiar en lo que mide medir.py hay que saber que el análisis está bi
 - senoidal de amplitud A: pico 20·log10(A) y RMS 20·log10(A/√2), también con el pico en la excursión negativa
 - senoidal con un armónico al 1 %: THD+N de 1.000 %
 - THD+N en una banda angosta alrededor del tono: ve las bandas laterales cercanas y deja afuera lo que está lejos, que es como se mide el ruido cerca de un tono
+- prueba de jitter con capturas de jitter conocido: solo jitter de 1 ns (20 dB por década y el jitter de vuelta), solo ruido (sin efecto), ruido con jitter (compatible) y ruido que crece 40 dB por década (no compatible)
 - ruido blanco gaussiano y uniforme de varianza conocida: RMS
 - dos tonos separados 2 Hz: un solo pico con 0.1 s de captura (resolución de 10 Hz) y dos picos con 2 s (resolución de 0.5 Hz)
 - ajuste de senoidal, SNR, THD+N con ruido, generadores de tono y barrido, y respuesta en frecuencia de un filtro Butterworth cuya respuesta exacta se conoce
@@ -67,11 +69,11 @@ Antes de confiar en lo que mide medir.py hay que saber que el análisis está bi
 
 Cada corrida guarda en calibraciones/<fecha>-calibracion/resultados.json todos los chequeos con sus condiciones, lo esperado, lo obtenido y la tolerancia, junto con las versiones de Python, numpy y scipy y el sha256 de analizador.py. Si un chequeo se sale de tolerancia, el script lo muestra y termina con código 1. Las funciones test_ también corren con pytest.
 
-Ninguna función entra a analizador.py sin su prueba en calibrar.py.
+Ninguna función entra a analizador.py sin su prueba en calibrar.py, y cada capacidad nueva entra además con al menos una mutación en tests/mutaciones.py que la ataque específicamente.
 
 ### Errores inyectados
 
-tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia analizador.py a una carpeta temporal, le inyecta 16 errores, uno a la vez (RMS sin raíz, pico sin valor absoluto, fase con el signo invertido, entre otros), y corre calibrar.py sobre cada copia: todas tienen que fallar. Antes corre una copia sin cambios como control, que tiene que pasar.
+tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia analizador.py a una carpeta temporal, le inyecta 20 errores, uno a la vez (RMS sin raíz, pico sin valor absoluto, fase con el signo invertido, entre otros), y corre calibrar.py sobre cada copia: todas tienen que fallar. Antes corre una copia sin cambios como control, que tiene que pasar.
 
 ```
 .venv/bin/python tests/mutaciones.py
