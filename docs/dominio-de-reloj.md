@@ -13,22 +13,48 @@ Sí. La hoja del PCM5102A (SLAS859C) lo prevé como modo de 3 hilos, con estas c
 - El mismo formato. FMT del PCM1808 en bajo es I2S de 24 bits (tabla 3 de su hoja). FMT del PCM5102A en bajo es I2S, y acepta datos de 16, 20, 24 y 32 bits (tabla 2 y sección 9.3.2.2).
 - Niveles compatibles. Las salidas del PCM1808 dan al menos 2.8 V en alto y como mucho 0.5 V en bajo, con 4 mA. Las entradas del PCM5102A con DVDD de 3.3 V piden al menos 2.31 V en alto y como mucho 0.99 V en bajo, 0.7 y 0.3 veces DVDD (sección 8.5).
 
-Queda una duda para confirmar en el banco. El historial de revisiones de la hoja dice "Removed 48kHz sample rate with PLL-generated clock", un cambio de la versión original a la revisión A, y sin embargo la revisión vigente, la C, lista 48 kHz en la tabla 11 del modo PLL. Se toma la tabla, pero si el DAC no suena o se corta en modo de 3 hilos a 48 kHz, esa nota es lo primero que hay que revisar.
+El historial de revisiones de la hoja dice "Removed 48kHz sample rate with PLL-generated clock", un cambio de la versión original a la revisión A, y sin embargo la revisión vigente, la C, lista 48 kHz en la tabla 11 del modo PLL. Esa duda no se resuelve leyendo sino por diseño: el SCK del PCM5102A tiene su propio jumper y puede recibir el mismo reloj maestro que el ADC.
+
+## Dos configuraciones del DAC con un jumper
+
+El nodo de SCKI, que es la salida del jumper que elige entre GPOUT0 y el oscilador externo, llega también al SCK del PCM5102A a través de un jumper de 3 pines:
+
+- SCK a GND: modo de 3 hilos. El DAC usa su PLL a partir de BCK.
+- SCK en el nodo de SCKI: modo de 4 hilos. El DAC usa el mismo reloj maestro que el ADC.
+
+Con cualquiera de las dos posiciones el audio queda en un solo dominio de reloj. La de 4 hilos sigue siendo sincrónica porque BCK y LRCK salen de SCKI, y la hoja solo pide que LRCK y el reloj del sistema estén sincronizados, sin una fase fija (sección 9.3.2.1). Lo que cambia es de dónde saca el DAC su reloj interno: de su PLL o directo de SCKI.
+
+Por qué SCK aguanta ese reloj:
+
+- La tabla 10 acepta 12.288 MHz, 256 fS, a 48 kHz.
+- La sección 8.6 pide un ciclo de 20 a 1000 ns y pulsos alto y bajo de al menos 9 ns con DVDD de 3.3 V. 12.288 MHz son 81.4 ns de ciclo; con DC50 cada pulso dura unos 40.7 ns, y sin DC50, en el peor caso de 40 %, 32.6 ns.
+- La PLL se apaga en cuanto aparece un SCK externo (sección 9.3.5.3), así que el jumper decide el modo sin tocar nada más.
+
+Condiciones:
+
+- El jumper de SCK se cambia con la placa sin alimentación, igual que el de SCKI.
+- En el módulo del PCM5102A, el puente de soldadura que lleva SCK a GND queda abierto. Si estuviera cerrado, la posición de 4 hilos pondría la salida del reloj maestro en cortocircuito a tierra. La conexión a GND la hace el jumper.
+- El nodo de SCKI ahora llega a dos entradas: las pistas de SCKI hasta los dos integrados, lo más cortas posible.
+
+Para el primer encendido del DAC conviene la posición de 4 hilos, que no depende de la nota del historial de revisiones. La de 3 hilos queda para probar la PLL después y, si interesa, comparar el jitter de la salida entre las dos.
 
 ## Qué implica
 
-- Un solo dominio de reloj. Los dos convertidores trabajan con el LRCK del PCM1808, así que captura y reproducción van exactamente a la misma fS, salga SCKI de GPOUT0 o del oscilador externo. Del lado USB queda un solo reloj que seguir.
+- Captura y reproducción van exactamente a la misma fS, salga SCKI de GPOUT0 o del oscilador externo. Del lado USB queda un solo reloj que seguir (docs/audio-usb.md).
 - El Pico es esclavo por los dos lados: recibe BCK y LRCK, lee DOUT del PCM1808 y escribe DIN del PCM5102A.
-- El jumper de SCKI cambia el reloj de los dos convertidores a la vez, porque el BCK que usa el DAC sale de SCKI.
-- Alternativa, también de un solo dominio: llevar SCKI también al SCK del PCM5102A, en modo de 4 hilos. La tabla 10 acepta 12.288 MHz (256 fS) a 48 kHz, y la hoja pide que LRCK y el reloj del sistema estén sincronizados sin una fase fija (sección 9.3.2.1), cosa que se cumple porque BCK y LRCK salen de SCKI. La diferencia es de dónde saca el DAC su reloj interno: de su PLL a partir de BCK o directo de SCKI. Se elige el modo de 3 hilos porque no hace falta llevar 12.288 MHz hasta el DAC, que la hoja presenta como una ventaja de trazado y de interferencia (sección 9.3.5.3). El de 4 hilos queda como opción si más adelante interesa medir el jitter de la salida.
+- El jumper de SCKI cambia el reloj de los dos convertidores a la vez: en 3 hilos a través de BCK y en 4 hilos también por SCK.
 
 ## Conexiones
 
 ```
-                       jumper de SCKI
+                        jumper de SCKI
 GPIO21 (GPOUT0) --------o 1
-                        o 2 ----------------------------> SCKI (6)  PCM1808
-salida del oscilador ---o 3
+                        o 2 ---+------------------------> SCKI (6)  PCM1808
+salida del oscilador ---o 3    |
+                               |     jumper de SCK
+                               +-----o 1
+                                     o 2 ---------------> SCK  (12) PCM5102A
+                        GND ---------o 3
 
 PCM1808 BCK  (8) ---+-----------------------------------> BCK  (13) PCM5102A
                     +-----------------------------------> GPIO16    Pico
@@ -36,8 +62,9 @@ PCM1808 LRCK (7) ---+-----------------------------------> LRCK (15) PCM5102A
                     +-----------------------------------> GPIO17    Pico
 PCM1808 DOUT (9) ---------------------------------------> GPIO18    Pico
 Pico GPIO19 --------------------------------------------> DIN  (14) PCM5102A
-GND ----------------------------------------------------> SCK  (12) PCM5102A
 ```
+
+Jumper de SCKI: 1-2 es GPOUT0, 2-3 es el oscilador externo. Jumper de SCK: 1-2 es 4 hilos, 2-3 es 3 hilos.
 
 Pines de configuración, con los números de pin de cada integrado:
 
@@ -45,7 +72,7 @@ Pines de configuración, con los números de pin de cada integrado:
 |---|---|---|---|
 | PCM1808 | MD1 (11) y MD0 (10) | alto los dos | modo maestro a 256 fS (tabla 2); se fijan antes de encender |
 | PCM1808 | FMT (12) | bajo | I2S de 24 bits |
-| PCM5102A | SCK (12) | a GND | modo de 3 hilos, con la PLL desde BCK |
+| PCM5102A | SCK (12) | jumper de SCK | a GND, 3 hilos con la PLL desde BCK; en SCKI, 4 hilos |
 | PCM5102A | FMT (16) | bajo | I2S |
 | PCM5102A | FLT (11) | bajo | filtro de latencia normal |
 | PCM5102A | DEMP (10) | bajo | sin de-énfasis |
@@ -59,8 +86,8 @@ No hay hoja oficial del módulo morado. Lo que sigue sale de páginas de la comu
 
 - Conector principal: VIN, GND, LCK (el LRCK), DIN, BCK y SCK [1][2].
 - Puentes de soldadura atrás, con una almohadilla H y una L cada uno: H1L es FLT, H2L es DEMP, H3L es XSMT y H4L es FMT [3]. La configuración que corresponde a la tabla de arriba es 1L, 2L, 3H y 4L, la misma que recomiendan [1][3][4][5].
-- SCK a tierra: el método que se reporta es cerrar con estaño el puente que está al lado del pin SCK [2][7]. Hay reportes de módulos que suenan sin cerrarlo [7] y de otros donde fue obligatorio [8]; la hoja pide SCK en nivel bajo y con SCK flotando no hay garantía.
-- El estado de fábrica de los puentes cambia entre vendedores, y en alguna variante también la orientación de los rótulos [1][5][6]. Antes de alimentarlo, con el multímetro en continuidad: cada puente cerrado del lado L tiene que llevar su pin a GND, cada uno del lado H a 3.3 V, y SCK tiene que quedar a GND. Un pin con el puente cerrado no se maneja desde el Pico.
+- SCK: el módulo tiene un puente al lado del pin SCK para llevarlo a GND [2][7]. Con el jumper de SCK ese puente queda abierto, como se explica arriba.
+- El estado de fábrica de los puentes cambia entre vendedores, y en alguna variante también la orientación de los rótulos [1][5][6]. Antes de alimentarlo, con el multímetro en continuidad: cada puente cerrado del lado L tiene que llevar su pin a GND, cada uno del lado H a 3.3 V, y el puente de SCK tiene que estar abierto. Un pin con el puente cerrado no se maneja desde el Pico.
 - Alimentación por VIN: hay reportes con 5 V a través de un regulador del módulo y otros con 3.3 V [2][7][8]. Se decide mirando el regulador del módulo que llegue.
 
 Referencias:
@@ -82,6 +109,6 @@ Referencias:
 
 ## Pendiente para el banco
 
-- Confirmar que el PCM5102A arranca la PLL a 48 kHz en modo de 3 hilos, por la nota del historial de revisiones.
-- Revisar los puentes del módulo con el multímetro antes de alimentarlo.
+- Revisar los puentes del módulo con el multímetro antes de alimentarlo, con el de SCK abierto.
+- Encender el DAC primero en 4 hilos. Después probar 3 hilos: si a 48 kHz no suena o se corta, la nota del historial de revisiones tenía razón y se queda en 4 hilos.
 - Confirmar el margen de DIN con el programa del PIO. Sin osciloscopio, un error de temporización en DIN aparece como distorsión o ruido al reproducir un tono y medirlo con analizador.py.

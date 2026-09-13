@@ -287,3 +287,18 @@ Qué se decidió y por qué:
 
 - TinyUSB queda en la 0.18.0 del pico-sdk 2.3.1 hasta tener la captura funcionando. La captura, la fase 5, no necesita realimentación; la realimentación solo hace falta para la reproducción, la fase 6. Si se cambia de versión ahora y algo falla en la fase 5, no se sabría si fue el I2S, el reloj o el cambio. En la fase 6 el cambio se evalúa contra una base que funciona y está medida. Lo investigado sobre 0.19.0 y 0.20.0 quedó en docs/audio-usb.md.
 - La arquitectura no depende del rango de 47 a 49. El margen sale del diseño: ajustes de una sola muestra y espaciados, una FIFO con holgura regulada a la mitad, arranque con la FIFO a medio llenar y registro por sesión del nivel de la FIFO y de los paquetes de 47 y 49. Con 50 ppm de diferencia entre cristales hace falta un ajuste cada 417 ms.
+
+## Entrada 17: jumper de SCK en el PCM5102A (2026-09-13)
+
+Qué se midió: nada en hardware. Se revisaron los requisitos de SCK en la hoja del PCM5102A.
+
+Condiciones: SCKI de 12.288 MHz, 256 fS a 48 kHz, desde GPOUT0 con DC50 o desde el oscilador externo.
+
+Resultado: SCK acepta ese reloj. La sección 8.6 pide un ciclo de 20 a 1000 ns y pulsos de al menos 9 ns con DVDD de 3.3 V, y 256 fS a 48 kHz está en la tabla 10.
+
+Qué se decidió y por qué:
+
+- El nodo de SCKI, la salida del jumper que elige entre GPOUT0 y el oscilador, llega también al SCK del PCM5102A a través de un jumper de 3 pines que lo pone en SCKI o a GND. La duda del historial de revisiones sobre 48 kHz con la PLL se elimina por diseño en vez de resolverla leyendo.
+- Con SCK a GND el DAC usa su PLL desde BCK, en 3 hilos. Con SCK en SCKI usa el mismo reloj maestro que el ADC, en 4 hilos, y sigue siendo sincrónico porque BCK y LRCK salen de SCKI.
+- El puente de soldadura de SCK a GND del módulo queda abierto: cerrado, la posición de 4 hilos pondría la salida del reloj maestro en cortocircuito a tierra.
+- El primer encendido del DAC va en 4 hilos, que no depende de la nota del historial.
