@@ -5,3 +5,7 @@ __pycache__/
 *.wav
 
 firmware/build*/
+
+# interfaz de la app: se instala y se compila con npm
+app/interfaz/node_modules/
+app/interfaz/dist/
