@@ -82,6 +82,56 @@ Límite: la tarjeta tiene su propio error de cristal, así que este paso compara
 
 Un tono de 1 kHz generado por la tarjeta USB en la entrada del PCM1808, capturado por el Pico y medido con ajuste_seno, tiene que dar 1000 Hz con la misma diferencia en ppm del paso 3 y el signo cambiado, porque ahora genera la tarjeta y mide el Pico. Un error en fS se vería como el mismo desvío en la frecuencia del tono.
 
+## Jitter del reloj maestro
+
+Lo anterior optimiza la exactitud de frecuencia, que para un ADC casi no importa: una desviación fija de unas partes por millón solo corre fS en esa misma proporción. Lo que degrada el audio es el jitter, la variación de un periodo a otro, porque mueve el instante en que se toma cada muestra. Un error de tiempo τ al muestrear una senoidal de frecuencia f deja un error de amplitud proporcional a 2π·f·τ, así que el jitter pesa más cuanto más aguda es la señal y no aparece sin señal.
+
+### Qué dicen las hojas de datos
+
+PCM1808. No da ninguna tolerancia de jitter de SCKI en términos de calidad de audio. Lo que sí dice:
+
+- El modulador delta-sigma trabaja a 64 fS y el filtro digital a 128 fS, frecuencias que el integrado saca dividiendo SCKI (sección 7.3.2). Con SCKI a 256 fS, el reloj del modulador es SCKI dividido por 4: sus transiciones son transiciones de SCKI y el jitter pasa tal cual.
+- En modo esclavo LRCK tiene que estar sincronizado con SCKI. Si la relación entre los dos se corre más de ±6 BCK dentro de un periodo de muestra por jitter de LRCK o de SCKI, el ADC se detiene y saca ceros hasta resincronizar (sección 7.3.3). Es un límite de funcionamiento, no de calidad.
+- En las recomendaciones de diseño (sección 10.1.6) dice que la calidad del reloj del sistema puede influir en el desempeño dinámico, y que puede hacer falta considerar su ciclo de trabajo, su jitter y, en modo esclavo, la diferencia de tiempo entre las transiciones de SCKI y las de BCK o LRCK. Sin números.
+- Sus cifras de desempeño (rango dinámico y S/N de 99 dB típicos, ponderados A, y THD+N de -93 dB) están medidas en modo maestro con SCKI a 512 fS.
+
+RP2040. La hoja no da ningún número de jitter ni de ruido de fase, ni del PLL ni de GPOUT. Lo único que dice es cualitativo (sección 2.18.2.1): el jitter es la variación de un ciclo a otro del periodo de salida del PLL; no compromete la estabilidad del sistema porque la lógica tiene margen para el peor caso, pero para audio y video suele hacer falta un reloj muy exacto; y el jitter es menor con el VCO lo más alto posible, que es lo que ya hace la configuración elegida con 1536 MHz. Aparte, la división fraccionaria de los divisores de reloj da un reloj con jitter (sección 2.15.3.3), cosa que la solución elegida evita con divisor entero.
+
+Así que el orden de magnitud del ruido de fase del PLL no sale de la hoja. Lo que sí se puede calcular es cuánto jitter haría falta para que se note con este ADC. El número real lo va a dar la comparación con el oscilador externo.
+
+### Cuánto jitter se notaría
+
+Calculado con jitter.py (simulaciones/2026-09-13-jitter/resultados.json), con un tono a -1 dBFS y el ruido propio del ADC igual al S/N típico del PCM1808. La hoja da ese S/N ponderado A y la simulación usa ruido blanco sin ponderar, así que es una aproximación.
+
+| Tono | Modelo | Jitter RMS que iguala el ruido del ADC | Jitter RMS que sube el ruido 0.5 dB |
+|---|---|---|---|
+| 10 kHz | muestreo directo a fS | 220 ps | 77 ps |
+| 10 kHz | muestreo a 64 fS y decimación | 1.76 ns | 614 ps |
+| 20 kHz | muestreo directo a fS | 110 ps | 38 ps |
+| 20 kHz | muestreo a 64 fS y decimación | 878 ps | 307 ps |
+
+Con muestreo a 64 fS, como en el modulador del PCM1808, el ruido del jitter se reparte hasta 32 fS y el filtro de decimación deja pasar solo la parte de audio: 18 dB menos. En la simulación, 1 ns de jitter blanco con un tono de 10 kHz da un THD+N de -84.8 dB con muestreo directo y de -102.9 dB con muestreo a 64 fS. Los dos modelos valen para un modulador de tiempo discreto. La hoja no dice si el del PCM1808 es de tiempo discreto o continuo, y uno de tiempo continuo puede ser bastante más sensible, porque el jitter también afecta su realimentación.
+
+Para el experimento: con menos de unos 40 ps el ruido no sube más de 0.5 dB en ninguno de los dos modelos, ni siquiera a 20 kHz, y con más de 1 ns sube en los dos con tonos de 10 kHz o más. Si la comparación no muestra diferencia, eso también es un resultado: el efecto del jitter de GPOUT0 queda por debajo de lo que este sistema puede resolver.
+
+### Cómo se detecta con analizador.py
+
+La idea de buscar faldas alrededor de un tono de prueba y pérdida de SNR se confirma en la simulación, con dos matices.
+
+1. Faldas solo si el jitter es lento. Con 1 ns de jitter concentrado por debajo de 20 Hz y un tono de 10 kHz, el espectro sube 40 dB entre 2 y 20 Hz del tono (-106.3 dBc contra -146.6 dBc sin jitter), 25 dB entre 20 y 200 Hz (-121.1 contra -146.3) y nada más allá de 200 Hz. El jitter blanco no hace faldas: 1 ns levanta el piso parejo, unos 13 dB a cualquier distancia del tono (de -146 a -133 dBc, de 2 Hz a 2 kHz). El jitter periódico hace rayas: 1 ns de pico a 1 kHz deja dos bandas laterales a ±1 kHz del tono de 10 kHz, a -90.1 dBc, justo lo que predice la modulación de fase.
+
+2. La pérdida de SNR solo se ve con tono. snr_db compara la captura con tono contra una sin señal, y sin señal el jitter no tiene nada que correr: da 98.0 dB con y sin 1 ns de jitter. Lo que sí lo ve es thd_n, que mide todo lo que queda al quitar el tono: con 1 ns y un tono de 10 kHz pasa de -98.0 a -84.6 dB. La pérdida por jitter se mide como THD+N con tono, no con el snr_db de dos capturas.
+
+La firma del jitter es que su efecto crece 20 dB por década con la frecuencia del tono: sin ruido del ADC, el mismo 1 ns da -104.8 dB con 1 kHz y -84.8 dB con 10 kHz. Una distorsión que crezca con la frecuencia podría dar un patrón parecido; lo que atribuye la diferencia al reloj es que cambie al mover el jumper.
+
+Procedimiento, cuando funcione la captura por el Pico, en la misma sesión y cambiando solo el jumper:
+
+- thd_n con tonos de 1 kHz y de 10 kHz al mismo nivel. Si empeora el agudo y no el de 1 kHz, hay ruido que depende de la frecuencia del tono.
+- snr_db con la entrada sin señal. Tiene que dar lo mismo en las dos posiciones del jumper; si cambia, lo que cambió no es jitter.
+- thd_n en una banda angosta alrededor del tono, por ejemplo f ± 200 Hz, para medir las faldas: en la simulación da -84.0 dB con jitter lento contra -114.9 dB sin él. calibrar.py verifica esta medición en test_thd_n_banda_angosta.
+- espectro para ver la forma, con cuidado cerca del tono. Si el tono no cae justo en un bin, la fuga de la ventana Hann tapa lo que está a menos de unos 20 Hz: con 10000.37 Hz, la zona de 2 a 20 Hz da -93 dBc con y sin jitter, mientras thd_n en banda angosta sigue viendo la diferencia (-84.1 contra -115.0 dB). Con un tono de la tarjeta USB muestreado por el reloj del Pico, en la práctica el tono no va a caer justo en un bin.
+- Misma fuente de tono, mismo nivel y misma duración de captura en las dos posiciones. La fuente también tiene su ruido de fase y sus faldas aparecen igual en las dos mediciones: lo que interesa es la diferencia.
+
 ## Búsqueda exhaustiva
 
 <!-- inicio del bloque generado por relojes.py -->

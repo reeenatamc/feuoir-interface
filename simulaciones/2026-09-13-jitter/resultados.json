@@ -1,0 +1,588 @@
+{
+  "fecha_hora": "2026-09-13T15:53:20-05:00",
+  "jitter_sha256": "91a8d7b0d0b20ea7be96296f89a601d5d77c6550304103bf29dcd4de57d03156",
+  "analizador_sha256": "112481eab5b72325a0a2902f4160c31ff05553d9975b7748140e2a7ef3d739bc",
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "plataforma": "macOS-26.5.2-x86_64-i386-64bit",
+  "supuestos": {
+    "fs_hz": 48000,
+    "duracion_s": 5.0,
+    "amplitud_tono_dbfs": -1.0,
+    "banda_hz": [
+      20.0,
+      20000.0
+    ],
+    "snr_adc_db": 99.0,
+    "osr": 64,
+    "semilla": 20260913,
+    "modelo": "muestra = A*sin(2*pi*f*(n*T + tau_n)) + ruido blanco del ADC; jitter normalizado a su RMS exacto",
+    "nota": "el S/N del PCM1808 es ponderado A y aquí el ruido es blanco sin ponderar; el modelo sobremuestreado idealiza un modulador de tiempo discreto"
+  },
+  "casos": [
+    {
+      "caso": "blanco_sin_ruido_1000hz_10ps",
+      "descripcion": "jitter blanco muestreado a fS, sin ruido del ADC: THD+N contra 2*pi*f*jitter",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 1000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-11,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -144.8236168535578
+      },
+      "esperado": {
+        "thd_n_db": -144.83256021105413
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sin_ruido_1000hz_100ps",
+      "descripcion": "jitter blanco muestreado a fS, sin ruido del ADC: THD+N contra 2*pi*f*jitter",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 1000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-10,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -124.8331740155511
+      },
+      "esperado": {
+        "thd_n_db": -124.83256021105413
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sin_ruido_1000hz_1000ps",
+      "descripcion": "jitter blanco muestreado a fS, sin ruido del ADC: THD+N contra 2*pi*f*jitter",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 1000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -104.84070568722939
+      },
+      "esperado": {
+        "thd_n_db": -104.83256021105413
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sin_ruido_10000hz_10ps",
+      "descripcion": "jitter blanco muestreado a fS, sin ruido del ADC: THD+N contra 2*pi*f*jitter",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-11,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -124.8231218494424
+      },
+      "esperado": {
+        "thd_n_db": -124.83256021105413
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sin_ruido_10000hz_100ps",
+      "descripcion": "jitter blanco muestreado a fS, sin ruido del ADC: THD+N contra 2*pi*f*jitter",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-10,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -104.82479051303062
+      },
+      "esperado": {
+        "thd_n_db": -104.83256021105412
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sin_ruido_10000hz_1000ps",
+      "descripcion": "jitter blanco muestreado a fS, sin ruido del ADC: THD+N contra 2*pi*f*jitter",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -84.83810628120601
+      },
+      "esperado": {
+        "thd_n_db": -84.83256021105412
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_con_ruido_adc_1000hz_0ps",
+      "descripcion": "jitter blanco con el ruido del ADC: el THD+N lo ve, el SNR con captura sin señal no",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 1000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 0.0,
+        "snr_adc_db": 99.0,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "ventana_espectro": "hann"
+      },
+      "medido": {
+        "thd_n_db": -98.00373289677205,
+        "snr_db": 98.02606016140021,
+        "espectro_2_a_20_hz_dbc": -146.11710084028746,
+        "espectro_20_a_200_hz_dbc": -145.95119581617504,
+        "espectro_200_a_2000_hz_dbc": -146.2686487794852
+      },
+      "esperado": {
+        "thd_n_db": -98.0,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_con_ruido_adc_1000hz_100ps",
+      "descripcion": "jitter blanco con el ruido del ADC: el THD+N lo ve, el SNR con captura sin señal no",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 1000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-10,
+        "snr_adc_db": 99.0,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "ventana_espectro": "hann"
+      },
+      "medido": {
+        "thd_n_db": -97.9860854467255,
+        "snr_db": 97.99037061130392,
+        "espectro_2_a_20_hz_dbc": -146.47041245191622,
+        "espectro_20_a_200_hz_dbc": -146.34404822880208,
+        "espectro_200_a_2000_hz_dbc": -146.25104042097746
+      },
+      "esperado": {
+        "thd_n_db": -97.9910034006021,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_con_ruido_adc_1000hz_1000ps",
+      "descripcion": "jitter blanco con el ruido del ADC: el THD+N lo ve, el SNR con captura sin señal no",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 1000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "snr_adc_db": 99.0,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "ventana_espectro": "hann"
+      },
+      "medido": {
+        "thd_n_db": -97.19039345624076,
+        "snr_db": 98.00675292479713,
+        "espectro_2_a_20_hz_dbc": -145.4393552119454,
+        "espectro_20_a_200_hz_dbc": -145.3833540293316,
+        "espectro_200_a_2000_hz_dbc": -145.41455685296668
+      },
+      "esperado": {
+        "thd_n_db": -97.18159954143772,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_con_ruido_adc_10000hz_0ps",
+      "descripcion": "jitter blanco con el ruido del ADC: el THD+N lo ve, el SNR con captura sin señal no",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 0.0,
+        "snr_adc_db": 99.0,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "ventana_espectro": "hann"
+      },
+      "medido": {
+        "thd_n_db": -97.98988158475285,
+        "snr_db": 97.96567499974806,
+        "espectro_2_a_20_hz_dbc": -146.5629531994695,
+        "espectro_20_a_200_hz_dbc": -146.33150885933355,
+        "espectro_200_a_2000_hz_dbc": -146.21455936982449
+      },
+      "esperado": {
+        "thd_n_db": -98.0,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_con_ruido_adc_10000hz_100ps",
+      "descripcion": "jitter blanco con el ruido del ADC: el THD+N lo ve, el SNR con captura sin señal no",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-10,
+        "snr_adc_db": 99.0,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "ventana_espectro": "hann"
+      },
+      "medido": {
+        "thd_n_db": -97.18379215547843,
+        "snr_db": 97.99927042359258,
+        "espectro_2_a_20_hz_dbc": -144.09617441982917,
+        "espectro_20_a_200_hz_dbc": -145.13737945610396,
+        "espectro_200_a_2000_hz_dbc": -145.4010323483674
+      },
+      "esperado": {
+        "thd_n_db": -97.18159954143772,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_con_ruido_adc_10000hz_1000ps",
+      "descripcion": "jitter blanco con el ruido del ADC: el THD+N lo ve, el SNR con captura sin señal no",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "snr_adc_db": 99.0,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "ventana_espectro": "hann"
+      },
+      "medido": {
+        "thd_n_db": -84.62192434144883,
+        "snr_db": 97.97891437191453,
+        "espectro_2_a_20_hz_dbc": -132.8204626833911,
+        "espectro_20_a_200_hz_dbc": -133.01355432815896,
+        "espectro_200_a_2000_hz_dbc": -132.84995110199134
+      },
+      "esperado": {
+        "thd_n_db": -84.62802253750073,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.2,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sobremuestreado_10000hz_100ps",
+      "descripcion": "jitter blanco muestreado a 64 fS y decimado a fS: el ruido de jitter baja 10*log10(64)",
+      "condiciones": {
+        "fs_modulador_hz": 3072000,
+        "osr": 64,
+        "decimacion": "scipy.signal.resample_poly",
+        "duracion_analizada_s": 0.8,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-10,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "thd_n_db_sin_sobremuestreo": -104.83256021105412
+      },
+      "medido": {
+        "thd_n_db": -122.88066410380837
+      },
+      "esperado": {
+        "thd_n_db": -122.89435995089299
+      },
+      "tolerancia_db": 0.5,
+      "coincide": true
+    },
+    {
+      "caso": "blanco_sobremuestreado_10000hz_1000ps",
+      "descripcion": "jitter blanco muestreado a 64 fS y decimado a fS: el ruido de jitter baja 10*log10(64)",
+      "condiciones": {
+        "fs_modulador_hz": 3072000,
+        "osr": 64,
+        "decimacion": "scipy.signal.resample_poly",
+        "duracion_analizada_s": 0.8,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ],
+        "thd_n_db_sin_sobremuestreo": -84.83256021105412
+      },
+      "medido": {
+        "thd_n_db": -102.91193835712565
+      },
+      "esperado": {
+        "thd_n_db": -102.89435995089299
+      },
+      "tolerancia_db": 0.5,
+      "coincide": true
+    },
+    {
+      "caso": "lento_10000hz_0ps",
+      "descripcion": "jitter con la energía por debajo de 20 Hz: faldas alrededor del tono",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 0.0,
+        "jitter_filtro": "Butterworth pasabajos de orden 2 en 20 Hz",
+        "snr_adc_db": 99.0,
+        "tono_en_un_bin": true,
+        "ventana_espectro": "hann",
+        "banda_angosta_hz": [
+          9800.0,
+          10200.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -97.99664517592757,
+        "thd_n_db_banda_angosta": -114.90202225893762,
+        "snr_db": 98.04157085505479,
+        "espectro_2_a_20_hz_dbc": -146.57318225465258,
+        "espectro_20_a_200_hz_dbc": -146.31046298881486,
+        "espectro_200_a_2000_hz_dbc": -146.25827880306707
+      },
+      "esperado": {
+        "thd_n_db": -98.0,
+        "thd_n_db_banda_angosta": -114.98535492562002,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.6,
+      "coincide": true
+    },
+    {
+      "caso": "lento_10000hz_1000ps",
+      "descripcion": "jitter con la energía por debajo de 20 Hz: faldas alrededor del tono",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "jitter_filtro": "Butterworth pasabajos de orden 2 en 20 Hz",
+        "snr_adc_db": 99.0,
+        "tono_en_un_bin": true,
+        "ventana_espectro": "hann",
+        "banda_angosta_hz": [
+          9800.0,
+          10200.0
+        ]
+      },
+      "medido": {
+        "thd_n_db": -83.8711226618187,
+        "thd_n_db_banda_angosta": -84.04064000362519,
+        "snr_db": 97.96732512135021,
+        "espectro_2_a_20_hz_dbc": -106.30273954295309,
+        "espectro_20_a_200_hz_dbc": -121.11976578702411,
+        "espectro_200_a_2000_hz_dbc": -146.0989715683477
+      },
+      "esperado": {
+        "thd_n_db": -83.86546037848463,
+        "thd_n_db_banda_angosta": -84.03291352321256,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.6,
+      "coincide": true
+    },
+    {
+      "caso": "lento_10000.37hz_0ps",
+      "descripcion": "jitter con la energía por debajo de 20 Hz: faldas alrededor del tono",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.37,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 0.0,
+        "jitter_filtro": "Butterworth pasabajos de orden 2 en 20 Hz",
+        "snr_adc_db": 99.0,
+        "tono_en_un_bin": false,
+        "ventana_espectro": "hann",
+        "banda_angosta_hz": [
+          9800.37,
+          10200.37
+        ]
+      },
+      "medido": {
+        "thd_n_db": -97.99969126189626,
+        "thd_n_db_banda_angosta": -114.9974025783443,
+        "snr_db": 97.96635488315493,
+        "espectro_2_a_20_hz_dbc": -93.12015982904727,
+        "espectro_20_a_200_hz_dbc": -145.25733593273196,
+        "espectro_200_a_2000_hz_dbc": -146.0145261014132
+      },
+      "esperado": {
+        "thd_n_db": -98.0,
+        "thd_n_db_banda_angosta": -114.98535492562002,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.6,
+      "coincide": true
+    },
+    {
+      "caso": "lento_10000.37hz_1000ps",
+      "descripcion": "jitter con la energía por debajo de 20 Hz: faldas alrededor del tono",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.37,
+        "amplitud_dbfs": -1.0,
+        "jitter_rms_s": 1e-09,
+        "jitter_filtro": "Butterworth pasabajos de orden 2 en 20 Hz",
+        "snr_adc_db": 99.0,
+        "tono_en_un_bin": false,
+        "ventana_espectro": "hann",
+        "banda_angosta_hz": [
+          9800.37,
+          10200.37
+        ]
+      },
+      "medido": {
+        "thd_n_db": -83.91521752878498,
+        "thd_n_db_banda_angosta": -84.08630910469472,
+        "snr_db": 98.00282512200826,
+        "espectro_2_a_20_hz_dbc": -92.94162008418988,
+        "espectro_20_a_200_hz_dbc": -121.70025041005422,
+        "espectro_200_a_2000_hz_dbc": -145.9885486312761
+      },
+      "esperado": {
+        "thd_n_db": -83.86515140985159,
+        "thd_n_db_banda_angosta": -84.0325924093174,
+        "snr_db": 98.0
+      },
+      "tolerancia_db": 0.6,
+      "coincide": true
+    },
+    {
+      "caso": "periodico_10000hz_1000hz_1ns",
+      "descripcion": "jitter senoidal de 1 kHz: bandas laterales a 1 kHz del tono",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "frecuencia_hz": 10000.0,
+        "amplitud_dbfs": -1.0,
+        "jitter_pico_s": 1e-09,
+        "jitter_frecuencia_hz": 1000.0,
+        "ventana_espectro": "hann",
+        "banda_angosta_hz": [
+          8500.0,
+          11500.0
+        ]
+      },
+      "medido": {
+        "banda_lateral_inferior_dbc": -90.05700141293507,
+        "banda_lateral_superior_dbc": -90.05700190977245,
+        "thd_n_db_banda_angosta": -87.04670231010061
+      },
+      "esperado": {
+        "banda_lateral_inferior_dbc": -90.05700254611732,
+        "banda_lateral_superior_dbc": -90.05700254611732,
+        "thd_n_db_banda_angosta": -87.0467025894775
+      },
+      "tolerancia_db": 0.05,
+      "coincide": true
+    }
+  ],
+  "umbrales": [
+    {
+      "frecuencia_hz": 10000.0,
+      "osr": 1,
+      "jitter_rms_para_igualar_el_ruido_del_adc_s": 2.195978129706999e-10,
+      "jitter_rms_para_subir_el_ruido_0_5_db_s": 7.670801952722591e-11
+    },
+    {
+      "frecuencia_hz": 10000.0,
+      "osr": 64,
+      "jitter_rms_para_igualar_el_ruido_del_adc_s": 1.7567825037655993e-09,
+      "jitter_rms_para_subir_el_ruido_0_5_db_s": 6.136641562178073e-10
+    },
+    {
+      "frecuencia_hz": 20000.0,
+      "osr": 1,
+      "jitter_rms_para_igualar_el_ruido_del_adc_s": 1.0979890648534996e-10,
+      "jitter_rms_para_subir_el_ruido_0_5_db_s": 3.8354009763612955e-11
+    },
+    {
+      "frecuencia_hz": 20000.0,
+      "osr": 64,
+      "jitter_rms_para_igualar_el_ruido_del_adc_s": 8.783912518827997e-10,
+      "jitter_rms_para_subir_el_ruido_0_5_db_s": 3.0683207810890364e-10
+    }
+  ]
+}

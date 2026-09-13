@@ -87,6 +87,16 @@ El PCM1808 necesita 12.288 MHz en SCKI y el cristal del Pico es de 12 MHz. reloj
 .venv/bin/python relojes.py
 ```
 
+## jitter.py
+
+Simula el efecto del jitter del reloj de muestreo sobre un tono y lo mide con analizador.py, para saber qué buscar al comparar GPOUT0 con un oscilador externo. No mide hardware.
+
+```
+.venv/bin/python jitter.py
+```
+
+Guarda cada caso con sus condiciones, lo esperado según la teoría y lo medido en simulaciones/<fecha>-jitter/resultados.json, y termina con código 1 si algún caso no coincide. Qué significan los resultados está en docs/reloj.md, en la sección Jitter del reloj maestro.
+
 ## firmware
 
 firmware/ configura el reloj maestro: clk_sys en 61.44 MHz y 12.288 MHz por GPIO21 (GPOUT0) con DC50. Además hace parpadear el LED para mostrar que sigue corriendo. Se compila con las mismas variables de entorno que el blink (ver Toolchain del Pico):

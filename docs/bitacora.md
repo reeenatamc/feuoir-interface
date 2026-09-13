@@ -156,3 +156,21 @@ Qué se decidió y por qué:
 
 - La prueba nueva cubre un hueco: ninguna prueba usaba el borde inferior de la banda. Con la banda por defecto, de 20 Hz a 20 kHz, no hay nada por debajo de 20 Hz, así que un filtro que no cortara abajo pasaba todas las pruebas. Se comprobó con calibrar.py del commit be2678e y ese error inyectado: la calibración pasaba con código 0. Ahora lo atrapa test_thd_n_banda_angosta.
 - Ese error quedó como mutación nueva en tests/mutaciones.py, banda_inferior_ignorada.
+
+## Fase 9: jitter del reloj maestro (2026-09-13)
+
+Qué se midió: nada en hardware. Se revisaron las hojas del PCM1808 y del RP2040 buscando datos de jitter, y se simuló con jitter.py el efecto del jitter sobre un tono, medido con analizador.py.
+
+Condiciones: tonos a -1 dBFS de 1 y 10 kHz, fS de 48 kHz, capturas de 5 s y ruido del ADC igual al S/N típico del PCM1808 (99 dB, ponderado A en la hoja y blanco en la simulación). Jitter blanco, lento (por debajo de 20 Hz) y periódico (1 kHz), con muestreo directo a fS y a 64 fS con decimación. Los 19 casos coinciden con la teoría; están en simulaciones/2026-09-13-jitter/resultados.json.
+
+Resultado:
+
+- La hoja del PCM1808 no da tolerancia de jitter en términos de audio: solo el límite de sincronización de ±6 BCK en modo esclavo y una recomendación sin números. La del RP2040 no da ningún número de jitter ni de ruido de fase.
+- Con este ADC, el jitter empezaría a notarse entre unos 40 ps y 1 ns, según el modelo y la frecuencia del tono.
+- snr_db con captura sin señal no ve el jitter; thd_n con tono sí. Las faldas aparecen solo con jitter lento; el jitter blanco levanta el piso parejo y el periódico deja bandas laterales.
+
+Qué se decidió y por qué:
+
+- El jitter se mide con thd_n con tono, a 1 kHz y a 10 kHz, y con thd_n en banda angosta para las faldas. snr_db no sirve para esto.
+- El espectro sirve para ver la forma pero no para medir cerca del tono: si el tono no cae justo en un bin, la fuga de la ventana tapa lo que está a menos de 20 Hz.
+- El número que las hojas no dan lo va a dar la comparación con un oscilador externo. Si no hay diferencia medible, el efecto del jitter de GPOUT0 queda acotado por debajo de lo que resuelve el sistema.
