@@ -274,3 +274,16 @@ Qué se decidió y por qué:
 - Para la reproducción, primero la realimentación implícita, porque ADC y DAC comparten reloj y no hace falta endpoint extra; requiere TinyUSB 0.19.0 o posterior, donde entró. Respaldo: la explícita en 3 bytes, que está en la 0.18.0 y en la 0.19.0. La 0.19.0 permite las dos sin cambiar de versión.
 - Queda por verificar en macOS 26 que la implícita funcione: TN3190 la documenta, pero no hay prueba propia.
 - Sin firmware todavía. Detalle en docs/audio-usb.md.
+
+## Entrada 16: TinyUSB 0.18.0 para la captura y margen propio del diseño (2026-09-13)
+
+Qué se midió: nada en hardware. Se confirmó en la especificación de formatos de audio de UAC1 (sección 2.2.1) el rango de 47 a 49 muestras por milisegundo a 48 kHz que pide TN3190.
+
+Condiciones: 48 kHz en velocidad completa.
+
+Resultado: el rango no es una tolerancia propia de macOS. Cuando el promedio de muestras por paquete es entero, la especificación permite una muestra menos o una más por paquete.
+
+Qué se decidió y por qué:
+
+- TinyUSB queda en la 0.18.0 del pico-sdk 2.3.1 hasta tener la captura funcionando. La captura, la fase 5, no necesita realimentación; la realimentación solo hace falta para la reproducción, la fase 6. Si se cambia de versión ahora y algo falla en la fase 5, no se sabría si fue el I2S, el reloj o el cambio. En la fase 6 el cambio se evalúa contra una base que funciona y está medida. Lo investigado sobre 0.19.0 y 0.20.0 quedó en docs/audio-usb.md.
+- La arquitectura no depende del rango de 47 a 49. El margen sale del diseño: ajustes de una sola muestra y espaciados, una FIFO con holgura regulada a la mitad, arranque con la FIFO a medio llenar y registro por sesión del nivel de la FIFO y de los paquetes de 47 y 49. Con 50 ppm de diferencia entre cristales hace falta un ajuste cada 417 ms.
