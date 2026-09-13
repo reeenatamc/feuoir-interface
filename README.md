@@ -38,8 +38,6 @@ Pico y RMS están en dBFS, decibeles relativos al fondo de escala del conversor,
 
 El volumen de entrada del sistema está en 71 y no se toca. Si cambia, las mediciones dejan de ser comparables entre sí. Cada condiciones.json guarda el valor que tenía en esa corrida.
 
-Las decisiones de hardware y de método están en DECISIONES.md.
-
 ## analizador.py
 
 El análisis y las señales de prueba. medir.py lo importa y calibrar.py lo verifica.
@@ -77,6 +75,13 @@ El PCM1808 necesita 12.288 MHz en SCKI y el cristal del Pico es de 12 MHz. reloj
 ```
 .venv/bin/python relojes.py
 ```
+
+## Documentación
+
+- docs/reloj.md: soluciones para el reloj maestro, la elegida y por qué
+- docs/bitacora.md: qué se midió en cada fase, en qué condiciones, qué se decidió y por qué
+- docs/datasheets/: hojas de datos del PCM1808, el PCM5102A, el TL072 y el RP2040
+- DECISIONES.md: decisiones de hardware y de método
 
 ## Toolchain del Pico
 
