@@ -190,3 +190,19 @@ Qué se decidió y por qué:
 - La fuente que no se usa va apagada, para que su conmutación no se acople a SCKI y meta bandas laterales por el batido entre los dos cristales.
 - clk_sys queda en 61.44 MHz con las dos fuentes, para que entre las dos mediciones solo cambie SCKI.
 - El jumper se cambia sin alimentación, porque la hoja del PCM1808 pide el reset de reloj detenido al cambiar SCKI.
+
+## Fase 11: firmware de verificación del reloj (2026-09-13)
+
+Qué se midió: nada en hardware. Se compiló firmware/verificar_reloj.c en las dos variantes y se probó en la Mac la parte que arma el informe.
+
+Condiciones: toolchain de la fase 4 y PICO_BOARD=pico. La prueba en la Mac compila firmware/informe.c con Apple clang 21.0.0 y corre 11 casos.
+
+Resultado: las dos variantes compilan sin avisos, y los static_assert confirman que los campos de registro de informe.h coinciden con las macros del SDK 2.3.1. Pasan los 11 casos: todo en orden, DC50 sin activar, PLL sin configurar, divisor con fracción, sin puente, frecuencias a cada lado de la tolerancia, contador que no termina y tres casos del oscilador externo. Sin probar en placa: la lectura real de los registros y el contador de frecuencia.
+
+Qué se decidió y por qué:
+
+- La lógica que decodifica y juzga (informe.c) está separada de la lectura de hardware (verificar_reloj.c), para probar en la Mac todo lo que no depende de la placa.
+- La medición usa el contador de frecuencia con intervalo de 32 ms, exactitud de 62.5 Hz, y conserva la fracción del resultado. frequency_count_khz del SDK usa 1 ms, con 2 kHz de exactitud, y descarta la fracción.
+- La tolerancia es el doble de la exactitud del contador cuando la frecuencia sale del mismo cristal (PLL y GPOUT0), y 1000 ppm con el oscilador externo, que detecta una pieza equivocada sin juzgar su exactitud.
+- GPIO20 tiene pull-down para que sin puente lea cero y el informe diga que falta el puente, en vez de medir ruido.
+- Cada medición tiene un límite de 1 s, para que un contador que no termina no cuelgue el firmware.

@@ -50,7 +50,9 @@ El jitter de periodo aparece con cualquier otra fracción, porque entonces el pa
 
 Lo que puede fallar. La frecuencia sale del cristal con cuentas enteras, así que si la configuración es correcta la relación con el cristal es exacta. Lo que puede fallar es la configuración (el PLL o el divisor no quedaron como se esperaba, DC50 sin activar, GPIO21 sin la función de reloj) o la conexión hasta el PCM1808. Esos errores mueven la frecuencia en proporciones grandes: si el PLL se quedara en los 125 MHz con que arranca el SDK, por GPIO21 saldrían 25 MHz. No hace falta un instrumento de precisión para verlos, alcanza con distinguir 12.288 MHz de valores cercanos. El error del cristal, en partes por millón, es otro tema y se ve en el paso 3.
 
-Los pasos van de menos a más cableado. Los dos primeros necesitan un firmware de prueba que imprima por USB, que todavía no está escrito.
+Los pasos van de menos a más cableado. Los dos primeros los hace firmware/verificar_reloj.c, que imprime un informe por USB cada 2 s y mide con el intervalo de 32 ms del contador (cómo compilarlo y leerlo está en el README). Está escrito y compila, pero no se probó en una placa.
+
+Compilado con FEUOIR_RELOJ_EXTERNO, el mismo firmware sirve para el oscilador externo: espera GPOUT0 apagado y en el paso 2 mide lo que entra por GPIO20, que entonces viene de la salida del oscilador. Da su frecuencia y la diferencia en ppm respecto del cristal del Pico, con una exactitud de 62.5 Hz, unos 5 ppm. Ahí acepta hasta 1000 ppm: detecta un oscilador equivocado, no juzga su exactitud.
 
 ### 1. Sin cables: la configuración
 

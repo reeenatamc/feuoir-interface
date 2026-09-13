@@ -21,3 +21,17 @@ target_link_libraries(feuoir pico_stdlib hardware_clocks)
 target_compile_definitions(feuoir PRIVATE RELOJ_EXTERNO=$<BOOL:${FEUOIR_RELOJ_EXTERNO}>)
 
 pico_add_extra_outputs(feuoir)
+
+# Verificación del reloj maestro, pasos 1 y 2 de docs/reloj.md. Sin probar en placa.
+add_executable(verificar_reloj
+    verificar_reloj.c
+    informe.c
+    reloj_maestro.c
+)
+
+target_link_libraries(verificar_reloj pico_stdlib hardware_clocks)
+target_compile_definitions(verificar_reloj PRIVATE RELOJ_EXTERNO=$<BOOL:${FEUOIR_RELOJ_EXTERNO}>)
+pico_enable_stdio_usb(verificar_reloj 1)
+pico_enable_stdio_uart(verificar_reloj 0)
+
+pico_add_extra_outputs(verificar_reloj)

@@ -116,6 +116,39 @@ cmake -S . -B build-externo -DFEUOIR_RELOJ_EXTERNO=ON
 make -C build-externo -j4
 ```
 
+### Firmware de verificación del reloj: sin probar en placa
+
+Está escrito y compila, pero nunca se corrió en un Pico. firmware/verificar_reloj.c hace los pasos 1 y 2 de la verificación sin osciloscopio de docs/reloj.md. Configura el reloj igual que el firmware principal y cada 2 s imprime por USB un informe con:
+
+- los registros del PLL y de GPOUT0 leídos de vuelta: REFDIV, FBDIV, POSTDIV1, POSTDIV2, PLL enganchado, ENABLE, DC50, fuente y divisor de GPOUT0
+- la salida del PLL medida con el contador de frecuencia del RP2040, contra el cristal
+- la frecuencia que entra por GPIO20, que para el paso 2 va puenteado a GPIO21
+
+Cada línea trae el valor, lo esperado y ok o FALLA, y el informe termina con la cantidad de fallas. Se compila junto con el firmware principal:
+
+```
+cd firmware
+cmake -S . -B build
+make -C build verificar_reloj -j4
+```
+
+Se carga firmware/build/verificar_reloj.uf2 y la salida se lee desde la Mac con screen, que viene con macOS. El nombre del puerto depende de la placa:
+
+```
+ls /dev/cu.usbmodem*
+screen /dev/cu.usbmodemXXXX
+```
+
+Para guardar el resultado con sus condiciones, un informe completo, de inicio_informe a fin_informe, va a mediciones/<fecha>-verificacion-reloj/ junto con cómo estaban los puentes. Compilado en build-externo, espera GPOUT0 apagado y mide en GPIO20 la salida del oscilador externo.
+
+La parte que decodifica los registros y arma el informe (firmware/informe.c) no toca hardware y se prueba en la Mac:
+
+```
+.venv/bin/python tests/verificacion_sin_placa.py
+```
+
+Lo que solo se puede probar en la placa es la lectura real de los registros y el contador de frecuencia.
+
 ## Documentación
 
 - docs/reloj.md: reloj maestro elegido, respaldo, corrección sobre el divisor fraccionario y cómo verificar la frecuencia sin osciloscopio
