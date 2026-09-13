@@ -364,6 +364,7 @@ Resultado:
 - Un seno de +2 dBFS recortado marca el fundamental en +1.0 dBFS, RMS de -2.0 dBFS y armónicos impares.
 - Con la fuente sintética, THD+N da cerca de 0.0025 % (-92 dB) a 1 kHz, que es el ruido de -100 dBFS dentro de la banda. La respuesta en frecuencia da 30 tonos planos en -6 dBFS, y la prueba de jitter, sin efecto detectable.
 - Armar un cuadro lleva de 1 a 5 ms.
+- Con el micrófono interno de la Mac como entrada, la app abre a 48 kHz y en 4 s llegan 110 cuadros con 3.97 s de audio, sin saturación; el sonido de la sala da picos de -63 a -22 dBFS. El volumen de entrada del sistema siguió en 71.
 - tests/app_sin_ventana.py pasa sus 36 comprobaciones. tests/mutaciones.py suma 7 errores inyectados en app/ y la prueba atrapa los 7; con los 20 del analizador, las 27 mutaciones fallan (calibraciones/2026-09-13-mutaciones-4). Dos de ellas, la medición marcada tarde y el emisor que espera a cada conexión, las atrapa el tiempo límite de la prueba: el mensaje que se esperaba no llega.
 
 Qué se decidió y por qué:

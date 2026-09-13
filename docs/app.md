@@ -111,6 +111,6 @@ tests/mutaciones.py le inyecta 7 errores a la app, uno a la vez, y cada uno tien
 
 ## Sin probar
 
-- Una entrada real. Hasta ahora solo corrió con la fuente sintética; primero va la tarjeta de sonido USB y después la interfaz.
+- Una entrada real para medir. Con el micrófono interno de la Mac la app abre a 48 kHz y los cuadros llegan a ritmo real, pero ese micrófono entrega la señal ya procesada y no sirve para caracterizar nada (DECISIONES.md). Falta la tarjeta de sonido USB y después la interfaz.
 - Las mediciones con el estímulo saliendo por la Mac y volviendo por cable.
 - La interfaz no tiene prueba automática. La ventana de pywebview se abrió en la Mac y cargó la interfaz, y lo que dibuja se revisó con capturas.
