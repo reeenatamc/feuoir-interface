@@ -244,6 +244,27 @@ def test_barrido_escalonado_y_respuesta():
         verificar("nivel_dbfs", fila["nivel_dbfs"], -6.0 + 20*np.log10(abs(hk)), 0.01, "dBFS", **cf)
 
 
+# Ruido cerca de un tono
+
+def test_thd_n_banda_angosta():
+    # Bandas laterales a 100 Hz del tono, como las que deja un jitter periódico, y dos componentes
+    # fuera de la banda angosta, una por debajo y otra por encima. Con la banda de 800 a 1200 Hz el
+    # THD+N tiene que ver solo las bandas laterales; con la banda por defecto, todo. Así se mide el
+    # ruido cerca de un tono sin que entre lo que está lejos.
+    fs = 48000
+    t = np.arange(fs) / fs
+    A, lateral, fuera = 0.5, 0.5e-3, 0.5e-2
+    x = (A*np.sin(2*np.pi*1000*t) + lateral*np.sin(2*np.pi*900*t + 0.3) + lateral*np.sin(2*np.pi*1100*t + 1.2)
+         + fuera*np.sin(2*np.pi*500*t + 0.7) + fuera*np.sin(2*np.pi*3000*t + 2.1))
+    c = dict(fs_hz=fs, duracion_s=1.0, fundamental_hz=1000, amplitud_fundamental=A,
+             bandas_laterales_hz=[900, 1100], amplitud_lateral=lateral,
+             componentes_fuera_hz=[500, 3000], amplitud_fuera=fuera)
+    verificar("thd_n_db_banda_angosta", an.thd_n(x, fs, banda=(800.0, 1200.0))["db"],
+              20*np.log10(np.sqrt(2)*lateral/A), 1e-3, "dB", banda_hz=[800, 1200], **c)
+    verificar("thd_n_db_banda_por_defecto", an.thd_n(x, fs)["db"],
+              20*np.log10(np.sqrt(2*lateral**2 + 2*fuera**2)/A), 1e-3, "dB", banda_hz=[20, 20000], **c)
+
+
 PRUEBAS = [
     test_seno_pico_rms,
     test_ruido_blanco_rms,
@@ -252,6 +273,7 @@ PRUEBAS = [
     test_ajuste_seno,
     test_thd_n_armonico_1pc,
     test_thd_n_con_ruido,
+    test_thd_n_banda_angosta,
     test_snr,
     test_generador_tono,
     test_generador_barrido_log,

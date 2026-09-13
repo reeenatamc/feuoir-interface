@@ -43,6 +43,8 @@ MUTACIONES = [
      '(aj["amplitud"]/np.sqrt(2))', 'aj["amplitud"]'),
     ("banda_superior_ignorada", "filtro de banda que no corta en la frecuencia superior",
      "(f > banda[1])", "(f > 2*banda[1])"),
+    ("banda_inferior_ignorada", "filtro de banda que no corta en la frecuencia inferior",
+     "(f < banda[0])", "(f < banda[0]/2)"),
     ("snr_en_potencia", "SNR con razón de potencias pasada por 20*log10",
      "rms(senal) / (rms(ruido) + EPS)", "rms(senal)**2 / (rms(ruido)**2 + EPS)"),
     ("tono_con_amplitud_mal_escalada", "amplitud del tono con 10**(dB/10) en vez de 10**(dB/20)",

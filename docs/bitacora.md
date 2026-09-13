@@ -143,3 +143,16 @@ Desde el commit e32c257 (Extrae el análisis a analizador.py), el espectro de ca
 - Después: 0 dBFS es el fondo de escala del conversor, la misma referencia para todas las capturas. El eje vertical dice dBFS y va de -160 a 5.
 
 Para saber de qué lado está una gráfica alcanza con mirar el rótulo del eje vertical. Los valores pico_dbfs y rms_dbfs de condiciones.json no cambiaron: la fórmula es la misma, y en 300 capturas simuladas dieron idénticos a dos decimales con el código de antes y con el de después.
+
+## Fase 8: THD+N en banda angosta (2026-09-13)
+
+Qué se midió: que thd_n limitado a una banda angosta alrededor del tono ve solo lo que está cerca. Es la medición que se va a usar para las faldas que deja el jitter.
+
+Condiciones: las de la fase 1. Tono de 1 kHz con bandas laterales a ±100 Hz del 0.1 % de su amplitud, y componentes del 1 % a 500 Hz y a 3 kHz, fuera de la banda de 800 a 1200 Hz.
+
+Resultado: calibrar.py pasa las 12 pruebas con 172 chequeos (calibraciones/2026-09-13-calibracion-3) y tests/mutaciones.py detecta las 16 mutaciones (calibraciones/2026-09-13-mutaciones-2).
+
+Qué se decidió y por qué:
+
+- La prueba nueva cubre un hueco: ninguna prueba usaba el borde inferior de la banda. Con la banda por defecto, de 20 Hz a 20 kHz, no hay nada por debajo de 20 Hz, así que un filtro que no cortara abajo pasaba todas las pruebas. Se comprobó con calibrar.py del commit be2678e y ese error inyectado: la calibración pasaba con código 0. Ahora lo atrapa test_thd_n_banda_angosta.
+- Ese error quedó como mutación nueva en tests/mutaciones.py, banda_inferior_ignorada.

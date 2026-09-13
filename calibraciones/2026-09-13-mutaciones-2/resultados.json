@@ -1,0 +1,234 @@
+{
+  "fecha_hora": "2026-09-13T15:48:34-05:00",
+  "analizador_sha256": "112481eab5b72325a0a2902f4160c31ff05553d9975b7748140e2a7ef3d739bc",
+  "calibrar_sha256": "396bedf4f8f4ff017cfeba79044bce08c978f366f9edb8c5a72519f226f22c1b",
+  "python_de_las_calibraciones": "/Users/renata/Documents/GitHub/feuoir-interface/.venv/bin/python",
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "plataforma": "macOS-26.5.2-x86_64-i386-64bit",
+  "condiciones": {
+    "trabajos": 3,
+    "limite_s": 900
+  },
+  "control": {
+    "codigo_salida": 0,
+    "tiempo_agotado": false,
+    "pruebas_que_fallan": [],
+    "pasa": true
+  },
+  "textos_no_encontrados": {},
+  "resumen": {
+    "mutaciones": 16,
+    "corridas": 16,
+    "detectadas": 16,
+    "sobreviven": []
+  },
+  "mutaciones": [
+    {
+      "mutacion": "rms_sin_raiz",
+      "error_simulado": "RMS calculado como potencia media, sin la raíz",
+      "texto_original": "np.sqrt(np.mean(x**2))",
+      "reemplazo": "np.mean(x**2)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_seno_pico_rms",
+        "test_ruido_blanco_rms",
+        "test_thd_n_armonico_1pc",
+        "test_thd_n_con_ruido",
+        "test_thd_n_banda_angosta",
+        "test_snr"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "pico_sin_valor_absoluto",
+      "error_simulado": "pico calculado como max(x) en vez de max(|x|)",
+      "texto_original": "np.max(np.abs(x))",
+      "reemplazo": "np.max(x)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_seno_pico_rms"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "espectro_sin_factor_2",
+      "error_simulado": "espectro de un solo lado sin el factor 2",
+      "texto_original": "amplitud = 2*np.abs(",
+      "reemplazo": "amplitud = np.abs(",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_espectro_amplitud"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "resolucion_a_la_mitad",
+      "error_simulado": "resolución de la FFT calculada con el doble de muestras",
+      "texto_original": "return fs / n",
+      "reemplazo": "return fs / (2*n)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_dos_tonos_resolucion"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "picos_sin_umbral",
+      "error_simulado": "búsqueda de picos que ignora el umbral",
+      "texto_original": "height=umbral_db",
+      "reemplazo": "height=None",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_dos_tonos_resolucion"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "ajuste_sin_refinar_frecuencia",
+      "error_simulado": "ajuste de senoidal que no refina la frecuencia",
+      "texto_original": "for _ in range(iteraciones):",
+      "reemplazo": "for _ in range(0):",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_ajuste_seno",
+        "test_thd_n_armonico_1pc"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "fase_con_signo_invertido",
+      "error_simulado": "fase del ajuste con el signo cambiado",
+      "texto_original": "np.arctan2(-b, a)",
+      "reemplazo": "np.arctan2(b, a)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_ajuste_seno",
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "thd_n_sin_raiz_de_2",
+      "error_simulado": "RMS de la fundamental tomado igual a su amplitud de pico",
+      "texto_original": "(aj[\"amplitud\"]/np.sqrt(2))",
+      "reemplazo": "aj[\"amplitud\"]",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_thd_n_armonico_1pc",
+        "test_thd_n_con_ruido",
+        "test_thd_n_banda_angosta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "banda_superior_ignorada",
+      "error_simulado": "filtro de banda que no corta en la frecuencia superior",
+      "texto_original": "(f > banda[1])",
+      "reemplazo": "(f > 2*banda[1])",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_thd_n_con_ruido",
+        "test_snr"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "banda_inferior_ignorada",
+      "error_simulado": "filtro de banda que no corta en la frecuencia inferior",
+      "texto_original": "(f < banda[0])",
+      "reemplazo": "(f < banda[0]/2)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_thd_n_banda_angosta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "snr_en_potencia",
+      "error_simulado": "SNR con razón de potencias pasada por 20*log10",
+      "texto_original": "rms(senal) / (rms(ruido) + EPS)",
+      "reemplazo": "rms(senal)**2 / (rms(ruido)**2 + EPS)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_snr"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "tono_con_amplitud_mal_escalada",
+      "error_simulado": "amplitud del tono con 10**(dB/10) en vez de 10**(dB/20)",
+      "texto_original": "x = 10**(amplitud_dbfs/20) * np.sin",
+      "reemplazo": "x = 10**(amplitud_dbfs/10) * np.sin",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_generador_tono",
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "rampa_final_sin_invertir",
+      "error_simulado": "rampa del final que sube en vez de bajar",
+      "texto_original": "env[n-m:] = sube[::-1]",
+      "reemplazo": "env[n-m:] = sube",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_generador_tono"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "barrido_log_con_log10",
+      "error_simulado": "barrido exponencial con log10 en vez de logaritmo natural",
+      "texto_original": "L = duracion_s / np.log(f_fin/f_inicio)",
+      "reemplazo": "L = duracion_s / np.log10(f_fin/f_inicio)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_generador_barrido_log"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "frecuencias_log_una_de_mas",
+      "error_simulado": "frecuencias_log con una frecuencia de más",
+      "texto_original": "+ 1e-9)) + 1",
+      "reemplazo": "+ 1e-9)) + 2",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "respuesta_con_fase_invertida",
+      "error_simulado": "fase de la respuesta en frecuencia restada al revés",
+      "texto_original": "sal[\"fase_rad\"] - ent[\"fase_rad\"]",
+      "reemplazo": "ent[\"fase_rad\"] - sal[\"fase_rad\"]",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    }
+  ]
+}
