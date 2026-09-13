@@ -69,3 +69,11 @@ Antes de confiar en lo que mide medir.py hay que saber que el análisis está bi
 Cada corrida guarda en calibraciones/<fecha>-calibracion/resultados.json todos los chequeos con sus condiciones, lo esperado, lo obtenido y la tolerancia, junto con las versiones de Python, numpy y scipy y el sha256 de analizador.py. Si un chequeo se sale de tolerancia, el script lo muestra y termina con código 1. Las funciones test_ también corren con pytest.
 
 Ninguna función entra a analizador.py sin su prueba en calibrar.py.
+
+## relojes.py
+
+El PCM1808 necesita 12.288 MHz en SCKI y el cristal del Pico es de 12 MHz. relojes.py recorre todas las configuraciones del PLL del RP2040 y del divisor del PIO que dan esa frecuencia exacta, y escribe el resultado en docs/reloj.md con la lista completa en docs/reloj-soluciones.csv.
+
+```
+.venv/bin/python relojes.py
+```
