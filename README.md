@@ -168,6 +168,7 @@ Lo que solo se puede probar en la placa es la lectura real de los registros y el
 - docs/reloj.md: reloj maestro elegido, respaldo, corrección sobre el divisor fraccionario y cómo verificar la frecuencia sin osciloscopio
 - docs/bitacora.md: qué se midió en cada fase, en qué condiciones, qué se decidió y por qué
 - docs/dominio-de-reloj.md: un solo dominio de reloj para el audio, con el diagrama de conexiones del PCM1808, el PCM5102A y el Pico
+- docs/audio-usb.md: cómo se resuelve con USB Audio Class que el reloj de audio no coincida con el de la Mac: captura asíncrona, realimentación para la reproducción y qué soporta TinyUSB
 - docs/datasheets/: hojas de datos del PCM1808, el PCM5102A, el TL072 y el RP2040
 - DECISIONES.md: decisiones de hardware y de método
 

@@ -254,3 +254,23 @@ Qué se decidió y por qué:
 - GPIO16 a GPIO19 del Pico para BCK, LRCK, DOUT y DIN, como propuesta.
 
 Detalle y diagrama de conexiones en docs/dominio-de-reloj.md.
+
+## Fase 15: audio USB con un reloj propio (2026-09-13)
+
+Qué se midió: nada en hardware. Se revisaron el USB 2.0 (sección 5.12.4), la nota técnica TN3190 de Apple, TinyUSB 0.18.0 (la del pico-sdk 2.3.1) y 0.21.0, y el código de tierneytim/Pico-USB-audio.
+
+Condiciones: Pico en velocidad completa, captura y reproducción a 48 kHz en estéreo de 24 bits, con el reloj de audio del PCM1808 en modo maestro.
+
+Resultado:
+
+- Captura: endpoint IN asíncrono, sin realimentación; la Mac acepta de 47 a 49 muestras por milisegundo.
+- Reproducción: necesita realimentación, explícita (10.14 en 3 bytes en velocidad completa) o implícita si entrada y salida comparten reloj, que es nuestro caso.
+- TinyUSB 0.18.0 hace UAC2 con captura asíncrona y realimentación explícita en 3 bytes, pero no implícita. La 0.19.0 agrega la implícita y mantiene la explícita en 3 bytes. Desde la 0.20.0 hay UAC1, pero con UAC2 la explícita va en 4 bytes también en velocidad completa, distinto de lo que pide TN3190.
+- Pico-USB-audio no sigue al reloj de la Mac: descarta paquetes o repite muestras.
+
+Qué se decidió y por qué:
+
+- Captura con endpoint asíncrono al ritmo del PCM1808.
+- Para la reproducción, primero la realimentación implícita, porque ADC y DAC comparten reloj y no hace falta endpoint extra; requiere TinyUSB 0.19.0 o posterior, donde entró. Respaldo: la explícita en 3 bytes, que está en la 0.18.0 y en la 0.19.0. La 0.19.0 permite las dos sin cambiar de versión.
+- Queda por verificar en macOS 26 que la implícita funcione: TN3190 la documenta, pero no hay prueba propia.
+- Sin firmware todavía. Detalle en docs/audio-usb.md.
