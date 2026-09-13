@@ -1,8 +1,8 @@
 # Bitácora
 
-Una entrada por fase: qué se midió, en qué condiciones, qué se decidió y por qué. Los resultados completos están en los archivos que cita cada entrada.
+Una entrada por etapa de trabajo, numeradas en el orden en que se hicieron: qué se midió, en qué condiciones, qué se decidió y por qué. Esa numeración no es la de las fases del proyecto, donde la captura por USB es la fase 5 y la reproducción la fase 6. Los resultados completos están en los archivos que cita cada entrada.
 
-## Fase 0: herramienta de medición (2026-09-13)
+## Entrada 0: herramienta de medición (2026-09-13)
 
 Qué se midió: nada que quedara guardado. medir.py se probó con el micrófono interno de la Mac solo para validar que graba y guarda; no hay capturas en mediciones/.
 
@@ -16,7 +16,7 @@ Qué se decidió y por qué:
 
 Detalle en DECISIONES.md.
 
-## Fase 1: verificación del análisis (2026-09-13)
+## Entrada 1: verificación del análisis (2026-09-13)
 
 Qué se midió: el código de análisis, con señales sintéticas de resultado conocido y sin hardware. calibrar.py corre 11 pruebas con 170 chequeos:
 
@@ -37,11 +37,11 @@ Qué se decidió y por qué:
 - Se agregó el caso del pico en la excursión negativa. Sin él, un pico calculado como max(x) en vez de max(|x|) pasaba todas las pruebas, porque en una senoidal los dos dan lo mismo.
 - Las señales de las pruebas se arman con numpy dentro de calibrar.py, sin usar los generadores de analizador.py, para que un error en un generador no tape un error en el análisis. Los generadores se verifican aparte.
 
-## Fase 2: analizador.py (2026-09-13)
+## Entrada 2: analizador.py (2026-09-13)
 
-Qué se midió: lo mismo que en la fase 1; cada función de analizador.py tiene su prueba en calibrar.py.
+Qué se midió: lo mismo que en la entrada 1; cada función de analizador.py tiene su prueba en calibrar.py.
 
-Condiciones: las de la fase 1.
+Condiciones: las de la entrada 1.
 
 Qué se decidió y por qué:
 
@@ -52,7 +52,7 @@ Qué se decidió y por qué:
 - SNR con dos capturas, porque con el circuito la medición va a ser así: una captura con el tono de prueba y otra con la entrada sin señal.
 - Respuesta en frecuencia con barrido escalonado (tonos de 0.5 s y se descarta el 20 % de cada borde) en vez de un barrido continuo. Cada punto sale de un ajuste de senoidal y se puede comparar contra una respuesta exacta. El barrido logarítmico también está, como señal de excitación.
 
-## Fase 3: reloj maestro del PCM1808 (2026-09-13)
+## Entrada 3: reloj maestro del PCM1808 (2026-09-13)
 
 Qué se midió: no hay medición, es un cálculo. relojes.py recorrió las 941.535 combinaciones de REFDIV, FBDIV, POSTDIV1 y POSTDIV2 del PLL del RP2040 y se quedó con las que, con el divisor del PIO, dan exactamente 12.288 MHz o 24.576 MHz en la máquina de estados.
 
@@ -69,7 +69,7 @@ Qué se decidió y por qué:
 - Conclusión de diseño: con el PIO no existe configuración de divisor entero para el reloj maestro. La elegida no tiene variación de periodo, pero su ciclo de trabajo es 40/60 %, justo en el límite del PCM1808.
 - Queda pendiente medir ese ciclo de trabajo con osciloscopio y evaluar la salida de reloj por GPIO21 con divisor entero 5 y DC50, que evitaría el divisor fraccionario.
 
-## Fase 4: toolchain del Pico (2026-09-13)
+## Entrada 4: toolchain del Pico (2026-09-13)
 
 Qué se midió: que el toolchain compila el ejemplo blink de pico-examples hasta el .uf2, sin placa conectada.
 
@@ -85,7 +85,7 @@ Qué se decidió y por qué:
 - Del SDK solo el submódulo lib/tinyusb. Los demás no hicieron falta para compilar.
 - Compilación con -j4 y no con todos los núcleos, porque la Mac anda justa de memoria.
 
-## Fase 5: hojas de datos (2026-09-13)
+## Entrada 5: hojas de datos (2026-09-13)
 
 Qué se bajó, a docs/datasheets/:
 
@@ -103,26 +103,26 @@ Qué se decidió y por qué:
 - Las restricciones del PLL del enunciado coinciden con la sección 2.18 de la hoja del RP2040. La hoja agrega dos más (referencia de al menos 5 MHz y clk_sys de 133 MHz como máximo) y relojes.py las marca aparte en vez de mezclarlas, para que se vea qué descarta cada una.
 - Del PCM1808 salen los requisitos de SCKI que usa relojes.py: 256, 384 o 512 fS, ciclo de trabajo de 40 % a 60 % y pulsos de al menos 8 ns.
 
-## Fase 6: reloj maestro por GPOUT0 con DC50 (2026-09-13)
+## Entrada 6: reloj maestro por GPOUT0 con DC50 (2026-09-13)
 
 Qué se midió: no hay medición. Se agregó a relojes.py el camino de la salida de reloj GPOUT0 y se compiló el firmware que configura el reloj.
 
-Condiciones: las restricciones de la fase 3, más las del divisor de GPOUT0 (entero de 24 bits más fracción/256, que divide por 1 o por 2.0 en adelante) y la corrección de ciclo de trabajo DC50 (hoja del RP2040, sección 2.15.3.4). Firmware compilado con el toolchain de la fase 4 para PICO_BOARD=pico.
+Condiciones: las restricciones de la entrada 3, más las del divisor de GPOUT0 (entero de 24 bits más fracción/256, que divide por 1 o por 2.0 en adelante) y la corrección de ciclo de trabajo DC50 (hoja del RP2040, sección 2.15.3.4). Firmware compilado con el toolchain de la entrada 4 para PICO_BOARD=pico.
 
 Resultado: con divisor entero, la única solución que cumple la hoja sigue siendo clk_sys de 61.44 MHz dividido por 5. firmware/build/feuoir.uf2 compila sin avisos, 14336 bytes en 28 bloques UF2. No se probó en una placa.
 
 Qué se decidió y por qué:
 
-- Reemplaza la decisión de la fase 3. El reloj maestro sale por GPOUT0 en GPIO21, con clk_sys de 61.44 MHz, divisor entero 5 y DC50. El ciclo de trabajo queda en 50 % nominal, con margen dentro de los 40 % a 60 % del PCM1808 en vez de quedar en el límite; el divisor entero no alterna; y se libera una máquina de estados del PIO para el I2S de entrada y el de salida.
+- Reemplaza la decisión de la entrada 3. El reloj maestro sale por GPOUT0 en GPIO21, con clk_sys de 61.44 MHz, divisor entero 5 y DC50. El ciclo de trabajo queda en 50 % nominal, con margen dentro de los 40 % a 60 % del PCM1808 en vez de quedar en el límite; el divisor entero no alterna; y se libera una máquina de estados del PIO para el I2S de entrada y el de salida.
 - DC50 se escribe a mano después de clock_gpio_init_int_frac8, porque esa función del SDK 2.3.1 escribe CTRL sin DC50 y lo borraría si se pusiera antes. Sin DC50, dividir por 5 da 40 %. La hoja permite activarlo con el reloj corriendo.
 - El PIO a 24.576 MHz con divisor 2.5 queda documentado como respaldo.
-- Corrección a lo que se asumió en la fase 3: con fracción de exactamente 0.5 y un bucle de dos instrucciones, el periodo del PIO sale exacto. No hay jitter de periodo; el problema es solo el ciclo de trabajo asimétrico.
+- Corrección a lo que se asumió en la entrada 3: con fracción de exactamente 0.5 y un bucle de dos instrucciones, el periodo del PIO sale exacto. No hay jitter de periodo; el problema es solo el ciclo de trabajo asimétrico.
 - No hay sysclk más alto con divisor entero. Los únicos son 61.44, 307.2 y 1536 MHz, y solo el primero cumple la hoja. 122.88 MHz no aparece en ninguna solución, y 153.6 MHz solo con divisor fraccionario y por encima de 133 MHz. Si más adelante hace falta CPU, el precio es volver a un divisor fraccionario.
 - No hay osciloscopio. La frecuencia se va a verificar con el contador de frecuencia interno del RP2040, primero sobre la salida del PLL y después con GPIO21 puenteado a GPIO20. Contra otro reloj, se usa una versión de prueba a 750 Hz grabada con la tarjeta USB y medida con analizador.py. Detalle en docs/reloj.md.
 
-## Fase 7: prueba de errores inyectados como script (2026-09-13)
+## Entrada 7: prueba de errores inyectados como script (2026-09-13)
 
-Qué se midió: que calibrar.py atrapa los 15 errores de la fase 1, ahora con tests/mutaciones.py dentro del repo en lugar de la corrida suelta de esa fase.
+Qué se midió: que calibrar.py atrapa los 15 errores de la entrada 1, ahora con tests/mutaciones.py dentro del repo en lugar de la corrida suelta de esa entrada.
 
 Condiciones: Python 3.12.0, numpy 2.5.3, scipy 1.18.1, macOS 26.5.2 en Intel. analizador.py con sha256 que empieza en 112481eab5b7 y calibrar.py en 65da94a83f2d. Tres calibraciones en paralelo.
 
@@ -131,7 +131,7 @@ Resultado: la copia de control pasó y las 15 copias con errores hicieron fallar
 Qué se decidió y por qué:
 
 - La prueba vive en tests/mutaciones.py y es ejecutable, para volver a correrla cada vez que alguien toque analizador.py o calibrar.py.
-- Corre primero una copia sin cambios como control. Si el control fallara, que fallen las copias con errores no demostraría nada. La corrida suelta de la fase 1 no tenía control.
+- Corre primero una copia sin cambios como control. Si el control fallara, que fallen las copias con errores no demostraría nada. La corrida suelta de la entrada 1 no tenía control.
 - Cada mutación reemplaza un texto que tiene que aparecer exactamente una vez en analizador.py. Si un cambio lo hace desaparecer, el script falla en vez de saltarse esa mutación en silencio, y hay que actualizarla.
 - Tres calibraciones en paralelo por defecto, para no llenar la memoria de la Mac.
 
@@ -144,11 +144,11 @@ Desde el commit e32c257 (Extrae el análisis a analizador.py), el espectro de ca
 
 Para saber de qué lado está una gráfica alcanza con mirar el rótulo del eje vertical. Los valores pico_dbfs y rms_dbfs de condiciones.json no cambiaron: la fórmula es la misma, y en 300 capturas simuladas dieron idénticos a dos decimales con el código de antes y con el de después.
 
-## Fase 8: THD+N en banda angosta (2026-09-13)
+## Entrada 8: THD+N en banda angosta (2026-09-13)
 
 Qué se midió: que thd_n limitado a una banda angosta alrededor del tono ve solo lo que está cerca. Es la medición que se va a usar para las faldas que deja el jitter.
 
-Condiciones: las de la fase 1. Tono de 1 kHz con bandas laterales a ±100 Hz del 0.1 % de su amplitud, y componentes del 1 % a 500 Hz y a 3 kHz, fuera de la banda de 800 a 1200 Hz.
+Condiciones: las de la entrada 1. Tono de 1 kHz con bandas laterales a ±100 Hz del 0.1 % de su amplitud, y componentes del 1 % a 500 Hz y a 3 kHz, fuera de la banda de 800 a 1200 Hz.
 
 Resultado: calibrar.py pasa las 12 pruebas con 172 chequeos (calibraciones/2026-09-13-calibracion-3) y tests/mutaciones.py detecta las 16 mutaciones (calibraciones/2026-09-13-mutaciones-2).
 
@@ -157,7 +157,7 @@ Qué se decidió y por qué:
 - La prueba nueva cubre un hueco: ninguna prueba usaba el borde inferior de la banda. Con la banda por defecto, de 20 Hz a 20 kHz, no hay nada por debajo de 20 Hz, así que un filtro que no cortara abajo pasaba todas las pruebas. Se comprobó con calibrar.py del commit be2678e y ese error inyectado: la calibración pasaba con código 0. Ahora lo atrapa test_thd_n_banda_angosta.
 - Ese error quedó como mutación nueva en tests/mutaciones.py, banda_inferior_ignorada.
 
-## Fase 9: jitter del reloj maestro (2026-09-13)
+## Entrada 9: jitter del reloj maestro (2026-09-13)
 
 Qué se midió: nada en hardware. Se revisaron las hojas del PCM1808 y del RP2040 buscando datos de jitter, y se simuló con jitter.py el efecto del jitter sobre un tono, medido con analizador.py.
 
@@ -175,11 +175,11 @@ Qué se decidió y por qué:
 - El espectro sirve para ver la forma pero no para medir cerca del tono: si el tono no cae justo en un bin, la fuga de la ventana tapa lo que está a menos de 20 Hz.
 - El número que las hojas no dan lo va a dar la comparación con un oscilador externo. Si no hay diferencia medible, el efecto del jitter de GPOUT0 queda acotado por debajo de lo que resuelve el sistema.
 
-## Fase 10: oscilador externo previsto para comparar (2026-09-13)
+## Entrada 10: oscilador externo previsto para comparar (2026-09-13)
 
 Qué se midió: nada en hardware. Se compiló el firmware con y sin la opción FEUOIR_RELOJ_EXTERNO, que deja GPOUT0 apagado.
 
-Condiciones: toolchain de la fase 4 y PICO_BOARD=pico, en firmware/build y firmware/build-externo.
+Condiciones: toolchain de la entrada 4 y PICO_BOARD=pico, en firmware/build y firmware/build-externo.
 
 Resultado: las dos variantes compilan sin avisos. En la del oscilador externo el ELF no incluye clock_gpio_init_int_frac16, así que GPOUT0 no se configura; en la de GPOUT0 sí está. No se probó en una placa.
 
@@ -191,11 +191,11 @@ Qué se decidió y por qué:
 - clk_sys queda en 61.44 MHz con las dos fuentes, para que entre las dos mediciones solo cambie SCKI.
 - El jumper se cambia sin alimentación, porque la hoja del PCM1808 pide el reset de reloj detenido al cambiar SCKI.
 
-## Fase 11: firmware de verificación del reloj (2026-09-13)
+## Entrada 11: firmware de verificación del reloj (2026-09-13)
 
 Qué se midió: nada en hardware. Se compiló firmware/verificar_reloj.c en las dos variantes y se probó en la Mac la parte que arma el informe.
 
-Condiciones: toolchain de la fase 4 y PICO_BOARD=pico. La prueba en la Mac compila firmware/informe.c con Apple clang 21.0.0 y corre 11 casos.
+Condiciones: toolchain de la entrada 4 y PICO_BOARD=pico. La prueba en la Mac compila firmware/informe.c con Apple clang 21.0.0 y corre 11 casos.
 
 Resultado: las dos variantes compilan sin avisos, y los static_assert confirman que los campos de registro de informe.h coinciden con las macros del SDK 2.3.1. Pasan los 11 casos: todo en orden, DC50 sin activar, PLL sin configurar, divisor con fracción, sin puente, frecuencias a cada lado de la tolerancia, contador que no termina y tres casos del oscilador externo. Sin probar en placa: la lectura real de los registros y el contador de frecuencia.
 
@@ -207,7 +207,7 @@ Qué se decidió y por qué:
 - GPIO20 tiene pull-down para que sin puente lea cero y el informe diga que falta el puente, en vez de medir ruido.
 - Cada medición tiene un límite de 1 s, para que un contador que no termina no cuelgue el firmware.
 
-## Fase 12: lectura del informe de verificación (2026-09-13)
+## Entrada 12: lectura del informe de verificación (2026-09-13)
 
 Qué se midió: nada en hardware. Se probó leer_verificacion.py con un pseudo terminal en lugar del puerto USB.
 
@@ -222,7 +222,7 @@ Qué se decidió y por qué:
 - Si el puerto se abre a mitad de un informe, ese pedazo se descarta y se espera el siguiente inicio_informe.
 - Un informe con fallas igual se guarda, y el script termina con código 1.
 
-## Fase 13: prueba de jitter por pendiente (2026-09-13)
+## Entrada 13: prueba de jitter por pendiente (2026-09-13)
 
 Qué se midió: la prueba de pendiente de analizador.py contra capturas sintéticas con jitter conocido, armadas con numpy en calibrar.py.
 
@@ -238,7 +238,7 @@ Qué se decidió y por qué:
 - Tres veredictos y no dos: si el término que crece con f suma menos de 1 dB en el tono más agudo, lo que se puede afirmar es que no hay efecto detectable, no que no hay jitter.
 - Capacidad nueva, mutación nueva, como costumbre: 4 mutaciones atacan la pendiente, el término de ruido de fondo, la corrección por ancho de banda y el ancho fijo de la banda. La regla quedó escrita en el README.
 
-## Fase 14: un solo dominio de reloj para el audio (2026-09-13)
+## Entrada 14: un solo dominio de reloj para el audio (2026-09-13)
 
 Qué se midió: nada en hardware. Se revisaron las hojas del PCM5102A (SLAS859C), del PCM1808 y del RP2040, y páginas de la comunidad sobre el módulo del PCM5102A.
 
@@ -255,7 +255,7 @@ Qué se decidió y por qué:
 
 Detalle y diagrama de conexiones en docs/dominio-de-reloj.md.
 
-## Fase 15: audio USB con un reloj propio (2026-09-13)
+## Entrada 15: audio USB con un reloj propio (2026-09-13)
 
 Qué se midió: nada en hardware. Se revisaron el USB 2.0 (sección 5.12.4), la nota técnica TN3190 de Apple, TinyUSB 0.18.0 (la del pico-sdk 2.3.1) y 0.21.0, y el código de tierneytim/Pico-USB-audio.
 
