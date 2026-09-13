@@ -336,3 +336,18 @@ Qué se decidió y por qué:
 - El firmware de verificación sirve en todas las etapas. En la del reloj, con el puente de GP21 a GP20 desde el extremo de R1. En la del ADC, el mismo puente llevado a BCK y a LRCK mide 3.072 MHz y 48 kHz sin firmware nuevo: el informe marca FALLA porque espera 12.288 MHz, pero el valor medido confirma el modo maestro.
 - El DAC se enciende en 4 hilos, sin nada en sus salidas. La prueba de sonido queda para cuando haya firmware de reproducción.
 - La lista tiene qué no hacer y qué síntomas obligan a desenchufar, escrita para seguirla de noche.
+
+## Entrada 20: cáscara de la app de medición en vivo (2026-09-13)
+
+Qué se midió: nada. Se revisaron la documentación de Tauri 2 y de Electron, los paquetes de PyPI y las herramientas instaladas en la Mac.
+
+Condiciones: macOS 26.5.2 en Intel, Python 3.12.0, Node 24, Rust 1.97.1. Python es la única fuente de verdad y TypeScript solo dibuja, conectados por WebSocket.
+
+Resultado: las tres opciones funcionan en Intel. Tauri usa la webview del sistema pero corre Python como sidecar empaquetado con PyInstaller. Electron embebe Chromium y Node.js. aiohttp y pywebview tienen paquetes para Python 3.12 en Intel.
+
+Qué se decidió y por qué:
+
+- Python sirve la página y el WebSocket con aiohttp desde el mismo proceso que lee el audio y analiza, y pywebview la muestra en una ventana propia. Un solo proceso, dos paquetes más en el .venv y un comando para arrancar.
+- Se descartó Tauri por el segundo proceso empaquetado y la cáscara en Rust, a cambio de un .app que no hace falta, y Electron por el costo de memoria de Chromium en una Mac que ya anda al límite.
+- La prueba del contrato del WebSocket corre sin ventana, con un cliente de aiohttp y la fuente sintética.
+- Detalle en docs/app-cascara.md. Queda por decidir dónde vive la app y con qué se dibuja.
