@@ -302,3 +302,23 @@ Qué se decidió y por qué:
 - Con SCK a GND el DAC usa su PLL desde BCK, en 3 hilos. Con SCK en SCKI usa el mismo reloj maestro que el ADC, en 4 hilos, y sigue siendo sincrónico porque BCK y LRCK salen de SCKI.
 - El puente de soldadura de SCK a GND del módulo queda abierto: cerrado, la posición de 4 hilos pondría la salida del reloj maestro en cortocircuito a tierra.
 - El primer encendido del DAC va en 4 hilos, que no depende de la nota del historial.
+
+## Entrada 18: resistencias en serie (2026-09-13)
+
+Qué se midió: nada en hardware. Se calcularon las resistencias en serie con los límites de corriente y los umbrales de las hojas del RP2040, el PCM1808 y el PCM5102A.
+
+Condiciones: 3.3 V de lógica, reloj maestro de 12.288 MHz y BCK de 3.072 MHz. Carga de 20 pF por nodo, que es la carga máxima con la que el PCM1808 especifica sus salidas; ninguna de las tres hojas da la capacitancia de entrada.
+
+Resultado:
+
+- Corriente: el RP2040 especifica sus salidas hasta 12 mA y el PCM1808 tiene un máximo absoluto de ±10 mA por pin. Para el RP2040 hace falta R ≥ 275 Ω.
+- Flancos a 12.288 MHz: por los umbrales asimétricos de SCKI (2.0 V y 0.8 V), el RC corre el ciclo de trabajo 0.49·RC / 81.4 ns. Para no pasar de 5 puntos, RC ≤ 8.4 ns, o sea R ≤ 419 Ω con 20 pF.
+- Valores: 330 Ω en las dos líneas de reloj maestro (10 mA en corto, ciclo de trabajo corrido 3.9 puntos) y 470 Ω en BCK, LRCK, DOUT y DIN (7 mA en corto). Con todo en falla a la vez el RP2040 entregaría 38 mA, debajo de su límite de 50 mA.
+
+Qué se decidió y por qué:
+
+- Una resistencia en serie en cada línea digital entre el Pico y los módulos, pegada al pin que la maneja. Con jumpers, un error de armado puede quemar una salida; la resistencia lo convierte en un error sin consecuencias.
+- Dos valores y no uno. En el reloj manda la restricción de flancos y en las demás líneas la de corriente; un único valor de 470 Ω dejaría el reloj con 5.7 puntos de corrimiento.
+- El nodo de SCKI tiene que sumar como mucho 25 pF con 330 Ω, así que sus cables son cortos.
+- Los puentes de verificación hacia GPIO20 salen del lado de la resistencia que no toca el pin.
+- No había lista de compras en el repo: se creó docs/compras.md a partir del diseño.
