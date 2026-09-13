@@ -1,0 +1,3135 @@
+{
+  "fecha_hora": "2026-09-13T14:32:58-05:00",
+  "analizador_sha256": "112481eab5b72325a0a2902f4160c31ff05553d9975b7748140e2a7ef3d739bc",
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "plataforma": "macOS-26.5.2-x86_64-i386-64bit",
+  "resumen": {
+    "pruebas": 11,
+    "pruebas_fallidas": 0,
+    "chequeos_ejecutados": 170,
+    "chequeos_fallidos": 0
+  },
+  "errores": [],
+  "chequeos": [
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 1.0,
+        "duracion_s": 1.0
+      },
+      "esperado": 0.0,
+      "obtenido": 8.686661818707667e-12,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 1.0,
+        "duracion_s": 1.0
+      },
+      "esperado": -3.0102999566398125,
+      "obtenido": -3.010299956627528,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.5,
+        "duracion_s": 1.0
+      },
+      "esperado": -6.020599913279624,
+      "obtenido": -6.020599913262252,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.5,
+        "duracion_s": 1.0
+      },
+      "esperado": -9.030899869919436,
+      "obtenido": -9.030899869894869,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.1,
+        "duracion_s": 1.0
+      },
+      "esperado": -20.0,
+      "obtenido": -19.99999999991314,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.1,
+        "duracion_s": 1.0
+      },
+      "esperado": -23.010299956639813,
+      "obtenido": -23.010299956516974,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.001,
+        "duracion_s": 1.0
+      },
+      "esperado": -60.0,
+      "obtenido": -59.99999999131411,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.001,
+        "duracion_s": 1.0
+      },
+      "esperado": -63.01029995663981,
+      "obtenido": -63.010299944356106,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 1.0,
+        "duracion_s": 1.0
+      },
+      "esperado": 0.0,
+      "obtenido": -5.509950991250677e-05,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 1.0,
+        "duracion_s": 1.0
+      },
+      "esperado": -3.0102999566398125,
+      "obtenido": -3.010299956627528,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.5,
+        "duracion_s": 1.0
+      },
+      "esperado": -6.020599913279624,
+      "obtenido": -6.020655012780852,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.5,
+        "duracion_s": 1.0
+      },
+      "esperado": -9.030899869919436,
+      "obtenido": -9.030899869894869,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.1,
+        "duracion_s": 1.0
+      },
+      "esperado": -20.0,
+      "obtenido": -20.000055099431737,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.1,
+        "duracion_s": 1.0
+      },
+      "esperado": -23.010299956639813,
+      "obtenido": -23.010299956516974,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.001,
+        "duracion_s": 1.0
+      },
+      "esperado": -60.0,
+      "obtenido": -60.00005509083265,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "rms_dbfs",
+      "condiciones": {
+        "fs_hz": 44100,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.001,
+        "duracion_s": 1.0
+      },
+      "esperado": -63.01029995663981,
+      "obtenido": -63.010299944356106,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_seno_pico_rms",
+      "chequeo": "pico_dbfs_excursion_negativa",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.2,
+        "dc": -0.5,
+        "duracion_s": 1.0
+      },
+      "esperado": -3.0980391997148637,
+      "obtenido": -3.098039199702456,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_ruido_blanco_rms",
+      "chequeo": "rms_dbfs_ruido_gaussiano",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "desviacion": 0.1,
+        "varianza": 0.010000000000000002,
+        "semilla": 12345
+      },
+      "esperado": -20.0,
+      "obtenido": -20.010925165647105,
+      "tolerancia": 0.050111850787409144,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_ruido_blanco_rms",
+      "chequeo": "rms_dbfs_ruido_gaussiano",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "desviacion": 0.01,
+        "varianza": 0.0001,
+        "semilla": 12345
+      },
+      "esperado": -40.0,
+      "obtenido": -40.01092516486439,
+      "tolerancia": 0.050111850787409144,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_ruido_blanco_rms",
+      "chequeo": "rms_dbfs_ruido_gaussiano",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "desviacion": 0.0001,
+        "varianza": 1e-08,
+        "semilla": 12345
+      },
+      "esperado": -80.0,
+      "obtenido": -80.01092507876585,
+      "tolerancia": 0.050111850787409144,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_ruido_blanco_rms",
+      "chequeo": "rms_dbfs_ruido_uniforme",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "limite": 0.3,
+        "varianza": 0.03,
+        "semilla": 54321
+      },
+      "esperado": -15.228787452803376,
+      "obtenido": -15.242281335178664,
+      "tolerancia": 0.050111850787409144,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_espectro_amplitud",
+      "chequeo": "pico_espectro_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "n": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 1.0,
+        "ventana": "hann"
+      },
+      "esperado": 0.0,
+      "obtenido": 8.688590473640772e-12,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_espectro_amplitud",
+      "chequeo": "frecuencia_del_pico",
+      "condiciones": {
+        "fs_hz": 48000,
+        "n": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 1.0,
+        "ventana": "hann"
+      },
+      "esperado": 1000.0,
+      "obtenido": 1000.0,
+      "tolerancia": 0,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_espectro_amplitud",
+      "chequeo": "pico_espectro_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "n": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.01,
+        "ventana": "hann"
+      },
+      "esperado": -40.0,
+      "obtenido": -39.999999999131404,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_espectro_amplitud",
+      "chequeo": "frecuencia_del_pico",
+      "condiciones": {
+        "fs_hz": 48000,
+        "n": 48000,
+        "frecuencia_hz": 1000,
+        "amplitud": 0.01,
+        "ventana": "hann"
+      },
+      "esperado": 1000.0,
+      "obtenido": 1000.0,
+      "tolerancia": 0,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "resolucion_hz",
+      "condiciones": {
+        "fs_hz": 48000,
+        "n": 4800
+      },
+      "esperado": 10.0,
+      "obtenido": 10.0,
+      "tolerancia": 1e-09,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 0.1,
+        "resolucion_hz": 10.0,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 0.2,
+        "amplitud": 0.5,
+        "fase_f2_rad": 0.0,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1.0,
+      "obtenido": 1.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 0.1,
+        "resolucion_hz": 10.0,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 0.2,
+        "amplitud": 0.5,
+        "fase_f2_rad": 1.5707963267948966,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1.0,
+      "obtenido": 1.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 0.1,
+        "resolucion_hz": 10.0,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 0.2,
+        "amplitud": 0.5,
+        "fase_f2_rad": 3.141592653589793,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1.0,
+      "obtenido": 1.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 0.1,
+        "resolucion_hz": 10.0,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 0.2,
+        "amplitud": 0.5,
+        "fase_f2_rad": 4.71238898038469,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1.0,
+      "obtenido": 1.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "resolucion_hz",
+      "condiciones": {
+        "fs_hz": 48000,
+        "n": 96000
+      },
+      "esperado": 0.5,
+      "obtenido": 0.5,
+      "tolerancia": 1e-09,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 0.0,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 2.0,
+      "obtenido": 2.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_1",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 0.0,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1000.1,
+      "obtenido": 1000.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_2",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 0.0,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1002.1,
+      "obtenido": 1002.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 1.5707963267948966,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 2.0,
+      "obtenido": 2.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_1",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 1.5707963267948966,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1000.1,
+      "obtenido": 1000.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_2",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 1.5707963267948966,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1002.1,
+      "obtenido": 1002.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 3.141592653589793,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 2.0,
+      "obtenido": 2.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_1",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 3.141592653589793,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1000.1,
+      "obtenido": 1000.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_2",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 3.141592653589793,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1002.1,
+      "obtenido": 1002.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "picos_detectados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 4.71238898038469,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 2.0,
+      "obtenido": 2.0,
+      "tolerancia": 0,
+      "unidad": "picos",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_1",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 4.71238898038469,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1000.1,
+      "obtenido": 1000.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_dos_tonos_resolucion",
+      "chequeo": "frecuencia_pico_2",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "resolucion_hz": 0.5,
+        "f1_hz": 1000.1,
+        "f2_hz": 1002.1,
+        "separacion_bins": 4.0,
+        "amplitud": 0.5,
+        "fase_f2_rad": 4.71238898038469,
+        "ventana": "hann",
+        "umbral_dbfs": -20.0
+      },
+      "esperado": 1002.1,
+      "obtenido": 1002.0,
+      "tolerancia": 0.25,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "amplitud",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": null
+      },
+      "esperado": 0.3,
+      "obtenido": 0.29999999999999993,
+      "tolerancia": 1e-09,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "frecuencia",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": null
+      },
+      "esperado": 997.3,
+      "obtenido": 997.3,
+      "tolerancia": 1e-06,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "fase",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": null
+      },
+      "esperado": 0.7,
+      "obtenido": 0.6999999999998875,
+      "tolerancia": 1e-06,
+      "unidad": "rad",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "dc",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": null
+      },
+      "esperado": 0.01,
+      "obtenido": 0.010000000000000021,
+      "tolerancia": 1e-09,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "amplitud",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": 997.5999999999999
+      },
+      "esperado": 0.3,
+      "obtenido": 0.29999999999999993,
+      "tolerancia": 1e-09,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "frecuencia",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": 997.5999999999999
+      },
+      "esperado": 997.3,
+      "obtenido": 997.3,
+      "tolerancia": 1e-06,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "fase",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": 997.5999999999999
+      },
+      "esperado": 0.7,
+      "obtenido": 0.6999999999998875,
+      "tolerancia": 1e-06,
+      "unidad": "rad",
+      "paso": true
+    },
+    {
+      "prueba": "test_ajuste_seno",
+      "chequeo": "dc",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "amplitud": 0.3,
+        "frecuencia_hz": 997.3,
+        "fase_rad": 0.7,
+        "dc": 0.01,
+        "f0_inicial_hz": 997.5999999999999
+      },
+      "esperado": 0.01,
+      "obtenido": 0.010000000000000021,
+      "tolerancia": 1e-09,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_armonico_1pc",
+      "chequeo": "thd_n_porcentaje",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "fundamental_hz": 1000.0,
+        "amplitud_fundamental": 0.5,
+        "orden_armonico": 2,
+        "amplitud_armonico": 0.005,
+        "fase_armonico_rad": 0.0,
+        "banda_hz": [
+          20,
+          20000
+        ],
+        "f0_dado": false
+      },
+      "esperado": 1.0,
+      "obtenido": 0.9999997340982808,
+      "tolerancia": 0.0005,
+      "unidad": "%",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_armonico_1pc",
+      "chequeo": "thd_n_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "fundamental_hz": 1000.0,
+        "amplitud_fundamental": 0.5,
+        "orden_armonico": 2,
+        "amplitud_armonico": 0.005,
+        "fase_armonico_rad": 0.0,
+        "banda_hz": [
+          20,
+          20000
+        ],
+        "f0_dado": false
+      },
+      "esperado": -40.0,
+      "obtenido": -40.0000023087247,
+      "tolerancia": 0.005,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_armonico_1pc",
+      "chequeo": "thd_n_porcentaje",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "fundamental_hz": 1000.0,
+        "amplitud_fundamental": 0.5,
+        "orden_armonico": 3,
+        "amplitud_armonico": 0.005,
+        "fase_armonico_rad": 1.1,
+        "banda_hz": [
+          20,
+          20000
+        ],
+        "f0_dado": false
+      },
+      "esperado": 1.0,
+      "obtenido": 0.9999999694987098,
+      "tolerancia": 0.0005,
+      "unidad": "%",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_armonico_1pc",
+      "chequeo": "thd_n_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "fundamental_hz": 1000.0,
+        "amplitud_fundamental": 0.5,
+        "orden_armonico": 3,
+        "amplitud_armonico": 0.005,
+        "fase_armonico_rad": 1.1,
+        "banda_hz": [
+          20,
+          20000
+        ],
+        "f0_dado": false
+      },
+      "esperado": -40.0,
+      "obtenido": -40.00000026406226,
+      "tolerancia": 0.005,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_armonico_1pc",
+      "chequeo": "thd_n_porcentaje",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "fundamental_hz": 997.3,
+        "amplitud_fundamental": 0.5,
+        "orden_armonico": 2,
+        "amplitud_armonico": 0.005,
+        "fase_armonico_rad": 0.4,
+        "banda_hz": [
+          20,
+          20000
+        ],
+        "f0_dado": false
+      },
+      "esperado": 1.0,
+      "obtenido": 0.9999879133409452,
+      "tolerancia": 0.0005,
+      "unidad": "%",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_armonico_1pc",
+      "chequeo": "thd_n_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 1.0,
+        "fundamental_hz": 997.3,
+        "amplitud_fundamental": 0.5,
+        "orden_armonico": 2,
+        "amplitud_armonico": 0.005,
+        "fase_armonico_rad": 0.4,
+        "banda_hz": [
+          20,
+          20000
+        ],
+        "f0_dado": false
+      },
+      "esperado": -40.0,
+      "obtenido": -40.0001049831525,
+      "tolerancia": 0.005,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_con_ruido",
+      "chequeo": "thd_n_porcentaje",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "amplitud_fundamental": 1.0,
+        "fundamental_hz": 1000,
+        "desviacion_ruido": 0.001,
+        "semilla": 20260913,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "esperado": 0.12903487900563942,
+      "obtenido": 0.129373562209242,
+      "tolerancia": 0.0012909944487358058,
+      "unidad": "%",
+      "paso": true
+    },
+    {
+      "prueba": "test_thd_n_con_ruido",
+      "chequeo": "thd_n_porcentaje",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 2.0,
+        "amplitud_fundamental": 1.0,
+        "fundamental_hz": 1000,
+        "desviacion_ruido": 0.001,
+        "semilla": 20260913,
+        "banda_hz": null
+      },
+      "esperado": 0.14142135623730953,
+      "obtenido": 0.1416332200046606,
+      "tolerancia": 0.0012909944487358058,
+      "unidad": "%",
+      "paso": true
+    },
+    {
+      "prueba": "test_snr",
+      "chequeo": "snr_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "amplitud_tono": 0.5,
+        "frecuencia_hz": 1000,
+        "desviacion_ruido": 0.001,
+        "semilla": 777,
+        "banda_hz": null
+      },
+      "esperado": 50.96910013008056,
+      "obtenido": 50.94677463709539,
+      "tolerancia": 0.050111850787409144,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_snr",
+      "chequeo": "snr_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "amplitud_tono": 0.5,
+        "frecuencia_hz": 1000,
+        "desviacion_ruido": 0.001,
+        "semilla": 777,
+        "banda_hz": [
+          20.0,
+          20000.0
+        ]
+      },
+      "esperado": 51.765257708296986,
+      "obtenido": 51.73786090138261,
+      "tolerancia": 0.054918450206591404,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "muestras",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 48000.0,
+      "obtenido": 48000.0,
+      "tolerancia": 0,
+      "unidad": "muestras",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": -6.0,
+      "obtenido": -5.99999999998267,
+      "tolerancia": 0.001,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "frecuencia",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 1000.0,
+      "obtenido": 999.9999999999999,
+      "tolerancia": 1e-06,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "amplitud_ajustada_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": -6.0,
+      "obtenido": -6.000000000000001,
+      "tolerancia": 1e-06,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "rampa_primera_muestra",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.01
+      },
+      "esperado": 0.0,
+      "obtenido": 0.0,
+      "tolerancia": 1e-12,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "rampa_ultima_muestra",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.01
+      },
+      "esperado": 0.0,
+      "obtenido": 0.0,
+      "tolerancia": 1e-12,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_tono",
+      "chequeo": "rampa_no_toca_el_centro",
+      "condiciones": {
+        "fs_hz": 48000,
+        "frecuencia_hz": 1000,
+        "duracion_s": 1.0,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.01
+      },
+      "esperado": 0.0,
+      "obtenido": 0.0,
+      "tolerancia": 1e-12,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_barrido_log",
+      "chequeo": "muestras",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 240000.0,
+      "obtenido": 240000.0,
+      "tolerancia": 0,
+      "unidad": "muestras",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_barrido_log",
+      "chequeo": "pico_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": -6.0,
+      "obtenido": -5.999999999995027,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_barrido_log",
+      "chequeo": "frecuencia_instantanea",
+      "condiciones": {
+        "instante_s": 1.666666666666667,
+        "ventana_s": 0.037180670664321326,
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 200.0,
+      "obtenido": 200.082984214372,
+      "tolerancia": 0.2,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_barrido_log",
+      "chequeo": "frecuencia_instantanea",
+      "condiciones": {
+        "instante_s": 2.831616673893365,
+        "ventana_s": 0.01662770141089095,
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 1000.0,
+      "obtenido": 1000.082892493572,
+      "tolerancia": 1.0,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_barrido_log",
+      "chequeo": "frecuencia_instantanea",
+      "condiciones": {
+        "instante_s": 3.9965666811200626,
+        "ventana_s": 0.007436134132864265,
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 5000.0,
+      "obtenido": 5000.025880315237,
+      "tolerancia": 5.0,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_generador_barrido_log",
+      "chequeo": "frecuencia_instantanea",
+      "condiciones": {
+        "instante_s": 4.7917687723195,
+        "ventana_s": 0.004293254043339348,
+        "fs_hz": 48000,
+        "duracion_s": 5.0,
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "amplitud_dbfs": -6.0
+      },
+      "esperado": 15000.0,
+      "obtenido": 14999.905650729459,
+      "tolerancia": 15.0,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "cantidad_de_frecuencias",
+      "condiciones": {
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "por_octava": 3
+      },
+      "esperado": 30.0,
+      "obtenido": 30.0,
+      "tolerancia": 0,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "primera_frecuencia",
+      "condiciones": {
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "por_octava": 3
+      },
+      "esperado": 20.0,
+      "obtenido": 20.0,
+      "tolerancia": 1e-09,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ultima_frecuencia",
+      "condiciones": {
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "por_octava": 3
+      },
+      "esperado": 16254.986772154356,
+      "obtenido": 16254.986772154356,
+      "tolerancia": 1e-06,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "razon_entre_vecinas",
+      "condiciones": {
+        "f_inicio_hz": 20.0,
+        "f_fin_hz": 20000.0,
+        "por_octava": 3
+      },
+      "esperado": 0.0,
+      "obtenido": 8.881784197001252e-16,
+      "tolerancia": 1e-12,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "muestras_barrido",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005
+      },
+      "esperado": 720000.0,
+      "obtenido": 720000.0,
+      "tolerancia": 0,
+      "unidad": "muestras",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "segmentos",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005
+      },
+      "esperado": 30.0,
+      "obtenido": 30.0,
+      "tolerancia": 0,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 20.0
+      },
+      "esperado": -6.90911310850928e-07,
+      "obtenido": -6.909112848140843e-07,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 20.0
+      },
+      "esperado": -1.6184707309696555,
+      "obtenido": -1.6184707309696762,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 20.0
+      },
+      "esperado": -6.000000690911311,
+      "obtenido": -6.00000069089395,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 25.198420997897465
+      },
+      "esperado": -1.740989459877662e-06,
+      "obtenido": -1.7409894097326235e-06,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 25.198420997897465
+      },
+      "esperado": -2.039305157684479,
+      "obtenido": -2.0393051576845096,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 25.198420997897465
+      },
+      "esperado": -6.00000174098946,
+      "obtenido": -6.0000017409720865,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 31.748021039363987
+      },
+      "esperado": -4.387026417035483e-06,
+      "obtenido": -4.387026372676397e-06,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 31.748021039363987
+      },
+      "esperado": -2.5696830103509014,
+      "obtenido": -2.5696830103509285,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 31.748021039363987
+      },
+      "esperado": -6.000004387026417,
+      "obtenido": -6.000004387009047,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 40.0
+      },
+      "esperado": -1.1054642585451473e-05,
+      "obtenido": -1.1054642583522814e-05,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 40.0
+      },
+      "esperado": -3.238236380392733,
+      "obtenido": -3.238236380392749,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 40.0
+      },
+      "esperado": -6.000011054642585,
+      "obtenido": -6.000011054625256,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 50.39684199579493
+      },
+      "esperado": -2.78560493723878e-05,
+      "obtenido": -2.78560493723878e-05,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 50.39684199579493
+      },
+      "esperado": -4.08119834495132,
+      "obtenido": -4.081198344951332,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 50.39684199579493
+      },
+      "esperado": -6.000027856049372,
+      "obtenido": -6.000027856032051,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 63.49604207872798
+      },
+      "esperado": -7.019310187366006e-05,
+      "obtenido": -7.019310186787405e-05,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 63.49604207872798
+      },
+      "esperado": -5.144536331453448,
+      "obtenido": -5.14453633145348,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 63.49604207872798
+      },
+      "esperado": -6.000070193101874,
+      "obtenido": -6.000070193084538,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 80.0
+      },
+      "esperado": -0.00017687575322834477,
+      "obtenido": -0.00017687575324280995,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 80.0
+      },
+      "esperado": -6.486795079418832,
+      "obtenido": -6.486795079418812,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 80.0
+      },
+      "esperado": -6.000176875753229,
+      "obtenido": -6.00017687573591,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 100.79368399158986
+      },
+      "esperado": -0.00044569474550162403,
+      "obtenido": -0.00044569474550065964,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 100.79368399158986
+      },
+      "esperado": -8.182982954705201,
+      "obtenido": -8.18298295470521,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 100.79368399158986
+      },
+      "esperado": -6.000445694745502,
+      "obtenido": -6.000445694728162,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 126.99208415745595
+      },
+      "esperado": -0.0011230310833121203,
+      "obtenido": -0.001123031083266791,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 126.99208415745595
+      },
+      "esperado": -10.330058551568667,
+      "obtenido": -10.330058551568726,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 126.99208415745595
+      },
+      "esperado": -6.001123031083312,
+      "obtenido": -6.0011230310659345,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 160.0
+      },
+      "esperado": -0.0028294581542021597,
+      "obtenido": -0.002829458154208912,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 160.0
+      },
+      "esperado": -13.054962841413342,
+      "obtenido": -13.0549628414133,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 160.0
+      },
+      "esperado": -6.002829458154202,
+      "obtenido": -6.00282945813687,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 201.58736798317972
+      },
+      "esperado": -0.007126872579579778,
+      "obtenido": -0.007126872579577847,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 201.58736798317972
+      },
+      "esperado": -16.526777137641492,
+      "obtenido": -16.52677713764149,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 201.58736798317972
+      },
+      "esperado": -6.00712687257958,
+      "obtenido": -6.007126872562236,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 253.9841683149119
+      },
+      "esperado": -0.017938688479737404,
+      "obtenido": -0.017938688479716143,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 253.9841683149119
+      },
+      "esperado": -20.975444296570636,
+      "obtenido": -20.975444296570657,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 253.9841683149119
+      },
+      "esperado": -6.017938688479737,
+      "obtenido": -6.017938688462346,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 320.0
+      },
+      "esperado": -0.04507126564373538,
+      "obtenido": -0.045071265643782873,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 320.0
+      },
+      "esperado": -26.719874089086645,
+      "obtenido": -26.719874089086574,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 320.0
+      },
+      "esperado": -6.0450712656437355,
+      "obtenido": -6.0450712656263725,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 403.1747359663593
+      },
+      "esperado": -0.11272734443442887,
+      "obtenido": -0.11272734443440346,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 403.1747359663593
+      },
+      "esperado": -34.20459711364062,
+      "obtenido": -34.204597113640745,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 403.1747359663593
+      },
+      "esperado": -6.112727344434429,
+      "obtenido": -6.112727344416848,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 507.96833662982397
+      },
+      "esperado": -0.2787880398492383,
+      "obtenido": -0.27878803984923534,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 507.96833662982397
+      },
+      "esperado": -44.022976095722434,
+      "obtenido": -44.02297609572241,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 507.96833662982397
+      },
+      "esperado": -6.278788039849238,
+      "obtenido": -6.278788039831344,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 640.0
+      },
+      "esperado": -0.6714772358392647,
+      "obtenido": -0.6714772358392397,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 640.0
+      },
+      "esperado": -56.83052517816726,
+      "obtenido": -56.83052517816756,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 640.0
+      },
+      "esperado": -6.671477235839265,
+      "obtenido": -6.671477235820524,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 806.3494719327186
+      },
+      "esperado": -1.5287338108930548,
+      "obtenido": -1.5287338108930468,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 806.3494719327186
+      },
+      "esperado": -72.90878588769404,
+      "obtenido": -72.9087858876943,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 806.3494719327186
+      },
+      "esperado": -7.528733810893055,
+      "obtenido": -7.528733810872378,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1015.9366732596479
+      },
+      "esperado": -3.1502156315346763,
+      "obtenido": -3.150215631534671,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1015.9366732596479
+      },
+      "esperado": -91.2847057529174,
+      "obtenido": -91.28470575291757,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1015.9366732596479
+      },
+      "esperado": -9.150215631534676,
+      "obtenido": -9.150215631509766,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1280.0
+      },
+      "esperado": -5.675187908977971,
+      "obtenido": -5.67518790897796,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1280.0
+      },
+      "esperado": -109.49405464268673,
+      "obtenido": -109.49405464268682,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1280.0
+      },
+      "esperado": -11.675187908977971,
+      "obtenido": -11.675187908944647,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1612.6989438654373
+      },
+      "esperado": -8.935678003334324,
+      "obtenido": -8.935678003334322,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1612.6989438654373
+      },
+      "esperado": -125.20343944504658,
+      "obtenido": -125.2034394450465,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 1612.6989438654373
+      },
+      "esperado": -14.935678003334324,
+      "obtenido": -14.935678003285837,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 2031.8733465192959
+      },
+      "esperado": -12.637186393828447,
+      "obtenido": -12.637186393828454,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 2031.8733465192959
+      },
+      "esperado": -137.64241111794627,
+      "obtenido": -137.64241111794615,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 2031.8733465192959
+      },
+      "esperado": -18.637186393828447,
+      "obtenido": -18.6371863937542,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 2560.0
+      },
+      "esperado": -16.565252922941962,
+      "obtenido": -16.56525292294197,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 2560.0
+      },
+      "esperado": -147.18324128724743,
+      "obtenido": -147.18324128724737,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 2560.0
+      },
+      "esperado": -22.565252922941962,
+      "obtenido": -22.56525292282528,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 3225.3978877308746
+      },
+      "esperado": -20.617112295313035,
+      "obtenido": -20.617112295313028,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 3225.3978877308746
+      },
+      "esperado": -154.49013012146804,
+      "obtenido": -154.49013012146798,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 3225.3978877308746
+      },
+      "esperado": -26.617112295313035,
+      "obtenido": -26.617112295126965,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 4063.7466930385917
+      },
+      "esperado": -24.763293120499434,
+      "obtenido": -24.763293120499426,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 4063.7466930385917
+      },
+      "esperado": -160.1426440273062,
+      "obtenido": -160.1426440273062,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 4063.7466930385917
+      },
+      "esperado": -30.763293120499434,
+      "obtenido": -30.76329312019954,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 5120.0
+      },
+      "esperado": -29.01926009699646,
+      "obtenido": -29.019260096996383,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 5120.0
+      },
+      "esperado": -164.57304730061688,
+      "obtenido": -164.57304730061696,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 5120.0
+      },
+      "esperado": -35.01926009699646,
+      "obtenido": -35.019260096506834,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 6450.795775461753
+      },
+      "esperado": -33.43908647182653,
+      "obtenido": -33.43908647182653,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 6450.795775461753
+      },
+      "esperado": -168.09468404964196,
+      "obtenido": -168.0946840496419,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 6450.795775461753
+      },
+      "esperado": -39.43908647182653,
+      "obtenido": -39.43908647101228,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 8127.493386077178
+      },
+      "esperado": -38.130245424443515,
+      "obtenido": -38.130245424443565,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 8127.493386077178
+      },
+      "esperado": -170.93899092430377,
+      "obtenido": -170.93899092430365,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 8127.493386077178
+      },
+      "esperado": -44.130245424443515,
+      "obtenido": -44.13024542304618,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 10240.0
+      },
+      "esperado": -43.30097645599401,
+      "obtenido": -43.30097645599405,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 10240.0
+      },
+      "esperado": -173.2841177580671,
+      "obtenido": -173.2841177580674,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 10240.0
+      },
+      "esperado": -49.30097645599401,
+      "obtenido": -49.300976453459704,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 12901.591550923506
+      },
+      "esperado": -49.393834180157654,
+      "obtenido": -49.393834180157725,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 12901.591550923506
+      },
+      "esperado": -175.27629654936158,
+      "obtenido": -175.27629654936158,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 12901.591550923506
+      },
+      "esperado": -55.393834180157654,
+      "obtenido": -55.39383417504667,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "ganancia_db",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 16254.986772154356
+      },
+      "esperado": -57.55744991768368,
+      "obtenido": -57.557449917683606,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "fase_grados",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 16254.986772154356
+      },
+      "esperado": -177.04951675638355,
+      "obtenido": -177.04951675638276,
+      "tolerancia": 0.1,
+      "unidad": "grados",
+      "paso": true
+    },
+    {
+      "prueba": "test_barrido_escalonado_y_respuesta",
+      "chequeo": "nivel_dbfs",
+      "condiciones": {
+        "fs_hz": 48000,
+        "tonos": 30,
+        "duracion_tono_s": 0.5,
+        "amplitud_dbfs": -6.0,
+        "rampa_s": 0.005,
+        "circuito": "butter orden 2 pasabajos 1000 Hz",
+        "descarte": 0.2,
+        "frecuencia_hz": 16254.986772154356
+      },
+      "esperado": -63.55744991768368,
+      "obtenido": -63.55744990460117,
+      "tolerancia": 0.01,
+      "unidad": "dBFS",
+      "paso": true
+    }
+  ]
+}
