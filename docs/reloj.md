@@ -132,6 +132,25 @@ Procedimiento, cuando funcione la captura por el Pico, en la misma sesión y cam
 - espectro para ver la forma, con cuidado cerca del tono. Si el tono no cae justo en un bin, la fuga de la ventana Hann tapa lo que está a menos de unos 20 Hz: con 10000.37 Hz, la zona de 2 a 20 Hz da -93 dBc con y sin jitter, mientras thd_n en banda angosta sigue viendo la diferencia (-84.1 contra -115.0 dB). Con un tono de la tarjeta USB muestreado por el reloj del Pico, en la práctica el tono no va a caer justo en un bin.
 - Misma fuente de tono, mismo nivel y misma duración de captura en las dos posiciones. La fuente también tiene su ruido de fase y sus faldas aparecen igual en las dos mediciones: lo que interesa es la diferencia.
 
+## Oscilador externo de 12.288 MHz, previsto para comparar
+
+El diseño deja un punto de conexión para un oscilador de cristal externo de 12.288 MHz y un jumper para elegir de dónde sale SCKI. No es para usarlo desde el principio: es para medir la diferencia entre GPOUT0 y un oscilador dedicado cuando exista el hardware, con el procedimiento de la sección anterior. Esa comparación es uno de los resultados del proyecto.
+
+### Conexión
+
+- Un oscilador de cristal de 12.288 MHz con salida CMOS de 3.3 V. SCKI acepta un alto desde 2 V y un bajo hasta 0.8 V, y tolera 5 V (hoja del PCM1808, condiciones de operación), así que la salida va directo.
+- Un jumper de 3 pines cerca del PCM1808. El pin del medio va a SCKI, un extremo a GPIO21 (GPOUT0) y el otro a la salida del oscilador.
+- Un jumper de 2 pines en la alimentación del oscilador, con el desacople que pida la hoja del oscilador. Se quita cuando se usa GPOUT0.
+- Un pin de acceso a la salida del oscilador, para llevarla con un cable a GPIO20 y medir su frecuencia con el contador del RP2040.
+
+### Condiciones para que la comparación sea justa
+
+- El PCM1808 va en modo maestro a 256 fS en las dos posiciones del jumper: MD1 y MD0 en alto (tabla 2 de su hoja), fijados antes de encender. En modo esclavo LRCK tiene que estar sincronizado con SCKI (sección 7.3.3), y con un oscilador de otro cristal un LRCK generado por el Pico se iría corriendo hasta perder la sincronización. En modo maestro el PCM1808 genera BCK y LRCK a partir de SCKI, así que funciona igual con las dos fuentes y lo único que cambia es SCKI. Esto fija una condición para el I2S de entrada: el Pico recibe BCK y LRCK del PCM1808.
+- El jumper se cambia con la placa sin alimentación. La hoja pide pasar por el reset de reloj detenido al cambiar SCKI (sección 7.4.2).
+- La fuente que no se usa va apagada. Con el oscilador externo, el firmware se compila con la opción FEUOIR_RELOJ_EXTERNO y GPOUT0 no se enciende; con GPOUT0, se quita el jumper de alimentación del oscilador. Un reloj de 12.288 MHz conmutando en el pin de al lado podría acoplarse a SCKI, y como las dos fuentes tienen cristales distintos, el batido entre ellas correría los flancos de SCKI a baja frecuencia: justo las bandas laterales que se quieren medir.
+- clk_sys queda en 61.44 MHz en los dos casos, porque FEUOIR_RELOJ_EXTERNO no lo cambia. La fuente del tono y el procedimiento de medición son los mismos.
+- En la bitácora se anota el modelo exacto del oscilador y el jitter o ruido de fase que declare su hoja, porque el resultado es la comparación contra esa pieza en particular.
+
 ## Búsqueda exhaustiva
 
 <!-- inicio del bloque generado por relojes.py -->

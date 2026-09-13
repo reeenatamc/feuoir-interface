@@ -20,6 +20,13 @@ static_assert(RELOJ_MAESTRO_GPIO == 21, "clk_gpout0 solo sale por GPIO21");
 void reloj_maestro_iniciar(void) {
     set_sys_clock_pll(VCO_HZ, POSTDIV1, POSTDIV2);
 
+#if RELOJ_EXTERNO
+    // SCKI viene del oscilador externo y GPOUT0 no se enciende. Si siguiera conmutando a 12.288 MHz
+    // al lado del pin de SCKI podría acoplarse a un reloj de casi la misma frecuencia pero de otro
+    // cristal, y el batido entre los dos correría los flancos de SCKI justo en lo que se quiere
+    // comparar. clk_sys queda en 61.44 MHz igual que con GPOUT0, para que entre las dos mediciones
+    // solo cambie SCKI.
+#else
     clock_gpio_init_int_frac8(RELOJ_MAESTRO_GPIO, CLOCKS_CLK_GPOUT0_CTRL_AUXSRC_VALUE_CLK_SYS, DIVISOR_GPOUT, 0);
 
     // DC50 se escribe a mano. El divisor de reloj del RP2040 trabaja con los flancos de subida de la
@@ -31,4 +38,5 @@ void reloj_maestro_iniciar(void) {
     // DC50 con el reloj corriendo, y los ciclos que salen antes de esta línea quedan en 40 %, todavía
     // dentro de lo que acepta el PCM1808.
     hw_set_bits(&clocks_hw->clk[clk_gpout0].ctrl, CLOCKS_CLK_GPOUT0_CTRL_DC50_BITS);
+#endif
 }

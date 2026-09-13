@@ -109,6 +109,13 @@ make -C build -j4
 
 El resultado es firmware/build/feuoir.uf2. No se probó en una placa.
 
+Para medir con el oscilador externo en vez de GPOUT0 (docs/reloj.md, sección del oscilador externo) se compila en otra carpeta con la opción que deja GPOUT0 apagado:
+
+```
+cmake -S . -B build-externo -DFEUOIR_RELOJ_EXTERNO=ON
+make -C build-externo -j4
+```
+
 ## Documentación
 
 - docs/reloj.md: reloj maestro elegido, respaldo, corrección sobre el divisor fraccionario y cómo verificar la frecuencia sin osciloscopio

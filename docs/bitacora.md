@@ -174,3 +174,19 @@ Qué se decidió y por qué:
 - El jitter se mide con thd_n con tono, a 1 kHz y a 10 kHz, y con thd_n en banda angosta para las faldas. snr_db no sirve para esto.
 - El espectro sirve para ver la forma pero no para medir cerca del tono: si el tono no cae justo en un bin, la fuga de la ventana tapa lo que está a menos de 20 Hz.
 - El número que las hojas no dan lo va a dar la comparación con un oscilador externo. Si no hay diferencia medible, el efecto del jitter de GPOUT0 queda acotado por debajo de lo que resuelve el sistema.
+
+## Fase 10: oscilador externo previsto para comparar (2026-09-13)
+
+Qué se midió: nada en hardware. Se compiló el firmware con y sin la opción FEUOIR_RELOJ_EXTERNO, que deja GPOUT0 apagado.
+
+Condiciones: toolchain de la fase 4 y PICO_BOARD=pico, en firmware/build y firmware/build-externo.
+
+Resultado: las dos variantes compilan sin avisos. En la del oscilador externo el ELF no incluye clock_gpio_init_int_frac16, así que GPOUT0 no se configura; en la de GPOUT0 sí está. No se probó en una placa.
+
+Qué se decidió y por qué:
+
+- El diseño deja un punto de conexión para un oscilador de cristal externo de 12.288 MHz, un jumper de 3 pines para elegir entre él y GPOUT0 como SCKI y un jumper en la alimentación del oscilador. Sirve para medir la diferencia de jitter entre los dos cuando exista el hardware, no para usarlo desde el principio.
+- El PCM1808 va en modo maestro a 256 fS en las dos posiciones. En modo esclavo LRCK tiene que estar sincronizado con SCKI, y con un oscilador de otro cristal eso no se cumple. Consecuencia para el I2S de entrada: el Pico recibe BCK y LRCK del PCM1808.
+- La fuente que no se usa va apagada, para que su conmutación no se acople a SCKI y meta bandas laterales por el batido entre los dos cristales.
+- clk_sys queda en 61.44 MHz con las dos fuentes, para que entre las dos mediciones solo cambie SCKI.
+- El jumper se cambia sin alimentación, porque la hoja del PCM1808 pide el reset de reloj detenido al cambiar SCKI.
