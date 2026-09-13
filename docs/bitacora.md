@@ -351,3 +351,33 @@ Qué se decidió y por qué:
 - Se descartó Tauri por el segundo proceso empaquetado y la cáscara en Rust, a cambio de un .app que no hace falta, y Electron por el costo de memoria de Chromium en una Mac que ya anda al límite.
 - La prueba del contrato del WebSocket corre sin ventana, con un cliente de aiohttp y la fuente sintética.
 - Detalle en docs/app-cascara.md. Queda por decidir dónde vive la app y con qué se dibuja.
+
+## Entrada 21: app de medición en vivo (2026-09-13)
+
+Qué se midió: nada en hardware. La app se probó con la fuente sintética: tests/app_sin_ventana.py por WebSocket, capturas de la interfaz con Chrome sin pantalla en modo claro y oscuro, y la ventana de pywebview abierta en la Mac.
+
+Condiciones: macOS 26.5.2 en Intel, Python 3.12.0 con aiohttp 3.14.3 y pywebview 6.2.1, Node 24 con Vite 8.3.0 y TypeScript 6.0.3. Fuente sintética a 48 kHz en bloques de 1024 muestras, con ruido blanco de -100 dBFS RMS y cuantización a 24 bits.
+
+Resultado:
+
+- Un seno de 1 kHz a -6 dBFS llega como pico del espectro en 1 kHz y -6.0 dBFS, con RMS de -9.01 dBFS. Un tono entre dos bins, a 1002.5 Hz, también marca -6.0 dBFS con la ventana flat-top; con Hann marcaría hasta 1.42 dB menos.
+- Un seno de +2 dBFS recortado marca el fundamental en +1.0 dBFS, RMS de -2.0 dBFS y armónicos impares.
+- Con la fuente sintética, THD+N da cerca de 0.0025 % (-92 dB) a 1 kHz, que es el ruido de -100 dBFS dentro de la banda. La respuesta en frecuencia da 30 tonos planos en -6 dBFS, y la prueba de jitter, sin efecto detectable.
+- Armar un cuadro lleva de 1 a 5 ms.
+- tests/app_sin_ventana.py pasa sus 36 comprobaciones. tests/mutaciones.py suma 7 errores inyectados en app/ y la prueba atrapa los 7; con los 20 del analizador, las 27 mutaciones fallan (calibraciones/2026-09-13-mutaciones-4). Dos de ellas, la medición marcada tarde y el emisor que espera a cada conexión, las atrapa el tiempo límite de la prueba: el mensaje que se esperaba no llega.
+
+Qué se decidió y por qué:
+
+- Espectro en vivo con ventana flat-top sobre 200 ms, reducido a 512 puntos que se quedan con el máximo de su tramo: el nivel del pico no depende de dónde cae el tono y ningún tono se pierde al reducir. A cambio, el piso de ruido se ve unos 4 dB más alto.
+- El eje del espectro llega a +10 dBFS, porque el fundamental de un seno recortado pasa de 0 dBFS.
+- Un bloque satura si alguna de sus muestras llega a menos de un código de 16 bits del fondo de escala. El aviso queda marcado con cuántos bloques saturaron y hace cuánto, hasta borrarlo, para que un recorte corto entre dos cuadros no se pierda.
+- La fuente sintética hace de conversor, con ruido, cuantización y recorte: las mediciones dan números finitos y la saturación se puede provocar.
+- Las mediciones con estímulo lo hacen sonar: dentro del conversor simulado con la fuente sintética, y por la salida por defecto de la Mac con una entrada real.
+- Menús y ajustes con el registro de feuoir: rótulos de 10 px en mayúsculas con tracking de 0.26 em, campos con línea fina y la línea de fuego en lo elegido. Modo claro y oscuro con los tokens de los modos de feuoir, siguiendo al sistema.
+- Buscar entradas de nuevo reinicia PortAudio solo con la fuente sintética, porque con una entrada real abierta cortaría el audio.
+
+Errores que aparecieron en el camino:
+
+- Una segunda medición pedida enseguida no se rechazaba: la medición en curso se marcaba al arrancar la tarea y no al recibir el pedido. Ahora se marca antes de crear la tarea.
+- Una conexión que no lee frenaba los cuadros de todas, porque el emisor esperaba cada envío. Lo mostraron las capturas, con los gráficos congelados; la prueba no lo veía porque su cliente siempre lee. Ahora cada conexión tiene su tarea de escritura y guarda solo el último cuadro. La prueba suma una conexión que no lee, y la mutación cuadros_esperando_a_cada_conexion reproduce el error original.
+- La prueba esperaba 31 tonos en la respuesta en frecuencia, pero frecuencias_log de 20 Hz a 20 kHz con 3 por octava da 30. Ahora la prueba toma el número de frecuencias_log.

@@ -24,7 +24,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Dominio de reloj | diseño en papel, con jumper de SCK | revisado contra las hojas del PCM1808, el PCM5102A y el RP2040 | las conexiones, los puentes del módulo y el margen de DIN |
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
 | Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
-| App de medición en vivo | cáscara decidida: Python con aiohttp y pywebview | no aplica | sin construir |
+| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación y cinco mediciones, en ventana propia | tests/app_sin_ventana.py: 36 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 7 errores inyectados; la ventana abre en la Mac | una entrada real y las mediciones con el estímulo por cable |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -41,7 +41,8 @@ relojes.py             búsqueda de configuraciones del reloj maestro
 jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
 dispositivos.py        lista las entradas de audio de la Mac
-tests/                 errores inyectados y pruebas sin placa del firmware y de la lectura
+app/                   app de medición en vivo; la interfaz está en app/interfaz
+tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
 firmware/              reloj maestro y firmware de verificación para el Pico
 docs/                  reloj, dominio de reloj, audio USB, compras, primer encendido, app, bitácora y hojas de datos
 calibraciones/         resultados de calibrar.py y de tests/mutaciones.py
@@ -133,7 +134,9 @@ tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia ana
 .venv/bin/python tests/mutaciones.py
 ```
 
-Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si el control falla. También falla si se cambia analizador.py y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Hay que correrlo cada vez que se toque analizador.py o calibrar.py.
+Con la app hace lo mismo: copia app/ y tests/app_sin_ventana.py, inyecta 7 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
+
+Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Hay que correrlo cada vez que se toque analizador.py, calibrar.py o app/.
 
 ## relojes.py
 
@@ -152,6 +155,27 @@ Simula el efecto del jitter del reloj de muestreo sobre un tono y lo mide con an
 ```
 
 Guarda cada caso con sus condiciones, lo esperado según la teoría y lo medido en simulaciones/<fecha>-jitter/resultados.json, y termina con código 1 si algún caso no coincide. Qué significan los resultados está en docs/reloj.md, en la sección Jitter del reloj maestro.
+
+## App de medición en vivo
+
+Una ventana con la forma de onda, el espectro y el nivel de la entrada en vivo, con aviso de saturación, y un botón por cada medición del analizador: captura de 5 s, THD+N, SNR, respuesta en frecuencia y prueba de jitter. Cada medición guarda su carpeta en mediciones/ con sus condiciones, como medir.py. Python lee el audio y analiza con analizador.py; la interfaz solo dibuja. Sin hardware se usa con la fuente sintética, que hace de conversor.
+
+![La app con la fuente sintética saturando](docs/app-captura.png)
+
+Instalación, una sola vez:
+
+```
+.venv/bin/pip install aiohttp==3.14.3 pywebview==6.2.1
+cd app/interfaz && npm install && npm run build
+```
+
+Para abrirla, desde la raíz del repo:
+
+```
+.venv/bin/python -m app
+```
+
+Cómo está hecha, qué calcula, el contrato del WebSocket y las pruebas: docs/app.md.
 
 ## firmware
 
@@ -225,7 +249,8 @@ Lo que solo se puede probar en la placa es la lectura real de los registros y el
 - docs/audio-usb.md: cómo se resuelve con USB Audio Class que el reloj de audio no coincida con el de la Mac: captura asíncrona, realimentación para la reproducción y qué soporta TinyUSB
 - docs/compras.md: lo que pide el diseño, con las resistencias en serie
 - docs/primer-encendido.md: lista paso a paso para el primer encendido, con qué medir y qué esperar en cada etapa
-- docs/app-cascara.md: por qué la app de medición en vivo corre con Python sirviendo la página en una ventana de pywebview, y qué se descartó
+- docs/app.md: la app de medición en vivo: cómo abrirla, cómo está hecha, qué calcula, sus mediciones, el contrato del WebSocket y las pruebas
+- docs/app-cascara.md: por qué la app es una ventana de pywebview con Python detrás, y qué se descartó
 - docs/app-ideas.md: ideas para la app, anotadas en vez de construidas
 - docs/datasheets/: hojas de datos del PCM1808, el PCM5102A, el TL072 y el RP2040
 - DECISIONES.md: decisiones de hardware y de método

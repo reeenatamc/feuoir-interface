@@ -2,6 +2,20 @@
 
 Decisión tomada el 2026-09-13, antes de escribir código.
 
+## Qué es
+
+Una app de escritorio: se abre en su propia ventana, como cualquier aplicación de la Mac, no en una pestaña del navegador. Dentro de esa ventana, la interfaz está hecha con HTML y TypeScript.
+
+Así funcionan también Tauri y Electron: las tres opciones dibujan la interfaz con tecnología web dentro de una ventana nativa. Lo que cambia es qué corre detrás de la ventana.
+
+| Opción | Qué corre detrás de la ventana |
+|---|---|
+| pywebview, la elegida | el mismo programa de Python que lee el audio, analiza y guarda |
+| Tauri | una cáscara en Rust, que además tiene que lanzar el servidor de Python empaquetado con PyInstaller |
+| Electron | Chromium y Node.js dentro de su binario, que además tiene que lanzar Python |
+
+Que Python "sirva la página" es solo el mecanismo interno: levanta un servidor en la propia Mac, en un puerto local, y la ventana lo carga. No se ve ni se usa desde afuera.
+
 ## Qué hace falta
 
 - Python es la única fuente de verdad: lee el audio con sounddevice, analiza con analizador.py y guarda las mediciones.
@@ -11,18 +25,18 @@ Decisión tomada el 2026-09-13, antes de escribir código.
 
 ## Decisión
 
-Python sirve la página y el WebSocket desde el mismo proceso, y la muestra en una ventana propia con pywebview.
+Python abre la ventana con pywebview y le sirve la interfaz y el WebSocket desde el mismo proceso.
 
 - Un solo proceso. El mismo programa en Python tiene el audio, el análisis, el WebSocket y los archivos de la interfaz. No hay un segundo proceso que lanzar, vigilar y cerrar.
-- Servidor: aiohttp, que sirve la página por HTTP y el WebSocket en el mismo puerto local.
-- Ventana: pywebview abre esa página en una ventana nativa. Si pywebview diera problemas, la misma página se abre en el navegador sin cambiar nada más.
+- Servidor: aiohttp, que entrega la interfaz y el WebSocket en el mismo puerto local.
+- Ventana: pywebview abre la interfaz en una ventana nativa. Si pywebview diera problemas, la misma interfaz se abre en el navegador sin cambiar nada más.
 - Interfaz: TypeScript compilado con Vite a archivos estáticos que sirve Python. En desarrollo, el servidor de Vite con recarga en caliente, conectado al WebSocket del proceso de Python.
 - Instalación: aiohttp y pywebview en el .venv que ya existe, y las dependencias de la interfaz con npm, que ya está en la Mac (Node 24).
 - Arranque: un solo comando con el Python del .venv.
 
 ## Por qué, criterio por criterio
 
-Reimplementar el análisis. Ninguna de las tres opciones obliga a reescribirlo, porque en las tres Python sigue analizando. La diferencia es cuántos procesos hay: con Tauri o con Electron, Python corre como un proceso aparte que la cáscara tiene que lanzar y cerrar; sirviendo desde Python, el que analiza es el mismo que sirve, y el contrato del WebSocket es la única frontera.
+Reimplementar el análisis. Ninguna de las tres opciones obliga a reescribirlo, porque en las tres Python sigue analizando. La diferencia es cuántos programas hay que mantener juntos: con Tauri o con Electron, Python corre como un proceso aparte que la cáscara tiene que lanzar y cerrar; con pywebview, el que analiza es el mismo que abre la ventana, y el contrato del WebSocket es la única frontera.
 
 macOS sobre Intel. Las tres funcionan, según lo revisado el 2026-09-13:
 
@@ -31,7 +45,7 @@ macOS sobre Intel. Las tres funcionan, según lo revisado el 2026-09-13:
 - Electron publica builds x64 para Mac Intel; la versión actual es la 44.3.0.
 - Tauri 2 pide macOS 10.15 o posterior, y su CLI 2.11.4 tiene binario para darwin-x64.
 
-Fricción de instalación y arranque. Sirviendo desde Python son dos paquetes más en el .venv y un comando. Con Tauri hay que agregar su CLI, compilar una cáscara en Rust y empaquetar el servidor de Python como ejecutable. Con Electron hay que bajar su runtime y escribir el código que lanza y cierra el proceso de Python.
+Fricción de instalación y arranque. Con pywebview son dos paquetes más en el .venv y un comando. Con Tauri hay que agregar su CLI, compilar una cáscara en Rust y empaquetar el servidor de Python como ejecutable. Con Electron hay que bajar su runtime y escribir el código que lanza y cierra el proceso de Python.
 
 Memoria. pywebview y Tauri usan la webview del sistema. Electron embebe Chromium y Node.js en su binario (documentación de Electron): un navegador y un runtime de JavaScript más, en una máquina que ya anda al límite, solo para dibujar.
 
@@ -47,9 +61,9 @@ Electron.
 - A favor: ecosistema conocido para quien trabaja con front-end, y builds para Mac Intel.
 - En contra: embebe Chromium y Node.js, que en esta Mac es el costo más alto de los tres, y Python también sería un proceso aparte que Electron tiene que lanzar y cerrar.
 
-La página servida por Python en el navegador, sin ventana propia.
+La interfaz en una pestaña del navegador, sin ventana propia.
 
-- Queda como alternativa inmediata, porque es la misma página, pero no como principal: lo que se pidió es una app de escritorio, y en el navegador la herramienta queda mezclada con las pestañas de uso diario.
+- Queda como alternativa inmediata, porque es la misma interfaz, pero no como principal: lo que se pidió es una app de escritorio, y en el navegador la herramienta queda mezclada con las pestañas de uso diario.
 
 ## Qué se pierde
 
@@ -62,10 +76,11 @@ La página servida por Python en el navegador, sin ventana propia.
 - La prueba automática del contrato del WebSocket corre sin ventana: un cliente de aiohttp se conecta al servidor con la fuente sintética, pide un seno de 1 kHz a -6 dBFS y comprueba que el pico del espectro llegue en 1 kHz y a -6 dBFS.
 - La estética sale del repo feuoir: las variables de apps/web/src/styles/theme.css, como --fire-orange, --fire-red y --fire-yellow, y la tipografía Inter que usa su interfaz.
 
-## Por decidir antes de construir
+## Decisiones de la primera versión
 
-- Dónde vive: la propuesta es una carpeta app/ en este repo, para que el servidor importe analizador.py directamente y guarde en mediciones/ con la misma convención que medir.py.
-- Con qué se dibuja: la propuesta es TypeScript con canvas y sin framework, porque son cuatro vistas que se redibujan 60 veces por segundo. Si se suma React, como en feuoir, no guarda estado propio: todo lo que muestra llega por el WebSocket.
+- Vive en app/, dentro de este repo. El servidor importa analizador.py directamente, sin copiarlo, y guarda en mediciones/ con la misma convención que medir.py.
+- Cómo quedó construida, el contrato del WebSocket y sus pruebas están en docs/app.md.
+- Se dibuja con TypeScript y canvas, sin framework. La forma de onda, el espectro y el medidor se redibujan con cada cuadro que llega, hasta 30 veces por segundo y al ritmo de la pantalla, y canvas los dibuja sin pasar por un árbol de componentes. Sin framework tampoco hay dónde guardar estado propio: cada cuadro se dibuja con lo último que llegó por el WebSocket. Los controles (el selector de entrada, los ajustes de la señal y los botones de medición) son elementos HTML comunes con el registro de feuoir: rótulos chicos en mayúsculas con tracking abierto, campos con una línea fina debajo y la línea de fuego en lo elegido.
 
 ## Fuentes
 
