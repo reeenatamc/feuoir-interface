@@ -70,15 +70,27 @@ Ninguna función entra a analizador.py sin su prueba en calibrar.py.
 
 ## relojes.py
 
-El PCM1808 necesita 12.288 MHz en SCKI y el cristal del Pico es de 12 MHz. relojes.py recorre todas las configuraciones del PLL del RP2040 y del divisor del PIO que dan esa frecuencia exacta, y escribe el resultado en docs/reloj.md con la lista completa en docs/reloj-soluciones.csv.
+El PCM1808 necesita 12.288 MHz en SCKI y el cristal del Pico es de 12 MHz. relojes.py recorre todas las configuraciones del PLL del RP2040 y, para cada una, el divisor que haría falta en la salida de reloj GPOUT0 y en una máquina de estados del PIO, y se queda con las que dan esa frecuencia exacta. La lista completa va a docs/reloj-soluciones.csv. En docs/reloj.md solo reescribe el bloque entre las marcas de inicio y fin; la solución elegida, el respaldo y la verificación se escriben a mano.
 
 ```
 .venv/bin/python relojes.py
 ```
 
+## firmware
+
+firmware/ configura el reloj maestro: clk_sys en 61.44 MHz y 12.288 MHz por GPIO21 (GPOUT0) con DC50. Además hace parpadear el LED para mostrar que sigue corriendo. Se compila con las mismas variables de entorno que el blink (ver Toolchain del Pico):
+
+```
+cd firmware
+cmake -S . -B build
+make -C build -j4
+```
+
+El resultado es firmware/build/feuoir.uf2. No se probó en una placa.
+
 ## Documentación
 
-- docs/reloj.md: soluciones para el reloj maestro, la elegida y por qué
+- docs/reloj.md: reloj maestro elegido, respaldo, corrección sobre el divisor fraccionario y cómo verificar la frecuencia sin osciloscopio
 - docs/bitacora.md: qué se midió en cada fase, en qué condiciones, qué se decidió y por qué
 - docs/datasheets/: hojas de datos del PCM1808, el PCM5102A, el TL072 y el RP2040
 - DECISIONES.md: decisiones de hardware y de método
