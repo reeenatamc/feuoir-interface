@@ -322,3 +322,17 @@ Qué se decidió y por qué:
 - El nodo de SCKI tiene que sumar como mucho 25 pF con 330 Ω, así que sus cables son cortos.
 - Los puentes de verificación hacia GPIO20 salen del lado de la resistencia que no toca el pin.
 - No había lista de compras en el repo: se creó docs/compras.md a partir del diseño.
+
+## Entrada 19: lista para el primer encendido (2026-09-13)
+
+Qué se midió: nada en hardware. Se armó docs/primer-encendido.md con los valores de las hojas del Pico, el RP2040, el PCM1808 y el PCM5102A.
+
+Condiciones: alimentación por el USB del Pico. Valores esperados: VBUS de 5 V ± 10 % y consumo cerca de 10 mA en BOOTSEL (hoja del Pico); 3V3 entre 3.0 y 3.6 V, que es la ventana en la que trabajan los tres integrados; PCM1808 con 8.6 mA analógicos y 5.9 mA digitales típicos, y PCM5102A con 7 a 8 mA digitales y 11 mA analógicos típicos, a 48 kHz.
+
+Qué se decidió y por qué:
+
+- Revisión con multímetro antes de enchufar nada, con el puente de SCK del módulo del PCM5102A como la revisión más importante.
+- Encendido por etapas, de a una cosa: el Pico solo, el reloj, el ADC y el DAC. Cada cambio con el USB desenchufado.
+- El firmware de verificación sirve en todas las etapas. En la del reloj, con el puente de GP21 a GP20 desde el extremo de R1. En la del ADC, el mismo puente llevado a BCK y a LRCK mide 3.072 MHz y 48 kHz sin firmware nuevo: el informe marca FALLA porque espera 12.288 MHz, pero el valor medido confirma el modo maestro.
+- El DAC se enciende en 4 hilos, sin nada en sus salidas. La prueba de sonido queda para cuando haya firmware de reproducción.
+- La lista tiene qué no hacer y qué síntomas obligan a desenchufar, escrita para seguirla de noche.

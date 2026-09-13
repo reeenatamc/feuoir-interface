@@ -22,6 +22,8 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Jitter | simulado, con la prueba lista | jitter.py: 19 casos contra la teoría; prueba_jitter validada con jitter conocido | la comparación entre GPOUT0 y el oscilador externo |
 | Oscilador externo | previsto en el diseño, con jumper | la opción FEUOIR_RELOJ_EXTERNO compila | no está comprado ni montado |
 | Dominio de reloj | diseño en papel, con jumper de SCK | revisado contra las hojas del PCM1808, el PCM5102A y el RP2040 | las conexiones, los puentes del módulo y el margen de DIN |
+| Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
+| Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -40,7 +42,7 @@ leer_verificacion.py   guarda el informe del firmware de verificación
 dispositivos.py        lista las entradas de audio de la Mac
 tests/                 errores inyectados y pruebas sin placa del firmware y de la lectura
 firmware/              reloj maestro y firmware de verificación para el Pico
-docs/                  reloj, dominio de reloj, audio USB, bitácora y hojas de datos
+docs/                  reloj, dominio de reloj, audio USB, compras, primer encendido, bitácora y hojas de datos
 calibraciones/         resultados de calibrar.py y de tests/mutaciones.py
 simulaciones/          resultados de jitter.py
 mediciones/            capturas y verificaciones, cuando haya hardware
@@ -220,6 +222,8 @@ Lo que solo se puede probar en la placa es la lectura real de los registros y el
 - docs/bitacora.md: qué se midió en cada etapa de trabajo, en qué condiciones, qué se decidió y por qué
 - docs/dominio-de-reloj.md: un solo dominio de reloj para el audio, con el diagrama de conexiones del PCM1808, el PCM5102A y el Pico
 - docs/audio-usb.md: cómo se resuelve con USB Audio Class que el reloj de audio no coincida con el de la Mac: captura asíncrona, realimentación para la reproducción y qué soporta TinyUSB
+- docs/compras.md: lo que pide el diseño, con las resistencias en serie
+- docs/primer-encendido.md: lista paso a paso para el primer encendido, con qué medir y qué esperar en cada etapa
 - docs/datasheets/: hojas de datos del PCM1808, el PCM5102A, el TL072 y el RP2040
 - DECISIONES.md: decisiones de hardware y de método
 
