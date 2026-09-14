@@ -25,6 +25,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
 | Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
 | App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones, la salida del estímulo y la lista de guardadas, en ventana propia | tests/app_contract.py: 44 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 11 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
+| Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; tests/mutaciones.py detecta los 4 errores inyectados | el circuito de entrada todavía no se simula |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -42,6 +43,7 @@ jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
 dispositivos.py        lista las entradas de audio de la Mac
 app/                   app de medición en vivo; la interfaz está en app/ui
+spice/                 simulación con ngspice: ejecutor, netlists y verificación contra la teoría
 tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
 firmware/              reloj maestro y firmware de verificación para el Pico
 docs/                  reloj, dominio de reloj, audio USB, compras, primer encendido, app, bitácora y hojas de datos
@@ -137,7 +139,7 @@ tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia ana
 
 Con la app hace lo mismo: copia app/ y tests/app_contract.py, inyecta 11 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
 
-Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Hay que correrlo cada vez que se toque analizador.py, calibrar.py o app/.
+Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Con la verificación del simulador hace lo mismo sobre spice/: le cambia un valor a un netlist, rompe el lector de .raw o calcula el ruido a otra temperatura, y spice/verify.py tiene que fallar. Hay que correrlo cada vez que se toque analizador.py, calibrar.py, app/ o spice/.
 
 ## relojes.py
 
@@ -177,6 +179,18 @@ Para abrirla, desde la raíz del repo:
 ```
 
 Cómo está hecha, qué calcula, el contrato del WebSocket y las pruebas: docs/app.md.
+
+## Simulación del circuito analógico
+
+El circuito de entrada se simula con ngspice 47 en modo batch, desde Python y dentro del repo. Los netlists son texto plano en spice/netlists/. ngspice se compila una vez desde su código fuente en ~/spice, sin Homebrew; el procedimiento y el porqué de cada opción están en docs/simulador-spice.md.
+
+Antes de creerle en el circuito real, se verifica contra la teoría con un divisor resistivo y un filtro RC de primer orden:
+
+```
+.venv/bin/python -m spice.verify
+```
+
+Guarda cada chequeo con sus condiciones en calibraciones/<fecha>-spice/resultados.json y termina con código 1 si alguno se sale de tolerancia. Si no pasa, ninguna otra simulación vale.
 
 ## firmware
 
@@ -250,6 +264,7 @@ Lo que solo se puede probar en la placa es la lectura real de los registros y el
 - docs/audio-usb.md: cómo se resuelve con USB Audio Class que el reloj de audio no coincida con el de la Mac: captura asíncrona, realimentación para la reproducción y qué soporta TinyUSB
 - docs/compras.md: lo que pide el diseño, con las resistencias en serie
 - docs/entrada-analogica.md: la etapa analógica de entrada en sus dos versiones, las condiciones para simularla y los efectos que hay que conocer
+- docs/simulador-spice.md: por qué ngspice y no LTspice, cómo se instala sin Homebrew, cómo se verifica contra la teoría y qué hay que saber de los modelos del TL072
 - docs/primer-encendido.md: lista paso a paso para el primer encendido, con qué medir y qué esperar en cada etapa
 - docs/app.md: la app de medición en vivo: cómo abrirla, cómo está hecha, qué calcula, sus mediciones, el contrato del WebSocket y las pruebas
 - docs/app-cascara.md: por qué la app es una ventana de pywebview con Python detrás, y qué se descartó

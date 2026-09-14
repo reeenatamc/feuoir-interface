@@ -40,16 +40,54 @@ ngspice por Homebrew.
 - A favor: se instala con un comando.
 - En contra: desde septiembre de 2026 Homebrew no da soporte a las Mac Intel (nivel 3) y ya no compila paquetes para esta configuración. ngspice 47 solo tiene paquete para Sonoma en Intel, y libomp, una de sus dependencias, no tiene paquete para Intel, así que igual se compilaría. Además arrastra las librerías de X11, que en batch no se usan.
 
-## Qué falta comprobar al instalar
+## Instalación
 
-- Que ngspice 47 compile en esta Mac.
-- Que lea los dos modelos de TI. El del TL072 trae fin de línea de Windows y un byte de fin de archivo (0x1A) después de .ENDS.
-- Que sus resultados coincidan con la teoría en circuitos de resultado conocido, un divisor resistivo y un filtro RC de primer orden, antes de creerle en el circuito real.
+Una sola vez. En esta Mac compila en unos 4 minutos.
+
+```
+mkdir -p ~/spice/src && cd ~/spice/src
+curl -fL -o ngspice-47.tar.gz https://sourceforge.net/projects/ngspice/files/ng-spice-rework/47/ngspice-47.tar.gz/download
+shasum -a 256 ngspice-47.tar.gz
+tar xzf ngspice-47.tar.gz && cd ngspice-47
+./configure --prefix="$HOME/spice/ngspice-47" --with-x=no --disable-debug --disable-openmp --with-readline=no --with-editline=no
+make -j4 && make install
+```
+
+El paquete descargado el 2026-09-14 tiene sha256 894e649651f1838a14095e5a5439e7d3aa63e87ede14d283173fda4fcdef675f.
+
+Por qué cada opción:
+
+- --with-x=no: sin ventanas de gráficos, que en batch no se usan.
+- --disable-openmp: el configurador activa OpenMP por defecto, y la compilación falla porque el clang de Apple no trae omp.h. La simulación no lo necesita.
+- --with-readline=no y --with-editline=no: el configurador toma el readline.h del SDK de Apple, que en realidad es libedit, y la compilación falla en rl_reset_after_signal. La línea de comandos interactiva tampoco se usa.
+- make -j4 y no con todos los núcleos, porque la Mac anda justa de memoria.
+
+spice/run.py busca ngspice en la variable NGSPICE, después en ~/spice/ngspice-47/bin/ngspice y después en el PATH.
+
+## Verificación
+
+```
+.venv/bin/python -m spice.verify
+```
+
+Antes de creerle al simulador en el circuito real, spice/verify.py lo compara con la teoría en circuitos de resultado conocido y guarda cada chequeo con sus condiciones en calibraciones/<fecha>-spice/resultados.json, con el formato de calibrar.py:
+
+- El lector de los archivos .raw, contra archivos armados a mano con valores reales y complejos.
+- Un divisor resistivo de 9 V con 4.7 kΩ arriba y 1 kΩ abajo: la tensión del punto medio, a 1 µV.
+- Un filtro RC de 4.7 kΩ y 1 nF: magnitud y fase de 10 Hz a 10 MHz, a 0.01 dB y 0.05°; la respuesta a un escalón en 1, 3 y 5 constantes de tiempo, a 2 mV; el ruido térmico a 10 Hz contra la raíz de 4kTR y el ruido total de 1 Hz a 1 GHz contra la raíz de kT/C corregida por la banda, los dos al 1 %.
+
+Si algo no pasa, termina con código 1, y ninguna otra simulación del repo vale. tests/mutaciones.py le inyecta 4 errores (ver Errores inyectados en el README).
+
+## Qué dio la instalación
+
+- ngspice 47 compiló al tercer intento, con las opciones de arriba, en 248 s y sin errores.
+- La verificación pasa sus 13 chequeos (docs/bitacora.md, entrada 26).
+- Lee los dos modelos de TI: el del TL072 tal como viene, con el fin de línea de Windows y el byte 0x1A después de .ENDS, y el del TL072H con ngbehavior=ps.
 
 ## Lo que hay que saber de los modelos antes de usarlos
 
-- El modelo del TL072 (SLOJ067, archivo TL072.301) es un macromodelo de Boyle de 1989, con un par JFET de entrada, fuentes polinómicas y diodos de recorte. No tiene fuentes de ruido, y su JFET no tiene parámetros de ruido 1/f: .noise no va a reproducir el ruido de la hoja, solo el de las resistencias.
-- El modelo del TL072H (SLOM513, revisión B de 2021) sí modela el ruido de tensión y de corriente de entrada. Es el del dado nuevo, que según la tabla 5.9 de la hoja tiene los mismos 37 nV/√Hz que el DIP-8 de TI.
+- El modelo del TL072 (SLOJ067, archivo TL072.301) es un macromodelo de Boyle de 1989, con un par JFET de entrada, fuentes polinómicas y diodos de recorte. No tiene fuentes de ruido ajustadas a la hoja, y su JFET no tiene parámetros de ruido 1/f. El ruido que dé .noise va a salir solo de los componentes del macromodelo, así que no se puede esperar que coincida con los 18 ni con los 37 nV/√Hz: hay que medirlo en simulación antes de usarlo. En continua se porta bien: como seguidor con ±9 V, la salida sigue a la entrada a menos de 0.05 mV entre -1 V y 1 V.
+- El modelo del TL072H (SLOM513, revisión B de 2021) sí modela el ruido de tensión y de corriente de entrada. Es el del dado nuevo, que según la tabla 5.9 de la hoja tiene los mismos 37 nV/√Hz que el DIP-8 de TI. En continua, como seguidor con ±9 V, sigue a la entrada con la ganancia correcta pero con un offset fijo de -6.47 mV, más que el máximo de ±4 mV de la tabla 5.7. La causa no está identificada: puede estar en el modelo o en cómo ngspice traduce su sintaxis PSpice.
 - Ninguno de los dos está comprobado todavía para la inversión de fase.
 - Cuál se usa lo decide Renata, antes de simular el circuito.
 

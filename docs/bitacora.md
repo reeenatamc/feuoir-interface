@@ -477,3 +477,23 @@ Qué se decidió y por qué (decisiones de Renata):
 - Ganancia barrida en cinco puntos, 1, 3, 5, 8 y 11, para ver si cambia la forma de la respuesta y no solo el nivel.
 - El modelo SPICE de TI se revisa antes de usarlo, incluido si reproduce la inversión de fase. La mayoría de los modelos de TI no la reproducen: si la versión de 9 V simples sale limpia, no significa que el problema no exista. Eso va escrito junto a la gráfica.
 - Se acepta el offset amplificado: 110 mV sobre ±9 V no molesta. Queda documentado en docs/entrada-analogica.md el golpe que produce al mover el potenciómetro, mientras C3 se recarga con una constante de tiempo de 0.13 s.
+
+## Entrada 26: ngspice instalado y verificado contra la teoría (2026-09-14)
+
+Qué se midió: nada en hardware. Se compiló ngspice 47, se lo comparó con la teoría en un divisor resistivo y un filtro RC de primer orden (spice/verify.py), y se comprobó que lee los dos modelos del TL072 de TI, con un seguidor en continua.
+
+Condiciones: macOS 26.5.2 en Intel, Apple clang 21. Paquete fuente ngspice-47.tar.gz con sha256 894e649651f1838a14095e5a5439e7d3aa63e87ede14d283173fda4fcdef675f. ngspice simula a 27 °C. Modelos: TL072.301 de SLOJ067 (sha256 que empieza en 74e89d558163615a) y tl07xh_tl08xh.lib de SLOM513 (f214c2d611ab9d13), los dos con ±9 V.
+
+Resultado:
+
+- La compilación falló dos veces antes de salir. Con OpenMP, que el configurador activa por defecto, falta omp.h en el clang de Apple. Con readline, el configurador toma el readline.h del SDK de Apple, que es libedit, y falla en rl_reset_after_signal. Con las dos cosas desactivadas compiló en 248 s, sin errores y con 1912 avisos.
+- La verificación pasa sus 13 chequeos (calibraciones/2026-09-14-spice). El divisor da 1.578947 V, a menos de 1 µV. El filtro RC coincide con la teoría en magnitud y fase de 10 Hz a 10 MHz con un error del orden de 1e-14, y marca -3.0103 dB en el corte. El escalón llega a 0.632081, 0.950208 y 0.993261 V en 1, 3 y 5 constantes de tiempo, contra 0.632121, 0.950213 y 0.993262 V de la teoría. El ruido a 10 Hz da 8.8265 nV/√Hz, igual a la raíz de 4kTR, y el total de 1 Hz a 1 GHz da 2.0351 µV, contra 2.0357 µV de la teoría.
+- El modelo del TL072 carga tal como viene. Como seguidor, la salida sigue a la entrada a menos de 0.05 mV con -1, 0, 0.1 y 1 V.
+- El modelo del TL072H carga con ngbehavior=ps. Como seguidor sigue a la entrada con la ganancia correcta, pero con un offset fijo de -6.47 mV en las cuatro entradas, más que el máximo de ±4 mV de su hoja (tabla 5.7). La causa no está identificada.
+- tests/mutaciones.py suma 4 errores para la verificación: el divisor con la resistencia de abajo cambiada, el filtro con el doble de capacidad, el lector de .raw sin parte imaginaria y la teoría del ruido a 17 °C. Los atrapa, y las 35 mutaciones fallan (calibraciones/2026-09-14-mutaciones). La de la temperatura muestra que el chequeo de ruido distingue un 1.7 %.
+
+Qué se decidió y por qué:
+
+- ngspice queda compilado en ~/spice/ngspice-47, y docs/simulador-spice.md documenta el procedimiento para repetirlo.
+- Los resultados de ngspice se leen por nombre de variable, nunca por posición. Al revisar los modelos a mano se leyó por error la primera columna de un .raw, que era el riel de +9 V y no la salida, y pareció que los dos modelos quedaban clavados en 9 V. Releído con el lector del repo, que usa los nombres, el resultado es el de arriba.
+- Cuál modelo se usa en el circuito lo decide Renata, antes de simularlo.
