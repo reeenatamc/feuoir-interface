@@ -24,7 +24,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Dominio de reloj | diseño en papel, con jumper de SCK | revisado contra las hojas del PCM1808, el PCM5102A y el RP2040 | las conexiones, los puentes del módulo y el margen de DIN |
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
 | Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
-| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación y cinco mediciones, en ventana propia | tests/app_sin_ventana.py: 36 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 7 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
+| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones y la lista de guardadas, en ventana propia | tests/app_contract.py: 38 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 9 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -41,7 +41,7 @@ relojes.py             búsqueda de configuraciones del reloj maestro
 jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
 dispositivos.py        lista las entradas de audio de la Mac
-app/                   app de medición en vivo; la interfaz está en app/interfaz
+app/                   app de medición en vivo; la interfaz está en app/ui
 tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
 firmware/              reloj maestro y firmware de verificación para el Pico
 docs/                  reloj, dominio de reloj, audio USB, compras, primer encendido, app, bitácora y hojas de datos
@@ -55,6 +55,7 @@ mediciones/            capturas y verificaciones, cuando haya hardware
 - Cada resultado queda guardado con sus condiciones en una carpeta con fecha. Nada queda solo en la terminal.
 - Ninguna función entra a analizador.py sin su prueba en calibrar.py, y cada capacidad nueva entra además con una mutación en tests/mutaciones.py que la ataque.
 - Cada decisión queda en docs/bitacora.md, con qué se midió, en qué condiciones y por qué.
+- El código va en inglés: archivos, nombres, comentarios y contratos. Todo lo que ve el usuario va en español: la interfaz, los avisos, la salida de consola y la documentación. La app ya sigue esta regla; el código anterior a ella todavía está en español.
 - El volumen de entrada del sistema queda en 71, ver Volumen de entrada.
 
 ## Qué mide medir.py
@@ -134,7 +135,7 @@ tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia ana
 .venv/bin/python tests/mutaciones.py
 ```
 
-Con la app hace lo mismo: copia app/ y tests/app_sin_ventana.py, inyecta 7 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
+Con la app hace lo mismo: copia app/ y tests/app_contract.py, inyecta 9 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
 
 Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Hay que correrlo cada vez que se toque analizador.py, calibrar.py o app/.
 
@@ -158,7 +159,7 @@ Guarda cada caso con sus condiciones, lo esperado según la teoría y lo medido 
 
 ## App de medición en vivo
 
-Una ventana con la forma de onda, el espectro y el nivel de la entrada en vivo, con aviso de saturación, y un botón por cada medición del analizador: captura de 5 s, THD+N, SNR, respuesta en frecuencia y prueba de jitter. Cada medición guarda su carpeta en mediciones/ con sus condiciones, como medir.py. Python lee el audio y analiza con analizador.py; la interfaz solo dibuja. Sin hardware se usa con la fuente sintética, que hace de conversor.
+Una ventana con la forma de onda, el espectro y el nivel de la entrada en vivo, con aviso de saturación, y un botón por cada medición del analizador: captura de 5 s, THD+N, SNR, respuesta en frecuencia y prueba de jitter. Cada medición guarda su carpeta en mediciones/ con sus condiciones, como medir.py. Desde Guardadas, en el pie de la ventana, se ven todas y cada una se abre en Finder. Python lee el audio y analiza con analizador.py; la interfaz solo dibuja. Sin hardware se usa con la fuente sintética, que hace de conversor.
 
 ![La app con la fuente sintética saturando](docs/app-captura.png)
 
@@ -166,7 +167,7 @@ Instalación, una sola vez:
 
 ```
 .venv/bin/pip install aiohttp==3.14.3 pywebview==6.2.1
-cd app/interfaz && npm install && npm run build
+cd app/ui && npm install && npm run build
 ```
 
 Para abrirla, desde la raíz del repo:

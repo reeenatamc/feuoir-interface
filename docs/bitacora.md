@@ -382,3 +382,23 @@ Errores que aparecieron en el camino:
 - Una segunda medición pedida enseguida no se rechazaba: la medición en curso se marcaba al arrancar la tarea y no al recibir el pedido. Ahora se marca antes de crear la tarea.
 - Una conexión que no lee frenaba los cuadros de todas, porque el emisor esperaba cada envío. Lo mostraron las capturas, con los gráficos congelados; la prueba no lo veía porque su cliente siempre lee. Ahora cada conexión tiene su tarea de escritura y guarda solo el último cuadro. La prueba suma una conexión que no lee, y la mutación cuadros_esperando_a_cada_conexion reproduce el error original.
 - La prueba esperaba 31 tonos en la respuesta en frecuencia, pero frecuencias_log de 20 Hz a 20 kHz con 3 por octava da 30. Ahora la prueba toma el número de frecuencias_log.
+
+## Entrada 22: mediciones guardadas, modo oscuro y código en inglés (2026-09-13)
+
+Qué se midió: nada en hardware. Renata probó la app con el micrófono interno de la Mac. La app se revisó con tests/app_contract.py, con capturas en Chrome sin pantalla y leyendo los píxeles del canvas dentro de la ventana real de pywebview.
+
+Condiciones: las de la Entrada 21, con la Mac en modo oscuro.
+
+Resultado:
+
+- Las mediciones hechas con el micrófono quedaron guardadas con sus condiciones. Muestran que la cadena funciona de punta a punta con una entrada real, pero no son mediciones: el estímulo sale por el parlante de la Mac y lo toma el micrófono.
+- En modo oscuro, en la ventana de pywebview, la forma de onda y el espectro no se veían: el canvas dibujaba con la tinta del modo claro sobre el fondo oscuro, porque los colores se leían una sola vez al arrancar. Ahora se leen en cada cuadro. En la ventana real, en modo oscuro, los 9625 píxeles pintados de la forma de onda son claros y ninguno oscuro.
+- tests/app_contract.py pasa sus 38 comprobaciones. tests/mutaciones.py suma dos errores para Guardadas, la lista de la más vieja a la más reciente y abrir cualquier carpeta que exista, y las 29 mutaciones fallan (calibraciones/2026-09-13-mutaciones-5). La segunda la atrapa el tiempo límite de la prueba: el error que se esperaba no llega.
+
+Qué se decidió y por qué:
+
+- Guardadas, en el pie de la ventana, lista las mediciones con fecha, resumen y entrada, y abre cada carpeta en Finder. No suma pestañas ni vistas, para no salirse del alcance de la primera versión; ver el resultado dentro de la app queda en docs/app-ideas.md.
+- Python solo abre carpetas que estén directamente dentro de mediciones/: la interfaz no puede pedir que se abra cualquier ruta de la Mac.
+- El código de la app pasó a inglés y las etiquetas siguen en español, porque es la regla de Renata para todos sus repos. Cambiaron los archivos (app/sources.py, app/processing.py, app/measurements.py, app/server.py, app/ui/ y tests/app_contract.py) y el contrato del WebSocket, que pasó a la versión 2.
+- El formato de mediciones/ no cambia: carpetas, archivos y claves de los JSON siguen en español porque los comparten medir.py y leer_verificacion.py.
+- El código anterior a la app sigue en español hasta decidir si se traduce. analizador.py tiene además la regla de no reescribirse.

@@ -10,3 +10,5 @@ Lo que falta o se podría sumar, anotado en vez de construido. La primera versi�
 - Cambiar la duración de la forma de onda, hoy de 10 ms, sin tocar el código.
 - Ver una interfaz recién conectada sin pasar antes por la fuente sintética.
 - Una prueba automática de la interfaz en el navegador. Hoy lo que dibuja se revisa con capturas.
+- Grabar tomas largas, con empezar y parar, además de la captura de 5 s. Para grabar música no hace falta la app: cuando la interfaz aparezca como entrada de audio de la Mac, cualquier programa de grabación la puede usar.
+- Ver dentro de la app el resultado de una medición guardada, con su gráfico. Hoy se abre su carpeta en Finder.

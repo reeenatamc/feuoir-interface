@@ -1,6 +1,6 @@
 # App de medición en vivo
 
-Una ventana con la forma de onda, el espectro y el nivel de la entrada en vivo, y un botón por cada medición del analizador. Python lee el audio, analiza con analizador.py y guarda; la interfaz, en TypeScript, solo dibuja lo que recibe por WebSocket. Por qué está hecha así: docs/app-cascara.md.
+Una ventana con la forma de onda, el espectro y el nivel de la entrada en vivo, un botón por cada medición del analizador y la lista de mediciones guardadas. Python lee el audio, analiza con analizador.py y guarda; la interfaz, en TypeScript, solo dibuja lo que recibe por WebSocket. Por qué está hecha así: docs/app-cascara.md.
 
 ![La app con la fuente sintética saturando: seno de 1 kHz a +2 dBFS](app-captura.png)
 
@@ -10,7 +10,7 @@ Una sola vez, desde la raíz del repo:
 
 ```
 .venv/bin/pip install aiohttp==3.14.3 pywebview==6.2.1
-cd app/interfaz && npm install && npm run build
+cd app/ui && npm install && npm run build
 ```
 
 Cada vez, desde la raíz del repo:
@@ -19,19 +19,21 @@ Cada vez, desde la raíz del repo:
 .venv/bin/python -m app
 ```
 
-Con --navegador abre la misma interfaz en el navegador en vez de una ventana propia. Para trabajar en la interfaz con recarga en caliente: .venv/bin/python -m app --navegador --puerto 8750 en una terminal y npm run dev en app/interfaz en otra, y abrir la dirección que muestra Vite. Vite manda el WebSocket al puerto 8750.
+Con --browser abre la misma interfaz en el navegador en vez de una ventana propia. Para trabajar en la interfaz con recarga en caliente: .venv/bin/python -m app --browser --port 8750 en una terminal y npm run dev en app/ui en otra, y abrir la dirección que muestra Vite. Vite manda el WebSocket al puerto 8750.
 
-Después de cambiar algo en app/interfaz hay que volver a correr npm run build: la ventana muestra lo compilado en app/interfaz/dist, que no se versiona.
+Después de cambiar algo en app/ui hay que volver a correr npm run build: la ventana muestra lo compilado en app/ui/dist, que no se versiona.
 
 ## Cómo está hecha
 
+El código está en inglés y todo lo que se ve en pantalla, en español.
+
 ```
-app/fuentes.py      entrada real por sounddevice, o fuente sintética que hace de conversor
-app/procesado.py    de bloques a cuadros: pico sostenido, saturación, espectro reducido, forma de onda
-app/mediciones.py   un botón por medición: estímulo, grabación, analizador.py y carpeta en mediciones/
-app/servidor.py     aiohttp: la interfaz, el WebSocket y su contrato
-app/__main__.py     arranque y ventana con pywebview
-app/interfaz/       TypeScript y canvas, sin framework, con los tokens de feuoir
+app/sources.py        entrada real por sounddevice, o fuente sintética que hace de conversor
+app/processing.py     de bloques a cuadros: pico sostenido, saturación, espectro reducido, forma de onda
+app/measurements.py   un botón por medición: estímulo, grabación, analizador.py y carpeta en mediciones/
+app/server.py         aiohttp: la interfaz, el WebSocket y su contrato
+app/__main__.py       arranque y ventana con pywebview
+app/ui/               TypeScript y canvas, sin framework, con los tokens de feuoir
 ```
 
 El recorrido de un bloque:
@@ -39,7 +41,7 @@ El recorrido de un bloque:
 1. El callback de sounddevice copia el bloque de 1024 muestras a una cola y sale. Corre en el hilo de tiempo real de CoreAudio, y cualquier demora ahí corta el audio.
 2. Un hilo saca los bloques de la cola y los pasa por el procesador, que guarda los últimos 200 ms, mira todas las muestras del bloque para el pico y la saturación, y sostiene el pico hasta el próximo cuadro.
 3. Hasta 30 veces por segundo el servidor arma un cuadro con lo acumulado y lo manda. A 48 kHz llegan unos 47 bloques por segundo; los dos ritmos no dependen uno del otro.
-4. La interfaz guarda el último cuadro y lo dibuja con requestAnimationFrame, solo cuando llegó uno nuevo.
+4. La interfaz guarda el último cuadro y lo dibuja con requestAnimationFrame, solo cuando llegó uno nuevo. Los colores del canvas se leen de la hoja de estilos en cada cuadro, así siguen al modo claro u oscuro.
 
 Cada conexión tiene su propia tarea de escritura. De los cuadros se guarda solo el último, así una conexión que se atrasa pierde cuadros viejos y no frena a las demás.
 
@@ -66,7 +68,7 @@ La app pide 48 kHz y, si la entrada no lo acepta, usa la frecuencia por defecto 
 
 ## Mediciones
 
-Cada botón corre una medición y guarda su carpeta con la convención de medir.py: mediciones/<fecha>-<etiqueta>/, con condiciones.json, resultado.json con lo que devolvió analizador.py y las capturas en WAV. Corre una medición a la vez.
+Cada botón corre una medición y guarda su carpeta con la convención de medir.py: mediciones/<fecha>-<etiqueta>/, con condiciones.json, resultado.json con lo que devolvió analizador.py y las capturas en WAV. Los nombres de las carpetas y de los archivos, y las claves de los JSON, siguen en español porque ese formato lo comparten medir.py y leer_verificacion.py. Corre una medición a la vez.
 
 Las que necesitan estímulo lo hacen sonar. Con la fuente sintética entra directo al conversor simulado. Con una entrada real sale por la salida por defecto de la Mac, sin tocar su configuración, y tiene que volver por un cable hasta la entrada. El tono de THD+N y de SNR usa la frecuencia y el nivel de los ajustes de la señal, y todos los estímulos usan ese nivel.
 
@@ -80,37 +82,44 @@ Las que necesitan estímulo lo hacen sonar. Con la fuente sintética entra direc
 
 De cada tono se descartan los primeros 250 ms, donde caen la latencia de ida y vuelta y la rampa. En la respuesta en frecuencia lo descarta respuesta_en_frecuencia: el 20 % del principio y del final de cada tono.
 
+## Mediciones guardadas
+
+Guardadas, en el pie de la ventana, lista las carpetas de mediciones/ de la más reciente a la más vieja, con su fecha, su resumen y la entrada. Lee el condiciones.json de cada carpeta, así también aparecen las de medir.py. Cada fila abre su carpeta en Finder, y "Guardado en" también es un enlace a la carpeta recién guardada. Python solo abre carpetas que estén directamente dentro de mediciones/.
+
 ## Contrato del WebSocket
 
-Versión 1. Está escrito en app/servidor.py y copiado como tipos en app/interfaz/src/contrato.ts; si cambia en uno, cambia en el otro. Cada mensaje es un objeto JSON con un campo tipo.
+Versión 2. Está escrito en app/server.py y copiado como tipos en app/ui/src/contract.ts; si cambia en uno, cambia en el otro. Cada mensaje es un objeto JSON con un campo type. Las claves y los valores que lee el código están en inglés; los nombres, los resúmenes y los mensajes para la pantalla llegan en español.
 
 | De Python a la interfaz | Cuándo |
 |---|---|
-| estado | al conectarse y cada vez que algo cambia |
-| cuadro | hasta 30 veces por segundo |
-| medicion | avance y final de una medición |
+| state | al conectarse y cada vez que algo cambia |
+| frame | hasta 30 veces por segundo |
+| measurement | avance y final de una medición |
+| saved | la lista de mediciones guardadas, cuando se pide |
 | error | cuando un pedido no se pudo cumplir |
 
 | De la interfaz a Python | Qué hace |
 |---|---|
-| entrada | cambia la entrada |
-| senal | cambia la forma, la frecuencia o el nivel |
-| medir | corre una medición |
-| borrar_saturacion | vuelve a cero el aviso de saturación |
-| actualizar_entradas | vuelve a buscar las entradas |
+| input | cambia la entrada |
+| signal | cambia la forma, la frecuencia o el nivel |
+| measure | corre una medición |
+| clear_clipping | vuelve a cero el aviso de saturación |
+| refresh_inputs | vuelve a buscar las entradas |
+| list_saved | pide la lista de mediciones guardadas |
+| open_saved | abre en Finder una medición guardada, o la carpeta de mediciones |
 
 ## Pruebas
 
-tests/app_sin_ventana.py levanta el servidor con la fuente sintética y las mediciones en una carpeta temporal, y se conecta como la interfaz. Un seno de 1 kHz a -6 dBFS tiene que llegar como pico del espectro en 1 kHz y a -6 dBFS. Además comprueba un tono entre dos bins y otro de 10 kHz, la saturación y su aviso, una conexión que no lee, buscar entradas de nuevo, las cuatro formas de la señal, los errores y las cinco mediciones con sus carpetas. Aparte prueba el procesado con bloques armados a mano: un recorte de una sola muestra entre dos cuadros no se puede perder. Son 36 comprobaciones y tarda cerca de un minuto, porque la fuente sintética va a ritmo real.
+tests/app_contract.py levanta el servidor con la fuente sintética y las mediciones en una carpeta temporal, y se conecta como la interfaz. Un seno de 1 kHz a -6 dBFS tiene que llegar como pico del espectro en 1 kHz y a -6 dBFS. Además comprueba un tono entre dos bins y otro de 10 kHz, la saturación y su aviso, una conexión que no lee, buscar entradas de nuevo, las cuatro formas de la señal, los errores, las cinco mediciones con sus carpetas y la lista de guardadas, incluido que no se pueda abrir una ruta fuera de mediciones/. Aparte prueba el procesado con bloques armados a mano: un recorte de una sola muestra entre dos cuadros no se puede perder. Son 38 comprobaciones y tarda cerca de un minuto, porque la fuente sintética va a ritmo real.
 
 ```
-.venv/bin/python tests/app_sin_ventana.py
+.venv/bin/python tests/app_contract.py
 ```
 
-tests/mutaciones.py le inyecta 7 errores a la app, uno a la vez, y cada uno tiene que hacer fallar esta prueba (ver Errores inyectados en el README).
+tests/mutaciones.py le inyecta 9 errores a la app, uno a la vez, y cada uno tiene que hacer fallar esta prueba (ver Errores inyectados en el README).
 
 ## Sin probar
 
 - Una entrada real para medir. Con el micrófono interno de la Mac la app abre a 48 kHz y los cuadros llegan a ritmo real, pero ese micrófono entrega la señal ya procesada y no sirve para caracterizar nada (DECISIONES.md). Falta la tarjeta de sonido USB y después la interfaz.
 - Las mediciones con el estímulo saliendo por la Mac y volviendo por cable.
-- La interfaz no tiene prueba automática. La ventana de pywebview se abrió en la Mac y cargó la interfaz, y lo que dibuja se revisó con capturas.
+- La interfaz no tiene prueba automática. En la ventana real de pywebview se comprobó que el canvas dibuja con la tinta del modo del sistema, y lo demás se revisó con capturas.
