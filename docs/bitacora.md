@@ -454,3 +454,26 @@ Qué se decidió (decisión de Renata):
 - TL072 clásico en DIP-8, el de 18 nV/√Hz y no el TL072H, y una pila de 9 V más con su portapilas en docs/compras.md.
 
 Pendiente: según la tabla 5.9, los 18 nV/√Hz corresponden a las cápsulas PS y NS y a las TL07xM de TI, y el DIP-8 de TI figura con 37 nV/√Hz. Hay que confirmar con qué fabricante y número de parte se consigue el clásico en DIP-8.
+
+## Entrada 25: ruido del TL072 en DIP-8 y condiciones para simular la entrada (2026-09-14)
+
+Qué se midió: nada en hardware. Se revisó la cuenta de ruido de Renata y se fijaron las condiciones de la simulación del circuito de entrada.
+
+Condiciones: TL072 en DIP-8 con 37 nV/√Hz a 1 kHz (tabla 5.9 de la hoja de TI) y el circuito de ±9 V de la entrada 24.
+
+Resultado, sumando en cuadratura el ruido térmico de la pastilla con el del TL072:
+
+- Con 12 nV/√Hz de la pastilla quedan 21.6 nV/√Hz con 18 y 38.9 nV/√Hz con 37: una diferencia de 5.1 dB.
+- Con 29 nV/√Hz de la pastilla quedan 34.1 y 47.0 nV/√Hz: 2.8 dB.
+- El amplificador solo, de 18 a 37 nV/√Hz, son 6.3 dB.
+
+Qué se decidió y por qué (decisiones de Renata):
+
+- Se aceptan los 37 nV/√Hz y se sigue con el DIP-8. La fuente no es un cable sino una pastilla, y su impedancia a frecuencias de audio ya aporta entre 12 y 29 nV/√Hz de ruido térmico. Sumando en cuadratura, la diferencia entre 18 y 37 queda en unos 3 dB, entre 2.8 y 5.1 dB según la cuenta de arriba. El montaje en protoboard va a costar entre 20 y 30 dB, así que esa diferencia queda enterrada.
+- Cuando se pase a PCB y el montaje deje de ser el límite, vale la pena revisarlo. Con zócalos se cambia el chip y se mide la diferencia con el analizador propio, en vez de decidir por una cifra de catálogo.
+- A la tienda se le pregunta qué fabricante manejan y se pide su hoja. No frena el pedido. Con esto queda resuelto el pendiente de la entrada 24.
+- Carga del PCM1808 en la simulación: 60 kΩ detrás de C3, según su hoja. Con 2.2 µF da un corte en 1.2 Hz, que tiene que aparecer en la respuesta en frecuencia.
+- Pilas con resistencia interna: 2 Ω con pila fresca, y un caso de pila gastada de 7 V con 10 Ω. Es una condición real de operación, y sirve para comprobar que con ±7 V el margen de entrada sigue sobrando.
+- Ganancia barrida en cinco puntos, 1, 3, 5, 8 y 11, para ver si cambia la forma de la respuesta y no solo el nivel.
+- El modelo SPICE de TI se revisa antes de usarlo, incluido si reproduce la inversión de fase. La mayoría de los modelos de TI no la reproducen: si la versión de 9 V simples sale limpia, no significa que el problema no exista. Eso va escrito junto a la gráfica.
+- Se acepta el offset amplificado: 110 mV sobre ±9 V no molesta. Queda documentado en docs/entrada-analogica.md el golpe que produce al mover el potenciómetro, mientras C3 se recarga con una constante de tiempo de 0.13 s.

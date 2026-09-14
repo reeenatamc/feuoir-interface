@@ -249,6 +249,7 @@ Lo que solo se puede probar en la placa es la lectura real de los registros y el
 - docs/dominio-de-reloj.md: un solo dominio de reloj para el audio, con el diagrama de conexiones del PCM1808, el PCM5102A y el Pico
 - docs/audio-usb.md: cómo se resuelve con USB Audio Class que el reloj de audio no coincida con el de la Mac: captura asíncrona, realimentación para la reproducción y qué soporta TinyUSB
 - docs/compras.md: lo que pide el diseño, con las resistencias en serie
+- docs/entrada-analogica.md: la etapa analógica de entrada en sus dos versiones, las condiciones para simularla y los efectos que hay que conocer
 - docs/primer-encendido.md: lista paso a paso para el primer encendido, con qué medir y qué esperar en cada etapa
 - docs/app.md: la app de medición en vivo: cómo abrirla, cómo está hecha, qué calcula, sus mediciones, el contrato del WebSocket y las pruebas
 - docs/app-cascara.md: por qué la app es una ventana de pywebview con Python detrás, y qué se descartó

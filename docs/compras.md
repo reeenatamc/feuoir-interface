@@ -19,11 +19,11 @@ Alimentación partida de ±9 V con dos pilas en serie y el punto medio como tier
 
 | Qué | Cantidad | Para qué | Nota |
 |---|---|---|---|
-| TL072 en DIP-8, variante clásica (18 nV/√Hz), no TL072H | 1 | etapa de ganancia y seguidor de salida | ver la nota sobre el ruido y el encapsulado debajo |
+| TL072 en DIP-8, no TL072H | 1 | etapa de ganancia y seguidor de salida | se aceptan 37 nV/√Hz; ver la nota debajo |
 | Pila de 9 V | 2 | alimentación de +9 V y de -9 V | la segunda se suma por la alimentación partida |
 | Portapilas o broche de 9 V | 2 | uno por pila | |
 
-Nota sobre el TL072: en la hoja de TI (SLOS080W, julio 2025, tabla 5.9) los 18 nV/√Hz a 1 kHz figuran para las cápsulas PS y NS y para TL07xM; para todas las demás, que incluyen el DIP-8 (P) de TI, figuran 37 nV/√Hz. Antes de comprar hay que confirmar con qué fabricante y número de parte se consigue la variante de 18 nV/√Hz en DIP-8.
+Nota sobre el TL072: en la hoja de TI (SLOS080W, julio 2025, tabla 5.9) los 18 nV/√Hz a 1 kHz figuran para las cápsulas PS y NS y para TL07xM; para todas las demás, que incluyen el DIP-8 (P) de TI, figuran 37 nV/√Hz. Se aceptan los 37 nV/√Hz y se sigue con el DIP-8 (docs/bitacora.md, entrada 25). Al pedirlo, preguntarle a la tienda qué fabricante manejan y pedir su hoja de datos. No frena el pedido.
 
 ## Resistencias
 
