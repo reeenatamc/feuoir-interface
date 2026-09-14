@@ -1,1 +1,1 @@
-"""App de medición en vivo. Se arranca con .venv/bin/python -m app desde la raíz del repo."""
+"""Live measurement app. Start it from the repo root with .venv/bin/python -m app."""

@@ -7,5 +7,5 @@ __pycache__/
 firmware/build*/
 
 # interfaz de la app: se instala y se compila con npm
-app/interfaz/node_modules/
-app/interfaz/dist/
+app/ui/node_modules/
+app/ui/dist/

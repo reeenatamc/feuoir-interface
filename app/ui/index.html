@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Medición en vivo</title>
+    <link rel="icon" href="/flame.png" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="bar">
+        <div class="brand">
+          <img src="/flame.png" alt="" class="brand-flame" />
+          <span>feuoir</span>
+        </div>
+        <span class="label bar-title">Medición en vivo</span>
+
+        <div class="fields">
+          <button class="field" id="input-field" aria-haspopup="true" aria-expanded="false" aria-controls="input-menu">
+            <span class="label">Entrada</span>
+            <span class="field-value" id="input-value">Conectando</span>
+            <svg class="field-chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" /></svg>
+          </button>
+          <button class="field" id="signal-field" aria-haspopup="true" aria-expanded="false" aria-controls="signal-menu">
+            <span class="label">Señal</span>
+            <span class="field-value" id="signal-value"></span>
+            <svg class="field-chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" /></svg>
+          </button>
+        </div>
+
+        <span class="connection" id="connection">Conectando</span>
+      </header>
+
+      <div class="menu" id="input-menu" hidden>
+        <div class="menu-header">
+          <span class="fire-line" aria-hidden="true"></span>
+          <span class="label">Entrada</span>
+        </div>
+        <ul class="options" id="input-options" aria-label="Entradas disponibles"></ul>
+        <button class="link menu-footer" id="refresh-inputs">Buscar entradas de nuevo</button>
+      </div>
+
+      <div class="menu settings-menu" id="signal-menu" hidden>
+        <div class="menu-header">
+          <span class="fire-line" aria-hidden="true"></span>
+          <span class="label">Señal de prueba</span>
+        </div>
+
+        <div class="setting" id="shape-setting">
+          <span class="label" id="shape-label">Forma</span>
+          <div class="shapes" role="radiogroup" aria-labelledby="shape-label">
+            <button role="radio" data-shape="sine">Seno</button>
+            <button role="radio" data-shape="sweep">Barrido</button>
+            <button role="radio" data-shape="noise">Ruido</button>
+            <button role="radio" data-shape="silence">Silencio</button>
+          </div>
+        </div>
+
+        <div class="setting">
+          <label class="label" for="frequency">Frecuencia</label>
+          <div class="setting-row">
+            <input class="slider" id="frequency-slider" type="range" min="0" max="1000" step="1" aria-label="Frecuencia, escala logarítmica" />
+            <input class="number" id="frequency" type="number" min="20" max="20000" step="1" />
+            <span class="unit">Hz</span>
+          </div>
+        </div>
+
+        <div class="setting">
+          <label class="label" for="level">Nivel</label>
+          <div class="setting-row">
+            <input class="slider" id="level-slider" type="range" min="-60" max="6" step="0.5" aria-label="Nivel" />
+            <input class="number" id="level" type="number" min="-120" max="6" step="0.5" />
+            <span class="unit">dBFS</span>
+          </div>
+        </div>
+
+        <p class="hint" id="signal-hint"></p>
+      </div>
+
+      <main class="workspace">
+        <section class="chart chart-waveform">
+          <header class="panel-header">
+            <h2 class="label">Forma de onda</h2>
+            <span class="note" id="waveform-note">Últimos 10 ms</span>
+          </header>
+          <div class="canvas-box"><canvas id="waveform"></canvas></div>
+        </section>
+
+        <section class="chart chart-spectrum">
+          <header class="panel-header">
+            <h2 class="label">Espectro</h2>
+            <span class="note">De 20 Hz a 20 kHz, en dBFS</span>
+          </header>
+          <div class="canvas-box"><canvas id="spectrum"></canvas></div>
+        </section>
+
+        <aside class="level">
+          <header class="panel-header">
+            <h2 class="label">Nivel</h2>
+            <span class="note">Pico sostenido por bloque</span>
+          </header>
+          <div class="meter">
+            <div class="canvas-box"><canvas id="meter"></canvas></div>
+            <dl class="readouts">
+              <div>
+                <dt class="label">Pico</dt>
+                <dd><span class="figure" id="peak-readout">-</span><span class="unit">dBFS</span></dd>
+              </div>
+              <div>
+                <dt class="label">RMS</dt>
+                <dd><span class="figure" id="rms-readout">-</span><span class="unit">dBFS</span></dd>
+              </div>
+            </dl>
+          </div>
+          <div class="clipping" id="clipping">
+            <div class="clipping-header">
+              <span class="fire-line" aria-hidden="true"></span>
+              <span class="label">Saturación</span>
+            </div>
+            <p class="clipping-text" id="clipping-text" aria-live="polite">Sin saturación en esta sesión</p>
+            <button class="link" id="clear-clipping" hidden>Borrar aviso</button>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="measurements">
+        <span class="label">Medir y guardar</span>
+        <div class="buttons" id="buttons"></div>
+        <p class="measurement-notice" id="measurement-notice" aria-live="polite"></p>
+        <button class="link saved-link" id="show-saved" aria-haspopup="true" aria-expanded="false" aria-controls="saved-menu">Guardadas</button>
+      </footer>
+
+      <div class="menu saved-menu" id="saved-menu" hidden>
+        <div class="menu-header">
+          <span class="fire-line" aria-hidden="true"></span>
+          <span class="label">Mediciones guardadas</span>
+        </div>
+        <ul class="options" id="saved-list" aria-label="Mediciones guardadas"></ul>
+        <p class="hint" id="saved-empty" hidden>Todavía no hay mediciones guardadas. Cada botón de Medir y guardar deja una carpeta aquí.</p>
+        <button class="link menu-footer" id="open-measurements-folder">Abrir la carpeta en Finder</button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

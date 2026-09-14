@@ -5,7 +5,7 @@
 
 Copia analizador.py y calibrar.py a una carpeta temporal, inyecta un error a la vez y corre
 calibrar.py sobre esa copia. Cada error tiene que hacer fallar la calibración. Con la app de
-medición hace lo mismo: copia analizador.py, app/ y tests/app_sin_ventana.py, inyecta un error en
+medición hace lo mismo: copia analizador.py, app/ y tests/app_contract.py, inyecta un error en
 app/ y corre esa prueba. Antes de cada tanda corre una copia sin cambios como control, que tiene
 que pasar: si el control falla, que fallen las copias con errores no demuestra nada.
 
@@ -68,27 +68,31 @@ MUTACIONES = [
      'sal["fase_rad"] - ent["fase_rad"]', 'ent["fase_rad"] - sal["fase_rad"]'),
 ]
 
-# Los archivos que necesita tests/app_sin_ventana.py para correr en una carpeta aparte
-ARCHIVOS_APP = ["analizador.py", "app/__init__.py", "app/procesado.py", "app/fuentes.py", "app/mediciones.py",
-                "app/servidor.py", "tests/app_sin_ventana.py"]
+# Los archivos que necesita tests/app_contract.py para correr en una carpeta aparte
+ARCHIVOS_APP = ["analizador.py", "app/__init__.py", "app/processing.py", "app/sources.py", "app/measurements.py",
+                "app/server.py", "tests/app_contract.py"]
 
 # nombre, error que simula, archivo, texto original, texto que lo reemplaza
 MUTACIONES_APP = [
     ("saturacion_con_muestras_salteadas", "detector de saturación que mira una muestra de cada dos",
-     "app/procesado.py", "pico = float(np.max(np.abs(x)))", "pico = float(np.max(np.abs(x[::2])))"),
+     "app/processing.py", "peak = float(np.max(np.abs(x)))", "peak = float(np.max(np.abs(x[::2])))"),
     ("pico_sin_sostener_entre_bloques", "pico del cuadro que se queda con el último bloque en vez del máximo",
-     "app/procesado.py", "self._pico_cuadro = max(self._pico_cuadro, pico)", "self._pico_cuadro = pico"),
+     "app/processing.py", "self._frame_peak = max(self._frame_peak, peak)", "self._frame_peak = peak"),
     ("espectro_reducido_con_minimo", "reducción del espectro que se queda con el mínimo de cada tramo",
-     "app/procesado.py", "np.maximum.reduceat(", "np.minimum.reduceat("),
+     "app/processing.py", "np.maximum.reduceat(", "np.minimum.reduceat("),
     ("espectro_en_vivo_con_hann", "espectro en vivo con Hann, que baja el pico de un tono que cae entre bins",
-     "app/procesado.py", 'VENTANA_ESPECTRO = "flattop"', 'VENTANA_ESPECTRO = "hann"'),
+     "app/processing.py", 'SPECTRUM_WINDOW = "flattop"', 'SPECTRUM_WINDOW = "hann"'),
     ("fuente_sintetica_nivel_en_potencia", "nivel de la fuente sintética con 10**(dB/10) en vez de 10**(dB/20)",
-     "app/fuentes.py", 'a = 10**(s["nivel_dbfs"]/20)', 'a = 10**(s["nivel_dbfs"]/10)'),
+     "app/sources.py", 'amplitude = 10**(s["level_dbfs"]/20)', 'amplitude = 10**(s["level_dbfs"]/10)'),
     ("medicion_marcada_tarde", "medición en curso marcada recién cuando arranca su tarea",
-     "app/servidor.py", '        motor.midiendo = pedido["medicion"]\n', ""),
+     "app/server.py", '        engine.measuring = message["measurement"]\n', ""),
+    ("guardadas_de_la_mas_vieja", "lista de mediciones guardadas de la más vieja a la más reciente",
+     "app/measurements.py", "reverse=True)", "reverse=False)"),
+    ("abrir_guardada_sin_validar", "abre cualquier carpeta que exista, aunque salga de mediciones/",
+     "app/server.py", "if path.parent != self.destination.resolve() or not path.is_dir():", "if not path.is_dir():"),
     ("cuadros_esperando_a_cada_conexion", "emisor que espera a que cada conexión reciba el cuadro: una lenta frena a todas",
-     "app/servidor.py", '            for cliente in list(app["clientes"]):\n                cliente.mandar_cuadro(texto)\n',
-     '            await asyncio.gather(*(cliente.ws.send_str(texto) for cliente in list(app["clientes"])))\n'),
+     "app/server.py", '            for client in list(app[CLIENTS]):\n                client.send_frame(text)\n',
+     '            await asyncio.gather(*(client.ws.send_str(text) for client in list(app[CLIENTS])))\n'),
 ]
 
 
@@ -115,7 +119,7 @@ def correr_app(carpeta, archivos, python, limite_s):
         (carpeta / relativa).parent.mkdir(parents=True, exist_ok=True)
         (carpeta / relativa).write_text(texto, encoding="utf-8")
     try:
-        r = subprocess.run([python, "tests/app_sin_ventana.py"], cwd=carpeta, capture_output=True, text=True,
+        r = subprocess.run([python, "tests/app_contract.py"], cwd=carpeta, capture_output=True, text=True,
                            timeout=limite_s)
     except subprocess.TimeoutExpired:
         return {"codigo_salida": None, "tiempo_agotado": True, "pruebas_que_fallan": []}
@@ -197,17 +201,17 @@ def main():
         control_app = correr_app(tmp / "control-app", app, python, args.limite_s)
         control_app_pasa = control_app["codigo_salida"] == 0
         if control_app_pasa:
-            print("ok     control: tests/app_sin_ventana.py pasa con app/ sin cambios")
+            print("ok     control: tests/app_contract.py pasa con app/ sin cambios")
             aplicables = [m for m in MUTACIONES_APP if apariciones[m[0]] == 1]
             with ThreadPoolExecutor(max_workers=args.trabajos) as ex:
                 futuros = [ex.submit(correr_app, tmp / nombre, {**app, archivo: app[archivo].replace(original, reemplazo)},
                                      python, args.limite_s)
                            for nombre, _, archivo, original, reemplazo in aplicables]
                 for (nombre, descripcion, archivo, original, reemplazo), futuro in zip(aplicables, futuros):
-                    registrar(resultados, nombre, descripcion, archivo, "tests/app_sin_ventana.py", original, reemplazo,
+                    registrar(resultados, nombre, descripcion, archivo, "tests/app_contract.py", original, reemplazo,
                               futuro.result())
         else:
-            print(f"FALLA  control: tests/app_sin_ventana.py no pasa con app/ sin cambios "
+            print(f"FALLA  control: tests/app_contract.py no pasa con app/ sin cambios "
                   f"(código {control_app['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
 
     sobreviven = [r["mutacion"] for r in resultados if not r["detectada"]]
