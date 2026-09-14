@@ -420,3 +420,37 @@ Qué se decidió y por qué:
 - Elegirla no cambia la salida por defecto del sistema. La app le pasa el dispositivo a sounddevice solo cuando reproduce.
 - Sirve para sacar el estímulo por la tarjeta de sonido USB hacia la etapa analógica y medir lo que vuelve, y en la fase 6 para medir el camino completo de la interfaz con un cable de su salida a su entrada.
 - Buscar de nuevo busca entradas y salidas, y el contrato del WebSocket pasa a la versión 3.
+
+## Entrada 24: rango de entrada del TL072 y alimentación partida (2026-09-14)
+
+Qué se midió: nada en hardware. Se revisó la hoja del TL072 del repo (TI SLOS080W, revisión de julio de 2025) contra el circuito de entrada que pasó Renata, antes de simularlo.
+
+Condiciones: circuito original con una pila de 9 V. Polarización en 4.5 V con R2 = R3 = 100 kΩ y C4 = 47 µF a tierra. R1 = 1 MΩ de la entrada no inversora al nodo de polarización. Realimentación con un potenciómetro de 10 kΩ, y R4 = 1 kΩ con C2 = 47 µF hacia el nodo de polarización. Señal de prueba de 1.5 V de pico en la entrada.
+
+Qué dice la hoja:
+
+- Tabla 5.3, condiciones de operación recomendadas. Alimentación de 10 a 30 V para las cápsulas NS y PS y las variantes TL07xM, y de 4.5 a 40 V para todas las demás. Tensión de entrada de (VCC−) + 2 V a (VCC+) + 0.1 V para NS, PS y TL07xM, y de (VCC−) + 4 V a (VCC+) + 0.1 V para todas las demás.
+- Tabla 5.7, características eléctricas del TL07xH: modo común de (VCC−) + 1.5 V a VCC+.
+- Tabla 5.8, características de TL07xC, TL07xAC, TL07xBC, TL07xI y TL07xM con ±15 V: modo común mínimo de ±11 V y típico de −12 V a 15 V. El borde inferior queda 4 V por encima del riel negativo como mínimo garantizado, y 3 V en el valor típico.
+- Tabla 5.9, ruido de entrada a 1 kHz: 18 nV/√Hz para las cápsulas PS y NS y las TL07xM, y 37 nV/√Hz para todas las demás, que incluyen el DIP-8 (P) de TI. La lista de características de la primera página dice 37, y el historial de revisiones anota el cambio de 18 a 37.
+- La figura 5-26, "No Phase Reversal", está en la sección 5.10, que es solo del TL07xH. En la sección 5.11, la del resto de las variantes, no hay nada equivalente.
+
+Dónde se contradice: las filas de tensión de entrada de la tabla 5.3 no coinciden con las tablas eléctricas. Para "todas las demás", que incluyen al TL07xH, la 5.3 pide la entrada por encima de (VCC−) + 4 V, pero la 5.7 garantiza modo común desde (VCC−) + 1.5 V. Para NS, PS y TL07xM, la 5.3 permite desde (VCC−) + 2 V, pero la 5.8 solo garantiza ±11 V con ±15 V, o sea desde (VCC−) + 4 V. Las dos filas parecen intercambiadas. Es una inferencia: la hoja no lo aclara.
+
+Por qué el diseño original lo violaba:
+
+- Con 9 V simples y la polarización en 4.5 V, 1.5 V de pico llevan la entrada no inversora a 3.0 V, es decir, 3.0 V por encima del riel negativo.
+- Eso queda por debajo de (VCC−) + 4 V, que es lo que pide la tabla 5.3 para todas las demás variantes y lo que garantiza como mínimo la 5.8, y por debajo de los 3 V típicos de la 5.8. Solo entra en el (VCC−) + 1.5 V del TL07xH.
+- Fuera del rango de modo común, el TL072 clásico hace inversión de fase, que es peor que recortar. Lo señaló Renata; la hoja actual no lo describe para el clásico y solo muestra la ausencia de inversión en el TL07xH.
+- Con 9 V tampoco se cumple el mínimo recomendado de 10 V para las cápsulas NS y PS y las TL07xM, y una pila baja con el uso.
+
+Qué se decidió (decisión de Renata):
+
+- Alimentación partida de ±9 V, con dos pilas de 9 V en serie y el punto medio como tierra analógica.
+- Salen R2, R3, C4 y C2. R1 = 1 MΩ va de la entrada no inversora a tierra, y R4 = 1 kΩ de la entrada inversora a tierra, con el potenciómetro de 10 kΩ en la realimentación: la ganancia sigue de 1 a 11.
+- Lo demás no cambia: C1 = 100 nF de acoplo de entrada, filtro de R5 = 4.7 kΩ con C5 = 1 nF, seguidor con la segunda mitad del TL072, C3 = 2.2 µF de acoplo hacia el PCM1808 y 100 nF de desacoplo en cada riel contra tierra.
+- Con ±9 V la entrada queda centrada en 0 V: 1.5 V de pico la llevan a −1.5 V, 7.5 V por encima del riel negativo, dentro del rango de todas las tablas. Los 18 V totales entran en 10 a 30 V y en 4.5 a 40 V.
+- El circuito se simula en las dos versiones, 9 V simples y ±9 V, porque la comparación es un resultado del proyecto. Se suma un transitorio con 1.5 V de pico en las dos. Si el modelo de TI no reproduce la inversión de fase, se anota: los modelos no siempre incluyen ese comportamiento.
+- TL072 clásico en DIP-8, el de 18 nV/√Hz y no el TL072H, y una pila de 9 V más con su portapilas en docs/compras.md.
+
+Pendiente: según la tabla 5.9, los 18 nV/√Hz corresponden a las cápsulas PS y NS y a las TL07xM de TI, y el DIP-8 de TI figura con 37 nV/√Hz. Hay que confirmar con qué fabricante y número de parte se consigue el clásico en DIP-8.
