@@ -60,17 +60,19 @@ El espectro llega hasta +10 dBFS porque cuando un seno se recorta su fundamental
 
 Hace de conversor sin hardware. Genera la señal elegida (seno, barrido de 20 Hz a 20 kHz en 5 s, ruido o silencio), le suma ruido blanco de -100 dBFS RMS, del orden del piso del PCM1808, la cuantiza a 24 bits y la recorta en fondo de escala, así que por encima de 0 dBFS satura como el ADC. Entrega los bloques a ritmo real. Para el seno y el barrido el nivel es de pico; para el ruido, RMS.
 
-## Entradas
+## Entradas y salidas
 
-La lista sale de PortAudio. "Buscar entradas de nuevo", con la fuente sintética elegida, reinicia PortAudio y encuentra las entradas conectadas después de abrir la app. Con una entrada real abierta solo relee la lista, porque reiniciar cortaría el audio: para ver una interfaz recién conectada hay que pasar primero a la fuente sintética.
+Las listas salen de PortAudio. "Buscar entradas y salidas de nuevo", con la fuente sintética elegida, reinicia PortAudio y encuentra los dispositivos conectados después de abrir la app. Con una entrada real abierta solo relee las listas, porque reiniciar cortaría el audio: para ver una interfaz recién conectada hay que pasar primero a la fuente sintética.
 
 La app pide 48 kHz y, si la entrada no lo acepta, usa la frecuencia por defecto del dispositivo. Toma el primer canal. El volumen de entrada del sistema no se toca: solo se lee para guardarlo en las condiciones, igual que en medir.py.
+
+Con una entrada real, el menú de la señal muestra la salida del estímulo: la salida por defecto de la Mac o cualquier otra, sin cambiar la configuración del sistema. La app comprueba que la salida elegida acepte la frecuencia de muestreo, y condiciones.json guarda por cuál sonó el estímulo. Con la fuente sintética la salida no se usa, porque el estímulo entra directo al conversor simulado.
 
 ## Mediciones
 
 Cada botón corre una medición y guarda su carpeta con la convención de medir.py: mediciones/<fecha>-<etiqueta>/, con condiciones.json, resultado.json con lo que devolvió analizador.py y las capturas en WAV. Los nombres de las carpetas y de los archivos, y las claves de los JSON, siguen en español porque ese formato lo comparten medir.py y leer_verificacion.py. Corre una medición a la vez.
 
-Las que necesitan estímulo lo hacen sonar. Con la fuente sintética entra directo al conversor simulado. Con una entrada real sale por la salida por defecto de la Mac, sin tocar su configuración, y tiene que volver por un cable hasta la entrada. El tono de THD+N y de SNR usa la frecuencia y el nivel de los ajustes de la señal, y todos los estímulos usan ese nivel.
+Las que necesitan estímulo lo hacen sonar. Con la fuente sintética entra directo al conversor simulado. Con una entrada real sale por la salida elegida, la de por defecto de la Mac si no se eligió otra, y tiene que volver por un cable hasta la entrada. El tono de THD+N y de SNR usa la frecuencia y el nivel de los ajustes de la señal, y todos los estímulos usan ese nivel.
 
 | Botón | Estímulo | Qué analiza | Etiqueta |
 |---|---|---|---|
@@ -88,7 +90,7 @@ Guardadas, en el pie de la ventana, lista las carpetas de mediciones/ de la más
 
 ## Contrato del WebSocket
 
-Versión 2. Está escrito en app/server.py y copiado como tipos en app/ui/src/contract.ts; si cambia en uno, cambia en el otro. Cada mensaje es un objeto JSON con un campo type. Las claves y los valores que lee el código están en inglés; los nombres, los resúmenes y los mensajes para la pantalla llegan en español.
+Versión 3. Está escrito en app/server.py y copiado como tipos en app/ui/src/contract.ts; si cambia en uno, cambia en el otro. Cada mensaje es un objeto JSON con un campo type. Las claves y los valores que lee el código están en inglés; los nombres, los resúmenes y los mensajes para la pantalla llegan en español.
 
 | De Python a la interfaz | Cuándo |
 |---|---|
@@ -101,22 +103,23 @@ Versión 2. Está escrito en app/server.py y copiado como tipos en app/ui/src/co
 | De la interfaz a Python | Qué hace |
 |---|---|
 | input | cambia la entrada |
+| output | elige la salida del estímulo |
 | signal | cambia la forma, la frecuencia o el nivel |
 | measure | corre una medición |
 | clear_clipping | vuelve a cero el aviso de saturación |
-| refresh_inputs | vuelve a buscar las entradas |
+| refresh_devices | vuelve a buscar las entradas y las salidas |
 | list_saved | pide la lista de mediciones guardadas |
 | open_saved | abre en Finder una medición guardada, o la carpeta de mediciones |
 
 ## Pruebas
 
-tests/app_contract.py levanta el servidor con la fuente sintética y las mediciones en una carpeta temporal, y se conecta como la interfaz. Un seno de 1 kHz a -6 dBFS tiene que llegar como pico del espectro en 1 kHz y a -6 dBFS. Además comprueba un tono entre dos bins y otro de 10 kHz, la saturación y su aviso, una conexión que no lee, buscar entradas de nuevo, las cuatro formas de la señal, los errores, las cinco mediciones con sus carpetas y la lista de guardadas, incluido que no se pueda abrir una ruta fuera de mediciones/. Aparte prueba el procesado con bloques armados a mano: un recorte de una sola muestra entre dos cuadros no se puede perder. Son 38 comprobaciones y tarda cerca de un minuto, porque la fuente sintética va a ritmo real.
+tests/app_contract.py levanta el servidor con la fuente sintética y las mediciones en una carpeta temporal, y se conecta como la interfaz. Un seno de 1 kHz a -6 dBFS tiene que llegar como pico del espectro en 1 kHz y a -6 dBFS. Además comprueba un tono entre dos bins y otro de 10 kHz, la saturación y su aviso, una conexión que no lee, buscar entradas de nuevo, las cuatro formas de la señal, los errores, las cinco mediciones con sus carpetas y la lista de guardadas, incluido que no se pueda abrir una ruta fuera de mediciones/. Con una entrada falsa, que no hace sonar nada por los parlantes, comprueba que el estímulo suene por la salida elegida y quede en las condiciones. Aparte prueba el procesado con bloques armados a mano, donde un recorte de una sola muestra entre dos cuadros no se puede perder, y que la entrada real le pase la salida elegida a sounddevice. Son 44 comprobaciones y tarda cerca de un minuto, porque la fuente sintética va a ritmo real.
 
 ```
 .venv/bin/python tests/app_contract.py
 ```
 
-tests/mutaciones.py le inyecta 9 errores a la app, uno a la vez, y cada uno tiene que hacer fallar esta prueba (ver Errores inyectados en el README).
+tests/mutaciones.py le inyecta 11 errores a la app, uno a la vez, y cada uno tiene que hacer fallar esta prueba (ver Errores inyectados en el README).
 
 ## Sin probar
 

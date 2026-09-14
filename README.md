@@ -24,7 +24,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Dominio de reloj | diseño en papel, con jumper de SCK | revisado contra las hojas del PCM1808, el PCM5102A y el RP2040 | las conexiones, los puentes del módulo y el margen de DIN |
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
 | Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
-| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones y la lista de guardadas, en ventana propia | tests/app_contract.py: 38 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 9 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
+| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones, la salida del estímulo y la lista de guardadas, en ventana propia | tests/app_contract.py: 44 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 11 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -135,7 +135,7 @@ tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia ana
 .venv/bin/python tests/mutaciones.py
 ```
 
-Con la app hace lo mismo: copia app/ y tests/app_contract.py, inyecta 9 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
+Con la app hace lo mismo: copia app/ y tests/app_contract.py, inyecta 11 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
 
 Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Hay que correrlo cada vez que se toque analizador.py, calibrar.py o app/.
 

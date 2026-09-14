@@ -402,3 +402,21 @@ Qué se decidió y por qué:
 - El código de la app pasó a inglés y las etiquetas siguen en español, porque es la regla de Renata para todos sus repos. Cambiaron los archivos (app/sources.py, app/processing.py, app/measurements.py, app/server.py, app/ui/ y tests/app_contract.py) y el contrato del WebSocket, que pasó a la versión 2.
 - El formato de mediciones/ no cambia: carpetas, archivos y claves de los JSON siguen en español porque los comparten medir.py y leer_verificacion.py.
 - El código anterior a la app sigue en español hasta decidir si se traduce. analizador.py tiene además la regla de no reescribirse.
+
+## Entrada 23: salida del estímulo elegible (2026-09-13)
+
+Qué se midió: nada en hardware. La app se probó con tests/app_contract.py y con capturas del menú de la señal.
+
+Condiciones: las de la Entrada 21. En la prueba, las listas de dispositivos y la entrada real son falsas: la entrada falsa tiene una fuente sintética adentro y anota por qué salida pidió sonar cada estímulo, así nada suena por los parlantes.
+
+Resultado:
+
+- Con una entrada real, el menú de la señal lista las salidas de la Mac, con la de por defecto primero. La elegida se valida contra la frecuencia de muestreo, y condiciones.json guarda por cuál sonó el estímulo.
+- tests/app_contract.py pasa sus 44 comprobaciones. tests/mutaciones.py suma dos errores: el estímulo que suena por la salida por defecto aunque se haya elegido otra, y la entrada real que no le dice a sounddevice por qué salida sonar. Las 31 mutaciones fallan (calibraciones/2026-09-13-mutaciones-6).
+
+Qué se decidió y por qué:
+
+- La salida se elige en el menú de la señal y no en la barra: solo importa para las mediciones con estímulo, y solo con una entrada real.
+- Elegirla no cambia la salida por defecto del sistema. La app le pasa el dispositivo a sounddevice solo cuando reproduce.
+- Sirve para sacar el estímulo por la tarjeta de sonido USB hacia la etapa analógica y medir lo que vuelve, y en la fase 6 para medir el camino completo de la interfaz con un cable de su salida a su entrada.
+- Buscar de nuevo busca entradas y salidas, y el contrato del WebSocket pasa a la versión 3.
