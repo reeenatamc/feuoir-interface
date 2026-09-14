@@ -118,6 +118,8 @@ button, input { font: inherit; color: inherit; }
 .shapes button:hover { color: var(--ink); }
 .shapes button[aria-checked="true"] { color: var(--ink); background-size: 100% 2px; }
 .setting-row { display: flex; align-items: center; gap: 16px; }
+.setting .options { max-height: 168px; }
+.setting .option { padding: 10px 0; font-size: 13px; }
 
 .slider { flex: 1; height: 18px; margin: 0; background: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; }
 .slider::-webkit-slider-runnable-track { height: 1px; background: var(--ink-20); }

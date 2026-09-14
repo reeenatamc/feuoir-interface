@@ -35,20 +35,41 @@ def validate_signal(signal):
     return {"shape": shape, "frequency_hz": frequency, "level_dbfs": level}
 
 
-def list_inputs(restart=False):
-    """The Mac's audio inputs.
+def restart_portaudio():
+    """PortAudio builds its device list when it starts: a device plugged in afterwards only shows up after a
+    restart, and a restart stops any open stream."""
+    sd._terminate()
+    sd._initialize()
 
-    PortAudio builds its device list when it starts: an interface plugged in afterwards only shows up after a
-    restart, and a restart stops any open stream. That is why restarting is optional.
-    """
-    if restart:
-        sd._terminate()
-        sd._initialize()
+
+def list_inputs():
+    """The Mac's audio inputs, with the synthetic source first."""
     inputs = [{"id": "synthetic", "name": SyntheticSource.name}]
     for d in sd.query_devices():
         if d["max_input_channels"] > 0:
             inputs.append({"id": str(d["index"]), "name": d["name"]})
     return inputs
+
+
+def list_outputs():
+    """The Mac's audio outputs, with the system default first. Measurement stimuli play through one of them."""
+    try:
+        default = f"Por defecto de la Mac: {sd.query_devices(kind='output')['name']}"
+    except sd.PortAudioError:
+        default = "Por defecto de la Mac"
+    outputs = [{"id": "default", "name": default}]
+    for d in sd.query_devices():
+        if d["max_output_channels"] > 0:
+            outputs.append({"id": str(d["index"]), "name": d["name"]})
+    return outputs
+
+
+def check_output(index, fs):
+    """Raises ValueError if the output cannot play mono audio at fs."""
+    try:
+        sd.check_output_settings(device=index, channels=1, samplerate=fs, dtype="float32")
+    except sd.PortAudioError as e:
+        raise ValueError(f"La salida elegida no acepta {fs} Hz") from e
 
 
 class SyntheticSource:
@@ -85,8 +106,11 @@ class SyntheticSource:
         with self._lock:
             self.signal, self._sweep, self._position = signal, sweep, 0
 
-    def play(self, x):
-        """What plays through the output comes back through the input, as with a loopback cable."""
+    def play(self, x, output=None):
+        """What plays through the output comes back through the input, as with a loopback cable.
+
+        output is ignored: the loopback has no output device.
+        """
         with self._lock:
             self._stimulus = np.concatenate([self._stimulus, np.asarray(x, dtype=np.float64)])
 
@@ -163,9 +187,12 @@ class DeviceSource:
         return {"tipo": "dispositivo", "nombre": self.name, "indice": self.index,
                 "bloques_perdidos": self.lost_blocks}
 
-    def play(self, x):
-        """The stimulus goes out through the Mac's default output, without touching its settings."""
-        sd.play(np.asarray(x, dtype=np.float32), self.fs)
+    def play(self, x, output=None):
+        """The stimulus goes out through the output with that index, or the Mac's default one when output is None.
+
+        The system audio settings are not touched.
+        """
+        sd.play(np.asarray(x, dtype=np.float32), self.fs, device=output)
 
     def close(self):
         self._stream.stop()

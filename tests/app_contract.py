@@ -19,6 +19,7 @@ import sys
 import tempfile
 import traceback
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 from aiohttp import ClientSession, web
@@ -26,14 +27,17 @@ from aiohttp import ClientSession, web
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import analizador as an  # noqa: E402
+from app import sources  # noqa: E402
 from app.processing import Processor  # noqa: E402
 from app.server import Engine, create_app  # noqa: E402
 
 FAILED = []
+CHECKED = []
 
 
 def check(name, condition, detail=""):
     print(f"{'ok    ' if condition else 'FALLA '} {name}" + (f"  ({detail})" if detail and not condition else ""))
+    CHECKED.append(name)
     if not condition:
         FAILED.append(name)
 
@@ -57,6 +61,49 @@ def processing():
     q = p.frame()
     check("procesado: el pico se sostiene de un bloque al otro hasta el cuadro",
           abs(q["level"]["peak_dbfs"] + 1.0) < 0.05, q["level"])
+
+
+def devices():
+    """The real input's playback and the output check, with sounddevice replaced so nothing plays."""
+    fs = 48000
+    calls = []
+    real_play, real_check = sources.sd.play, sources.sd.check_output_settings
+    try:
+        sources.sd.play = lambda x, samplerate, device=None: calls.append((samplerate, device))
+        sources.DeviceSource.play(SimpleNamespace(fs=fs), np.zeros(8), 7)
+        check("entrada real: el estímulo suena por la salida elegida", calls == [(fs, 7)], calls)
+
+        def refuse(**settings):
+            raise sources.sd.PortAudioError("no acepta")
+
+        sources.sd.check_output_settings = refuse
+        try:
+            sources.check_output(7, fs)
+            refused = ""
+        except ValueError as e:
+            refused = str(e)
+        check("una salida que no acepta 48 kHz se rechaza con un aviso", "48000 Hz" in refused, refused)
+    finally:
+        sources.sd.play, sources.sd.check_output_settings = real_play, real_check
+
+
+class FakeDevice:
+    """Stands in for a real input: a synthetic source inside, and it records the output each stimulus asked for."""
+    outputs_used = []
+
+    def __init__(self, blocks, index):
+        self.inner = sources.SyntheticSource(blocks, signal={"shape": "silence", "frequency_hz": 1000.0, "level_dbfs": -6.0})
+        self.fs, self.index, self.name = self.inner.fs, int(index), "Entrada de prueba"
+
+    def describe(self):
+        return {"tipo": "dispositivo", "nombre": self.name, "indice": self.index, "bloques_perdidos": 0}
+
+    def play(self, x, output=None):
+        FakeDevice.outputs_used.append(output)
+        self.inner.play(x)
+
+    def close(self):
+        self.inner.close()
 
 
 class Client:
@@ -103,6 +150,14 @@ def silent_client(port):
 
 
 async def contract(tmp):
+    # Device lists and the real input are fakes, so the test does not depend on the Mac's devices and nothing
+    # plays through the speakers.
+    sources.list_inputs = lambda: [{"id": "synthetic", "name": sources.SyntheticSource.name},
+                                   {"id": "99", "name": "Entrada de prueba"}]
+    sources.list_outputs = lambda: [{"id": "default", "name": "Salida por defecto (prueba)"},
+                                    {"id": "7", "name": "Salida de prueba"}]
+    sources.check_output = lambda index, fs: None
+    sources.DeviceSource = FakeDevice
     engine = Engine(destination=tmp / "mediciones")
     opened = []
     engine.open_path = opened.append      # records what was asked to open instead of opening Finder
@@ -113,9 +168,11 @@ async def contract(tmp):
     try:
         async with ClientSession() as session, session.ws_connect(f"http://127.0.0.1:{port}/ws") as ws:
             state = json.loads((await ws.receive()).data)
-            check("al conectarse llega el estado con el contrato 2", state["type"] == "state" and state["contract"] == 2)
+            check("al conectarse llega el estado con el contrato 3", state["type"] == "state" and state["contract"] == 3)
             check("estado: 512 puntos de espectro y 5 mediciones",
                   len(state["frequencies_hz"]) == 512 and len(state["measurements"]) == 5)
+            check("estado: las salidas con la de por defecto primero, y elegida la de por defecto",
+                  state["outputs"][0]["id"] == "default" and state["output"] == "default", state["outputs"])
             c = Client(ws, state["sample_rate"])
             frequencies = np.array(state["frequencies_hz"])
             half_step = np.sqrt(frequencies[1]/frequencies[0])
@@ -176,7 +233,7 @@ async def contract(tmp):
             error = await c.wait_for(lambda d: d["type"] == "error")
             check("una forma desconocida responde con un error que la nombra", "square" in error["message"], error)
 
-            await c.send(type="refresh_inputs")
+            await c.send(type="refresh_devices")
             state = await c.wait_for(lambda d: d["type"] == "state")
             q = await c.signal(shape="sine", frequency_hz=1000.0, level_dbfs=-6.0)
             check("buscar entradas con la fuente sintética reinicia PortAudio sin cortar los cuadros",
@@ -252,6 +309,23 @@ async def contract(tmp):
                 expected = [(tmp / "mediciones" / saved[0]["folder"]).resolve(), (tmp / "mediciones").resolve()]
                 check("abrir una guardada abre la medición y la carpeta de mediciones, y rechaza una ruta que sale de ella",
                       [Path(p).resolve() for p in opened] == expected and "No existe" in error["message"], (opened, error))
+
+            await c.send(type="output", id="12345")
+            error = await c.wait_for(lambda d: d["type"] == "error")
+            check("una salida que no existe responde con un error", "No existe la salida" in error["message"], error)
+
+            await c.send(type="output", id="7")
+            await c.wait_for(lambda d: d["type"] == "state" and d["output"] == "7")
+            await c.send(type="input", id="99")
+            await c.wait_for(lambda d: d["type"] == "state" and d["input"] == "99")
+            r = await c.measure("thd_n", 20)
+            check("con una entrada real, la medición termina", r["status"] == "done", r)
+            if r["status"] == "done":
+                used = read_json(r["path"], "condiciones.json")["salida_del_estimulo"]
+                check("con una entrada real, el estímulo suena por la salida elegida y queda en las condiciones",
+                      set(FakeDevice.outputs_used) == {7}
+                      and used == {"tipo": "dispositivo", "nombre": "Salida de prueba", "indice": 7},
+                      (FakeDevice.outputs_used, used))
     finally:
         await runner.cleanup()
         engine.close()
@@ -259,6 +333,7 @@ async def contract(tmp):
 
 def main():
     processing()
+    devices()
     with tempfile.TemporaryDirectory(prefix="app-") as tmp:
         try:
             asyncio.run(contract(Path(tmp)))
@@ -268,7 +343,7 @@ def main():
     if FAILED:
         print(f"\nFALLA  {len(FAILED)} casos de la app sin ventana", file=sys.stderr)
         sys.exit(1)
-    print("\nPasan todos los casos de la app. La ventana y la entrada real se prueban a mano.")
+    print(f"\nPasan los {len(CHECKED)} casos de la app. La ventana y la entrada real se prueban a mano.")
 
 
 if __name__ == "__main__":

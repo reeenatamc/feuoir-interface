@@ -1,11 +1,11 @@
 """App server: serves the interface and talks to it over a WebSocket at /ws.
 
-Contract, version 2. Every message is a JSON object with a "type" field. Keys and values the code reads are
+Contract, version 3. Every message is a JSON object with a "type" field. Keys and values the code reads are
 in English; text meant for the user (names, summaries, error messages) comes in Spanish.
 
 From Python to the interface:
-  state        on connect and whenever something changes: inputs, chosen input, signal, frequencies of the
-               spectrum points, available measurements and the one running
+  state        on connect and whenever something changes: inputs and outputs, the chosen input and output,
+               signal, frequencies of the spectrum points, available measurements and the one running
   frame        up to FRAMES_PER_SECOND times per second: waveform, reduced spectrum in dBFS, spectrum peak,
                level and clipping (see app/processing.py)
   measurement  progress and end of a measurement: status running, done or error
@@ -14,10 +14,11 @@ From Python to the interface:
 
 From the interface to Python:
   input           {"id": "synthetic" or the device index}
+  output          {"id": "default" or the device index}: where measurement stimuli play with a real input
   signal          {"shape", "frequency_hz", "level_dbfs"}
   measure         {"measurement": "capture", "thd_n", "snr", "response" or "jitter"}
   clear_clipping  resets the clipping warning
-  refresh_inputs  reads the Mac's input list again
+  refresh_devices reads the Mac's inputs and outputs again
   list_saved      asks for the list of saved measurements
   open_saved      {"folder": name or null}: opens that measurement, or the measurements folder, in Finder
 """
@@ -35,7 +36,7 @@ from aiohttp import WSMsgType, web
 from app import measurements, sources
 from app.processing import WAVEFORM_MS, Processor
 
-CONTRACT = 2
+CONTRACT = 3
 FRAMES_PER_SECOND = 30
 UI_DIST = Path(__file__).resolve().parent / "ui" / "dist"
 
@@ -51,6 +52,8 @@ class Engine:
         self.source = sources.SyntheticSource(self.blocks, signal=self.signal)
         self.processor = Processor(self.source.fs)
         self.inputs = sources.list_inputs()
+        self.outputs = sources.list_outputs()
+        self.output_id = "default"
         self.measuring = None
         self.open_path = lambda path: subprocess.run(["open", str(path)], check=False)   # the test replaces it
         self._stop = threading.Event()
@@ -72,6 +75,8 @@ class Engine:
             "sample_rate": self.processor.fs,
             "inputs": self.inputs,
             "input": self.input_id,
+            "outputs": self.outputs,
+            "output": self.output_id,
             "signal": self.signal,
             "frequencies_hz": np.round(self.processor.frequencies, 2).tolist(),
             "waveform_ms": WAVEFORM_MS,
@@ -102,10 +107,28 @@ class Engine:
         if isinstance(self.source, sources.SyntheticSource):
             self.source.configure(self.signal)
 
-    def refresh_inputs(self):
-        # With the synthetic source no PortAudio stream is open, so PortAudio can be restarted to find an
-        # interface plugged in after startup. With a real input open, the list is only read again.
-        self.inputs = sources.list_inputs(restart=isinstance(self.source, sources.SyntheticSource))
+    def refresh_devices(self):
+        # With the synthetic source no PortAudio stream is open, so PortAudio can be restarted to find a device
+        # plugged in after startup. With a real input open, the lists are only read again.
+        if isinstance(self.source, sources.SyntheticSource):
+            sources.restart_portaudio()
+        self.inputs, self.outputs = sources.list_inputs(), sources.list_outputs()
+        if self.output_id not in {o["id"] for o in self.outputs}:
+            self.output_id = "default"
+
+    def change_output(self, output_id):
+        if self.measuring:
+            raise ValueError("No se puede cambiar la salida durante una medición")
+        if output_id != "default":
+            if output_id not in {o["id"] for o in self.outputs}:
+                raise ValueError(f"No existe la salida {output_id!r}")
+            sources.check_output(int(output_id), self.processor.fs)
+        self.output_id = output_id
+
+    def output_info(self):
+        """The output chosen for the stimulus: its name for condiciones.json, and its index, None for the default."""
+        name = next((o["name"] for o in self.outputs if o["id"] == self.output_id), self.output_id)
+        return {"name": name, "index": None if self.output_id == "default" else int(self.output_id)}
 
     def saved_path(self, folder):
         """The folder of a saved measurement, or the measurements folder when folder is None.
@@ -187,7 +210,7 @@ async def _measure(app, measurement_id):
     _broadcast(app, {"type": "measurement", "measurement": measurement_id, "status": "running", "message": "Midiendo"})
     try:
         folder, summary = await asyncio.to_thread(measurements.measure, measurement_id, engine.source, engine.processor,
-                                                  dict(engine.signal), engine.destination, notify)
+                                                  dict(engine.signal), engine.destination, notify, engine.output_info())
         message = {"type": "measurement", "measurement": measurement_id, "status": "done", "folder_name": folder.name,
                    "folder": f"{folder.parent.name}/{folder.name}/", "path": str(folder), "summary": summary}
     except Exception as e:
@@ -206,11 +229,16 @@ async def _handle(app, message):
             await asyncio.to_thread(engine.change_input, str(message["id"]))
         finally:
             _broadcast(app, engine.state())
+    elif kind == "output":
+        try:
+            engine.change_output(str(message["id"]))
+        finally:
+            _broadcast(app, engine.state())
     elif kind == "signal":
         engine.configure_signal(message)
         _broadcast(app, engine.state())
-    elif kind == "refresh_inputs":
-        await asyncio.to_thread(engine.refresh_inputs)
+    elif kind == "refresh_devices":
+        await asyncio.to_thread(engine.refresh_devices)
         _broadcast(app, engine.state())
     elif kind == "measure":
         if engine.measuring:

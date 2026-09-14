@@ -93,16 +93,17 @@ def list_saved(destination, limit=100):
 
 
 class Measurement:
-    def __init__(self, source, processor, signal, notify):
+    def __init__(self, source, processor, signal, notify, output_index=None):
         self.source, self.processor, self.fs = source, processor, processor.fs
         self.frequency, self.level = signal["frequency_hz"], signal["level_dbfs"]
         self.notify = notify
+        self.output_index = output_index
         self.captures = {}
 
     def record(self, name, seconds, stimulus=None):
         recording = self.processor.record(int(round(seconds*self.fs)))
         if stimulus is not None:
-            self.source.play(stimulus)
+            self.source.play(stimulus, self.output_index)
         x = recording.wait(seconds + 10.0)
         self.captures[name] = x
         return x
@@ -162,21 +163,27 @@ class Measurement:
         return stimulus, r, f"{verdict.capitalize()}, pendiente de {r['pendiente_db_por_decada']:.1f} dB por década"
 
 
-def measure(measurement_id, source, processor, signal, destination=ROOT / "mediciones", notify=lambda text: None):
-    """Runs a measurement and saves its folder. Returns the folder and a one-line summary."""
+def measure(measurement_id, source, processor, signal, destination=ROOT / "mediciones", notify=lambda text: None,
+            output=None):
+    """Runs a measurement and saves its folder. Returns the folder and a one-line summary.
+
+    output is the output chosen for the stimulus, {"name", "index"}, with index None for the Mac's default one.
+    """
     info = next((m for m in MEASUREMENTS if m["id"] == measurement_id), None)
     if info is None:
         raise ValueError(f"Medición desconocida: {measurement_id!r}")
+    output = output or {"name": "Salida por defecto", "index": None}
     now = datetime.now().astimezone()
-    m = Measurement(source, processor, signal, notify)
+    m = Measurement(source, processor, signal, notify, output["index"])
     stimulus, result, summary = getattr(m, measurement_id)()
 
     described = source.describe()
     if described["tipo"] == "sintetica":
-        output = {"tipo": "lazo de la fuente sintética"}
+        output_used = {"tipo": "lazo de la fuente sintética"}
         volume = None
     else:
-        output = {"tipo": "salida por defecto de la Mac", "nombre": sd.query_devices(kind="output")["name"]}
+        kind = "salida por defecto de la Mac" if output["index"] is None else "dispositivo"
+        output_used = {"tipo": kind, "nombre": output["name"], "indice": output["index"]}
         volume = input_volume(described["indice"])
 
     folder = new_folder(destination, info["label"], now)
@@ -187,7 +194,7 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
         "etiqueta": info["label"],
         "medicion": info["name"],
         "entrada": described,
-        "salida_del_estimulo": output if stimulus else None,
+        "salida_del_estimulo": output_used if stimulus else None,
         "frecuencia_muestreo_hz": processor.fs,
         "volumen_entrada_sistema": volume,
         "estimulo": stimulus or None,

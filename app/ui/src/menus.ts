@@ -94,7 +94,7 @@ export function createMenus(send: (request: Request) => void) {
     if (e.key === "Escape") close(true);
   });
   window.addEventListener("resize", () => close());
-  $("refresh-inputs").addEventListener("click", () => send({ type: "refresh_inputs" }));
+  $("refresh-devices").addEventListener("click", () => send({ type: "refresh_devices" }));
   $("open-measurements-folder").addEventListener("click", () => send({ type: "open_saved", folder: null }));
 
   // The sliders send at most SENDS_PER_SECOND changes; the last one always goes out.
@@ -147,6 +147,21 @@ export function createMenus(send: (request: Request) => void) {
     if (document.activeElement !== frequency && document.activeElement !== level) editing = false;
   });
 
+  function renderOptions(listId: string, items: { id: string; name: string }[], selected: string, pick: (id: string) => void) {
+    $(listId).replaceChildren(
+      ...items.map((item) => {
+        const element = document.createElement("li");
+        const button = document.createElement("button");
+        button.className = "option";
+        button.textContent = item.name;
+        button.setAttribute("aria-pressed", String(item.id === selected));
+        button.addEventListener("click", () => pick(item.id));
+        element.append(button);
+        return element;
+      }),
+    );
+  }
+
   function update(state: State) {
     const synthetic = state.input === "synthetic";
     const current = state.inputs.find((i) => i.id === state.input);
@@ -154,26 +169,20 @@ export function createMenus(send: (request: Request) => void) {
     $("signal-value").textContent = describeSignal(state.signal, synthetic);
     inputField.disabled = state.measuring !== null;
 
-    $("input-options").replaceChildren(
-      ...state.inputs.map((input) => {
-        const item = document.createElement("li");
-        const button = document.createElement("button");
-        button.className = "option";
-        button.textContent = input.name;
-        button.setAttribute("aria-pressed", String(input.id === state.input));
-        button.addEventListener("click", () => {
-          close(true);
-          if (input.id !== state.input) send({ type: "input", id: input.id });
-        });
-        item.append(button);
-        return item;
-      }),
-    );
+    renderOptions("input-options", state.inputs, state.input, (id) => {
+      close(true);
+      if (id !== state.input) send({ type: "input", id });
+    });
+    // The output only matters with a real input: with the synthetic source the stimulus goes into the loopback.
+    renderOptions("output-options", state.outputs, state.output, (id) => {
+      if (id !== state.output) send({ type: "output", id });
+    });
 
+    $("output-setting").hidden = synthetic;
     $("shape-setting").hidden = !synthetic;
     $("signal-hint").textContent = synthetic
       ? "Por encima de 0 dBFS la fuente satura, como el conversor. THD+N y SNR miden un tono con esta frecuencia y este nivel."
-      : "Suena por la salida de la Mac solo durante las mediciones, con esta frecuencia y este nivel.";
+      : "Suena por la salida elegida solo durante las mediciones, con esta frecuencia y este nivel.";
 
     if (editing || pending !== null) return;
     signal = { ...state.signal };
