@@ -87,9 +87,26 @@ Si algo no pasa, termina con código 1, y ninguna otra simulación del repo vale
 ## Lo que hay que saber de los modelos antes de usarlos
 
 - El modelo del TL072 (SLOJ067, archivo TL072.301) es un macromodelo de Boyle de 1989, con un par JFET de entrada, fuentes polinómicas y diodos de recorte. No tiene fuentes de ruido ajustadas a la hoja, y su JFET no tiene parámetros de ruido 1/f. El ruido que dé .noise va a salir solo de los componentes del macromodelo, así que no se puede esperar que coincida con los 18 ni con los 37 nV/√Hz: hay que medirlo en simulación antes de usarlo. En continua se porta bien: como seguidor con ±9 V, la salida sigue a la entrada a menos de 0.05 mV entre -1 V y 1 V.
-- El modelo del TL072H (SLOM513, revisión B de 2021) sí modela el ruido de tensión y de corriente de entrada. Es el del dado nuevo, que según la tabla 5.9 de la hoja tiene los mismos 37 nV/√Hz que el DIP-8 de TI. En continua, como seguidor con ±9 V, sigue a la entrada con la ganancia correcta pero con un offset fijo de -6.47 mV, más que el máximo de ±4 mV de la tabla 5.7. La causa no está identificada: puede estar en el modelo o en cómo ngspice traduce su sintaxis PSpice.
-- Ninguno de los dos está comprobado todavía para la inversión de fase.
-- Cuál se usa lo decide Renata, antes de simular el circuito.
+- El modelo del TL072H (SLOM513, revisión B de 2021) sí modela el ruido de tensión y de corriente de entrada. Es el del dado nuevo, que según la tabla 5.9 de la hoja tiene los mismos 37 nV/√Hz que el DIP-8 de TI. En continua, como seguidor con ±9 V, sigue a la entrada con la ganancia correcta pero con un offset fijo de -6.47 mV, más que el máximo de ±4 mV de la tabla 5.7. Viene de la biblioteca: su subcircuito VOS_DRIFT_0 fija .PARAM DC = -0.0126, o sea -12.6 mV. Da -6.47 mV igual con ±9 V que con 0 y 18 V, y -2.38 mV con ±15 V: cambia con la tensión total y no con cómo se alimenta, así que no es un error de configuración. No se sigue: en el circuito C3 bloquea la continua.
+- La inversión de fase no es simulable con los modelos disponibles. El del TL072 clásico no la muestra: como seguidor con 9 V simples y la entrada barrida de 0 a 9 V, la salida nunca baja mientras la entrada sube (la mayor caída es de 0.014 V), y con la entrada en 0 V se queda en 1.55 V. Tampoco representa el límite de modo común: sigue a la entrada, a menos de 0.1 V, hasta 1.47 V, cuando la hoja pide quedarse 4 V por encima del riel negativo. El TL07xH está hecho para no invertir la fase. Una simulación limpia de 9 V simples no prueba que el problema no exista.
+
+## Qué modelo se usa para qué
+
+Decisión de Renata, del 2026-09-14: no se elige uno, se usan los dos, cada uno para lo que sabe hacer. Ningún macromodelo es correcto para todo, y eso es normal.
+
+- El del TL072 clásico (SLOJ067) para todo lo lineal: respuesta en frecuencia, ganancia, transitorio y margen con pila fresca y con pila gastada.
+- El del TL072H (SLOM513) solo para el análisis de ruido.
+
+Advertencia: el ruido sale de un modelo distinto al del resto de las simulaciones. Es aceptable porque el DIP-8 de TI que se va a comprar figura en la tabla 5.9 de la hoja con 37 nV/√Hz a 1 kHz, la misma cifra que el TL07xH: el modelo del H reproduce el ruido que va a tener el circuito, aunque por dentro sea otro chip. Lo que el H no reproduce bien, como su offset en continua, no cambia el ruido, y en el circuito C3 bloquea la continua igual. Antes de usarlo se compara su ruido a 1 kHz con la hoja; si no coincide dentro de una tolerancia razonable, no se usa.
+
+Comprobado el 2026-09-14 con spice/characterize.py, que caracteriza los dos modelos y guarda sus resultados y gráficas en calibraciones/<fecha>-modelos-tl072/:
+
+```
+.venv/bin/python -m spice.characterize
+```
+
+- Ruido del modelo del TL072H como seguidor: 37.6 nV/√Hz a 1 kHz, 0.13 dB por encima de los 37 de la hoja, dentro de la tolerancia de ±1 dB. A 10 kHz, 22.1 nV/√Hz contra 21. De corriente a 1 kHz, 79.2 fA/√Hz contra 80. Se usa para el ruido.
+- Si el ruido a 1 kHz se sale de ±1 dB, el script termina con código 1 y dice que no se use.
 
 ## Fuentes
 

@@ -6,6 +6,8 @@ Lo que va entre la guitarra y el PCM1808. El diseño es de Renata; este document
 
 Alimentación partida de ±9 V, con dos pilas de 9 V en serie y el punto medio como tierra analógica. Un TL072 en DIP-8.
 
+La alimentación partida se apoya en la tabla de condiciones recomendadas de la hoja del TL072 (entrada 24), no en una simulación. La inversión de fase que evita no es simulable con los modelos disponibles: el del TL072 clásico no la muestra y el TL07xH está hecho para no tenerla (entrada 27). Una simulación de 9 V simples que salga limpia no prueba que el problema no exista.
+
 Etapa A, no inversora con ganancia variable:
 
 - C1 = 100 nF de acoplo de entrada.
@@ -37,10 +39,10 @@ Es la del diseño original, que se simula para compararla con la partida. Una pi
 - Pilas con resistencia interna: 2 Ω con pila fresca. Caso de pila gastada: 7 V con 10 Ω.
 - Ganancia en cinco puntos: 1, 3, 5, 8 y 11, con el potenciómetro en 0, 2, 4, 7 y 10 kΩ.
 - Guitarra en un archivo aparte: bobina de 5 H en serie con 8 kΩ, 100 pF en paralelo y la capacitancia del cable como parámetro, de 300 a 600 pF.
-- TL072: el modelo SPICE de TI, que se revisa antes de usarlo.
+- TL072: el modelo de TI del TL072 clásico para todo lo lineal, y el del TL072H solo para el ruido (docs/simulador-spice.md, qué modelo se usa para qué).
 
 ## Efectos conocidos
 
 - Offset en continua. Sin C2, la ganancia en continua es la misma que en audio, de 1 a 11. El offset de entrada del TL072, hasta 10 mV en la tabla 5.8 de su hoja, llega a 110 mV en la salida de la etapa A. C3 lo bloquea antes del PCM1808, y sobre ±9 V solo resta un poco de margen.
 - Golpe al mover el potenciómetro. Como el offset de salida cambia con la ganancia, al mover el potenciómetro C3 tiene que recargarse contra los 60 kΩ del PCM1808. La constante de tiempo es de 2.2 µF por 60 kΩ, 0.13 s, y se oye como un golpe mientras se ajusta. Es inofensivo y solo pasa al mover la perilla.
-- Inversión de fase fuera del rango de modo común. Es el motivo del cambio a ±9 V (entrada 24). La mayoría de los modelos SPICE de TI no la reproducen: si la simulación de 9 V simples sale limpia, eso no prueba que el problema no exista, sino que el modelo no lo incluye.
+- Inversión de fase fuera del rango de modo común. Es el motivo del cambio a ±9 V (entrada 24), y no es simulable con los modelos disponibles (ver al principio, y la entrada 27).

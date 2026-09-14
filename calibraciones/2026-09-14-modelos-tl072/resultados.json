@@ -1,0 +1,84 @@
+{
+  "fecha_hora": "2026-09-14T14:52:50-05:00",
+  "ngspice": {
+    "ruta": "/Users/renata/spice/ngspice-47/bin/ngspice",
+    "version": "ngspice-47"
+  },
+  "modelos_sha256": {
+    "TL072.301": "74e89d558163615ac7a19f0c783101a6f8af77fb6d80bd3c20c6ab66426561cd",
+    "tl07xh_tl08xh.lib": "f214c2d611ab9d1364d5f1ed66d0376df6c703261f6214164788a2aada2a6824"
+  },
+  "netlists_sha256": {
+    "model_noise_tl072h.cir": "4982d31b320a4b59b0272e72b201084a7bbc55c2b80bca06abb6afab660b540b",
+    "model_offset_tl072h.cir": "3fb4985df3a37323bd3b5af97fe8a948a8a30a1dde30e934024c14a8efa4b07f",
+    "model_phase_reversal_tl072.cir": "947faedeeeb7b4aab878ba7d772e4661be3f65c230fbdc06019d17c23b67c049"
+  },
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "plataforma": "macOS-26.5.2-x86_64-i386-64bit",
+  "ruido_tl072h": {
+    "en_1khz_nv": 37.57858761010173,
+    "en_hoja_1khz_nv": 37.0,
+    "error_1khz_db": 0.13477458122743233,
+    "tolerancia_db": 1.0,
+    "pasa": true,
+    "en_10khz_nv": 22.078997946123803,
+    "en_hoja_10khz_nv": 21.0,
+    "in_1khz_fa": 79.24234617269882,
+    "in_hoja_1khz_fa": 80.0,
+    "condiciones": {
+      "alimentacion_v": [
+        9,
+        -9
+      ],
+      "resistencia_de_fuente_ohm": [
+        0.001,
+        1000000.0
+      ],
+      "temperatura_k": 300.15,
+      "ngbehavior": "ps"
+    }
+  },
+  "inversion_de_fase_tl072": {
+    "caida_maxima_de_la_salida_v": 0.01353266279439902,
+    "muestra_inversion": false,
+    "salida_con_entrada_en_0_v": 1.545398426984485,
+    "salida_minima_v": 1.531865764190086,
+    "entrada_minima_que_sigue_a_0_1_v": 1.470000000000001,
+    "condiciones": {
+      "alimentacion_v": [
+        9,
+        0
+      ],
+      "barrido_entrada_v": [
+        0,
+        9,
+        0.01
+      ],
+      "modelo": "TL072.301"
+    }
+  },
+  "offset_tl072h": {
+    "casos": [
+      {
+        "alimentacion": "±9 V",
+        "entrada_v": 0,
+        "offset_mv": -6.470666472833307
+      },
+      {
+        "alimentacion": "±15 V",
+        "entrada_v": 0,
+        "offset_mv": -2.384444963379393
+      },
+      {
+        "alimentacion": "0 y 18 V",
+        "entrada_v": 9,
+        "offset_mv": -6.470666034147143
+      }
+    ],
+    "parametro_dc_de_vos_drift_v": -0.0126
+  }
+}

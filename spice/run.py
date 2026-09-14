@@ -68,10 +68,28 @@ def vector(raw, name):
     raise KeyError(f"{name} no está entre {sorted(raw)}")
 
 
-def simulate(netlist, timeout_s=300):
-    """Runs a netlist with ngspice -b and returns {raw file name: {variable: array}}, plus the log text."""
+def with_params(netlist, **values):
+    """The netlist with the given .param values replaced. Each name has to be on exactly one .param line."""
+    for name, value in values.items():
+        pattern = re.compile(rf"(^\.param\b[^\n]*?\b{re.escape(name)}\s*=\s*)(\S+)", flags=re.IGNORECASE | re.MULTILINE)
+        netlist, count = pattern.subn(lambda m: m.group(1) + str(value), netlist)
+        if count != 1:
+            raise ValueError(f"El parámetro {name} tiene que estar en una sola línea .param y está en {count}")
+    return netlist
+
+
+def simulate(netlist, files=(), behavior=None, timeout_s=300):
+    """Runs a netlist with ngspice -b and returns {raw file name: {variable: array}}, plus the log text.
+
+    files are copied next to the netlist, so it can .include them by name. behavior sets ngbehavior in a
+    .spiceinit before the netlist is read, for example "ps" to read PSpice model libraries.
+    """
     with tempfile.TemporaryDirectory(prefix="spice-") as folder:
         folder = Path(folder)
+        for file in files:
+            shutil.copy(file, folder / Path(file).name)
+        if behavior:
+            (folder / ".spiceinit").write_text(f"set ngbehavior={behavior}\n", encoding="utf-8")
         (folder / "circuit.cir").write_text(netlist, encoding="utf-8")
         r = subprocess.run([ngspice_path(), "-b", "-o", "ngspice.log", "circuit.cir"], cwd=folder,
                            capture_output=True, text=True, timeout=timeout_s)

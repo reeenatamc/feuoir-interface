@@ -1,0 +1,200 @@
+{
+  "fecha_hora": "2026-09-14T14:52:57-05:00",
+  "ngspice": {
+    "ruta": "/Users/renata/spice/ngspice-47/bin/ngspice",
+    "version": "ngspice-47"
+  },
+  "netlists_sha256": {
+    "verify_divider.cir": "3563c0e123d706813b044e1816ee1f4584b1a8e73152a057ec8679774f687f5e",
+    "verify_rc_lowpass.cir": "903bd63916c49820b33d5ecbef3ed98c47142cb3ac150a2e988d685f3b58e381"
+  },
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3"
+  },
+  "plataforma": "macOS-26.5.2-x86_64-i386-64bit",
+  "resumen": {
+    "pruebas": 3,
+    "pruebas_fallidas": 0,
+    "chequeos_ejecutados": 13,
+    "chequeos_fallidos": 0
+  },
+  "errores": [],
+  "chequeos": [
+    {
+      "prueba": "test_raw_reader",
+      "chequeo": "lector de .raw: nombres de las variables reales",
+      "condiciones": {},
+      "esperado": 1.0,
+      "obtenido": 1.0,
+      "tolerancia": 0.0,
+      "unidad": "",
+      "paso": true
+    },
+    {
+      "prueba": "test_raw_reader",
+      "chequeo": "lector de .raw: valor real de la segunda variable",
+      "condiciones": {},
+      "esperado": 9.0,
+      "obtenido": 9.0,
+      "tolerancia": 0.0,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "test_raw_reader",
+      "chequeo": "lector de .raw: parte imaginaria del segundo punto complejo",
+      "condiciones": {},
+      "esperado": -0.5,
+      "obtenido": -0.5,
+      "tolerancia": 0.0,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "test_raw_reader",
+      "chequeo": "lector de .raw: escala de frecuencia",
+      "condiciones": {},
+      "esperado": 100.0,
+      "obtenido": 100.0,
+      "tolerancia": 0.0,
+      "unidad": "Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_divider",
+      "chequeo": "divisor: tensión en el punto medio",
+      "condiciones": {
+        "fuente_v": 9.0,
+        "r_arriba_ohm": 4700.0,
+        "r_abajo_ohm": 1000.0
+      },
+      "esperado": 1.5789473684210527,
+      "obtenido": 1.578947368421053,
+      "tolerancia": 1e-06,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: error máximo de magnitud de 10 Hz a 10 MHz",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943
+      },
+      "esperado": 0.0,
+      "obtenido": 1.4210854715202004e-14,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: error máximo de fase de 10 Hz a 10 MHz",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943
+      },
+      "esperado": 0.0,
+      "obtenido": 1.4210854715202004e-14,
+      "tolerancia": 0.05,
+      "unidad": "°",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: magnitud en la frecuencia de corte",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943
+      },
+      "esperado": -3.010299956639812,
+      "obtenido": -3.010331040523167,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: respuesta a un escalón de 1 V en t = 1 RC",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943,
+        "tiempo_s": 4.7e-06
+      },
+      "esperado": 0.6321205588285577,
+      "obtenido": 0.6320814323034262,
+      "tolerancia": 0.002,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: respuesta a un escalón de 1 V en t = 3 RC",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943,
+        "tiempo_s": 1.41e-05
+      },
+      "esperado": 0.950212931632136,
+      "obtenido": 0.9502076458247227,
+      "tolerancia": 0.002,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: respuesta a un escalón de 1 V en t = 5 RC",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943,
+        "tiempo_s": 2.35e-05
+      },
+      "esperado": 0.9932620530009145,
+      "obtenido": 0.9932613389157426,
+      "tolerancia": 0.002,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: ruido térmico a 10 Hz, raíz de 4kTR",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943,
+        "temperatura_k": 300.15
+      },
+      "esperado": 8.82652429372138,
+      "obtenido": 8.82652275939512,
+      "tolerancia": 0.08826524293721381,
+      "unidad": "nV/√Hz",
+      "paso": true
+    },
+    {
+      "prueba": "test_rc_lowpass",
+      "chequeo": "filtro RC: ruido total de 1 Hz a 1 GHz, casi raíz de kT/C",
+      "condiciones": {
+        "r_ohm": 4700.0,
+        "c_f": 1e-09,
+        "corte_hz": 33862.75384933943,
+        "temperatura_k": 300.15,
+        "banda_hz": [
+          1.0,
+          1000000000.0
+        ]
+      },
+      "esperado": 2.035645040391741,
+      "obtenido": 2.035082865573242,
+      "tolerancia": 0.020356450403917415,
+      "unidad": "µV",
+      "paso": true
+    }
+  ]
+}

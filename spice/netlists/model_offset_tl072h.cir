@@ -1,0 +1,21 @@
+* Model check: output offset of TI's TL07XH_TL08XH model, as a follower with the input at mid-supply.
+* spice/characterize.py runs it with several supplies, to see whether the offset changes with them.
+* Needs ngbehavior=ps: the library uses PSpice syntax.
+
+.include tl07xh_tl08xh.lib
+.param vpos=9 vneg=-9 vin=0
+
+Vpos vcc 0 DC {vpos}
+Vneg vee 0 DC {vneg}
+Vin in 0 DC {vin}
+XU1 in out vcc vee out TL07XH_TL08XH
+
+.control
+set noaskquit
+set filetype=ascii
+op
+write offset_op.raw v(out) v(in)
+quit
+.endc
+
+.end

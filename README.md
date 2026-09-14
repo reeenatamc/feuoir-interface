@@ -25,7 +25,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
 | Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
 | App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones, la salida del estímulo y la lista de guardadas, en ventana propia | tests/app_contract.py: 44 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 11 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
-| Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; tests/mutaciones.py detecta los 4 errores inyectados | el circuito de entrada todavía no se simula |
+| Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; tests/mutaciones.py detecta los 4 errores inyectados; el ruido del modelo del TL072H coincide con la hoja a 0.13 dB | el circuito de entrada todavía no se simula |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -191,6 +191,14 @@ Antes de creerle en el circuito real, se verifica contra la teoría con un divis
 ```
 
 Guarda cada chequeo con sus condiciones en calibraciones/<fecha>-spice/resultados.json y termina con código 1 si alguno se sale de tolerancia. Si no pasa, ninguna otra simulación vale.
+
+Se usan los dos modelos del TL072 de TI: el del clásico para todo lo lineal y el del TL072H solo para el ruido. Antes de usarlos se caracterizan: el ruido del H contra la hoja, la inversión de fase del clásico y el offset del H.
+
+```
+.venv/bin/python -m spice.characterize
+```
+
+Qué modelo se usa para qué y por qué: docs/simulador-spice.md.
 
 ## firmware
 

@@ -1,0 +1,20 @@
+* Model check: does TI's classic TL072 model reproduce phase reversal?
+* Follower on a single 9 V supply with the input swept from 0 V to 9 V. Near the negative rail the input leaves the
+* common-mode range (docs/bitacora.md, entrada 24). Phase reversal would show as an output that rises while the
+* input keeps going down.
+
+.include TL072.301
+
+Vpos vcc 0 DC 9
+Vin in 0 DC 4.5
+XU1 in out vcc 0 out TL072
+
+.control
+set noaskquit
+set filetype=ascii
+dc vin 0 9 0.01
+write dc_sweep.raw v(out) v(in)
+quit
+.endc
+
+.end

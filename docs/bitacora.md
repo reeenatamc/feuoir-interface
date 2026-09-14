@@ -497,3 +497,23 @@ Qué se decidió y por qué:
 - ngspice queda compilado en ~/spice/ngspice-47, y docs/simulador-spice.md documenta el procedimiento para repetirlo.
 - Los resultados de ngspice se leen por nombre de variable, nunca por posición. Al revisar los modelos a mano se leyó por error la primera columna de un .raw, que era el riel de +9 V y no la salida, y pareció que los dos modelos quedaban clavados en 9 V. Releído con el lector del repo, que usa los nombres, el resultado es el de arriba.
 - Cuál modelo se usa en el circuito lo decide Renata, antes de simularlo.
+
+## Entrada 27: caracterización de los modelos del TL072 (2026-09-14)
+
+Qué se midió: nada en hardware. Con spice/characterize.py se comparó el ruido del modelo del TL072H con la hoja, se buscó la inversión de fase en el modelo del TL072 clásico y se revisó de dónde sale el offset del modelo del H.
+
+Condiciones: ngspice 47 a 27 °C. Modelos TL072.301 (SLOJ067) y tl07xh_tl08xh.lib (SLOM513) sin modificar, guardados en spice/models/. El ruido y el offset del H, con ngbehavior=ps. Resultados en calibraciones/2026-09-14-modelos-tl072.
+
+Resultado:
+
+- Ruido del modelo del TL072H como seguidor con ±9 V: 37.6 nV/√Hz a 1 kHz, 0.13 dB por encima de los 37 de la hoja (tablas 5.7 y 5.9). A 10 kHz, 22.1 nV/√Hz contra 21. De corriente a 1 kHz, sacado con 1 MΩ en la entrada, 79.2 fA/√Hz contra los 80 del TL07xH (tabla 5.7).
+- Inversión de fase con el modelo del TL072 clásico, como seguidor con 9 V simples y la entrada barrida de 0 a 9 V: no aparece. La salida nunca baja mientras la entrada sube (la mayor caída es de 0.014 V), y con la entrada en 0 V se queda en 1.55 V. El modelo sigue a la entrada, a menos de 0.1 V, hasta 1.47 V: no representa el límite de modo común de 4 V por encima del riel negativo que pide la hoja.
+- Offset del modelo del H: -6.47 mV con ±9 V, -6.47 mV con 0 y 18 V y la entrada en 9 V, y -2.38 mV con ±15 V. Su biblioteca fija .PARAM DC = -0.0126 en el subcircuito VOS_DRIFT_0.
+- Con los cambios al ejecutor (copiar los modelos, modo PSpice y cambio de parámetros), la verificación del simulador sigue pasando sus 13 chequeos (calibraciones/2026-09-14-spice-2).
+
+Qué se decidió y por qué (decisiones de Renata):
+
+- Se usan los dos modelos, cada uno para lo que sabe hacer: el del TL072 clásico para todo lo lineal (respuesta en frecuencia, ganancia, transitorio y margen con pila fresca y gastada) y el del TL072H solo para el ruido. Ningún macromodelo es correcto para todo.
+- El ruido sale de un modelo distinto al del resto, y es aceptable: el DIP-8 de TI que se va a comprar figura con 37 nV/√Hz, la misma cifra que el H, así que ese modelo reproduce el ruido que va a tener el circuito aunque por dentro sea otro chip. El chequeo a 1 kHz confirma que se puede usar.
+- La inversión de fase no es simulable con los modelos disponibles. La alimentación partida se apoya en la tabla de condiciones recomendadas de la hoja (entrada 24), no en una simulación, y una simulación limpia de 9 V simples no prueba que el problema no exista. Queda escrito junto a esa decisión en docs/entrada-analogica.md.
+- El offset del H es del modelo y no de la configuración: sale igual con ±9 V que con 0 y 18 V, cambia con la tensión total, y la biblioteca lo trae fijado. No se persigue, porque en el circuito C3 bloquea la continua.
