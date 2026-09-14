@@ -1,0 +1,17 @@
+* Verification: resistive divider with a known operating point.
+* 9 V across 4.7 kOhm on top and 1 kOhm at the bottom: the midpoint sits at 9 * 1 / 5.7 = 1.578947 V.
+* Unequal resistors, so swapped or wrong values do not go unnoticed.
+
+V1 in 0 DC 9
+Rtop in mid 4.7k
+Rbottom mid 0 1k
+
+.control
+set noaskquit
+set filetype=ascii
+op
+write divider_op.raw v(mid) v(in)
+quit
+.endc
+
+.end

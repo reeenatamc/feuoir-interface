@@ -6,8 +6,10 @@
 Copia analizador.py y calibrar.py a una carpeta temporal, inyecta un error a la vez y corre
 calibrar.py sobre esa copia. Cada error tiene que hacer fallar la calibración. Con la app de
 medición hace lo mismo: copia analizador.py, app/ y tests/app_contract.py, inyecta un error en
-app/ y corre esa prueba. Antes de cada tanda corre una copia sin cambios como control, que tiene
-que pasar: si el control falla, que fallen las copias con errores no demuestra nada.
+app/ y corre esa prueba. Con la verificación del simulador, lo mismo sobre spice/: le cambia un valor
+a un netlist o rompe el lector, y spice/verify.py tiene que fallar. Antes de cada tanda corre una
+copia sin cambios como control, que tiene que pasar: si el control falla, que fallen las copias con
+errores no demuestra nada.
 
 Cada mutación reemplaza un texto que tiene que aparecer exactamente una vez en su archivo.
 Si alguien cambia el archivo y un texto deja de aparecer, el script falla. Hay que actualizar
@@ -99,6 +101,22 @@ MUTACIONES_APP = [
      '            await asyncio.gather(*(client.ws.send_str(text) for client in list(app[CLIENTS])))\n'),
 ]
 
+# Los archivos que necesita spice/verify.py para correr en una carpeta aparte
+ARCHIVOS_SPICE = ["spice/__init__.py", "spice/run.py", "spice/verify.py",
+                  "spice/netlists/verify_divider.cir", "spice/netlists/verify_rc_lowpass.cir"]
+
+# nombre, error que simula, archivo, texto original, texto que lo reemplaza
+MUTACIONES_SPICE = [
+    ("spice_divisor_con_otra_resistencia", "divisor con la resistencia de abajo cambiada: otro punto de operación",
+     "spice/netlists/verify_divider.cir", "Rbottom mid 0 1k", "Rbottom mid 0 1.1k"),
+    ("spice_filtro_con_otro_capacitor", "filtro RC con el doble de capacidad: el corte en la mitad de la frecuencia",
+     "spice/netlists/verify_rc_lowpass.cir", "C1 out 0 1n", "C1 out 0 2n"),
+    ("spice_lector_sin_parte_imaginaria", "lector de .raw que descarta la parte imaginaria y pierde la fase",
+     "spice/run.py", "complex(float(re_part), float(im_part or 0.0))", "complex(float(re_part), 0.0)"),
+    ("spice_ruido_con_otra_temperatura", "teoría del ruido calculada a 17 °C en vez de los 27 °C de ngspice",
+     "spice/verify.py", "TEMPERATURE_K = 300.15", "TEMPERATURE_K = 290.15"),
+]
+
 
 def sha256(texto):
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()
@@ -129,6 +147,22 @@ def correr_app(carpeta, archivos, python, limite_s):
         return {"codigo_salida": None, "tiempo_agotado": True, "pruebas_que_fallan": []}
     fallan = [linea[len("FALLA "):].split("  (")[0].strip() for linea in r.stdout.splitlines()
               if linea.startswith("FALLA ")]
+    return {"codigo_salida": r.returncode, "tiempo_agotado": False, "pruebas_que_fallan": fallan}
+
+
+def correr_spice(carpeta, archivos, python, limite_s):
+    carpeta.mkdir()
+    for relativa, texto in archivos.items():
+        (carpeta / relativa).parent.mkdir(parents=True, exist_ok=True)
+        (carpeta / relativa).write_text(texto, encoding="utf-8")
+    try:
+        r = subprocess.run([python, "-m", "spice.verify"], cwd=carpeta, capture_output=True, text=True,
+                           timeout=limite_s)
+    except subprocess.TimeoutExpired:
+        return {"codigo_salida": None, "tiempo_agotado": True, "pruebas_que_fallan": []}
+    fallan = sorted({linea.split()[1].rstrip(":") for linea in r.stderr.splitlines()
+                     if linea.startswith(("FALLA ", "ERROR ")) and len(linea.split()) > 1
+                     and linea.split()[1].startswith("test_")})
     return {"codigo_salida": r.returncode, "tiempo_agotado": False, "pruebas_que_fallan": fallan}
 
 
@@ -172,12 +206,15 @@ def main():
     analizador = (RAIZ / "analizador.py").read_text(encoding="utf-8")
     calibrar = (RAIZ / "calibrar.py").read_text(encoding="utf-8")
     app = {relativa: (RAIZ / relativa).read_text(encoding="utf-8") for relativa in ARCHIVOS_APP}
-    total = len(MUTACIONES) + len(MUTACIONES_APP)
+    spice = {relativa: (RAIZ / relativa).read_text(encoding="utf-8") for relativa in ARCHIVOS_SPICE}
+    total = len(MUTACIONES) + len(MUTACIONES_APP) + len(MUTACIONES_SPICE)
 
     archivo_de = {nombre: "analizador.py" for nombre, *_ in MUTACIONES}
     archivo_de.update({nombre: archivo for nombre, _, archivo, _, _ in MUTACIONES_APP})
+    archivo_de.update({nombre: archivo for nombre, _, archivo, _, _ in MUTACIONES_SPICE})
     apariciones = {nombre: analizador.count(original) for nombre, _, original, _ in MUTACIONES}
     apariciones.update({nombre: app[archivo].count(original) for nombre, _, archivo, original, _ in MUTACIONES_APP})
+    apariciones.update({nombre: spice[archivo].count(original) for nombre, _, archivo, original, _ in MUTACIONES_SPICE})
     faltan = [nombre for nombre, veces in apariciones.items() if veces != 1]
     for nombre in faltan:
         print(f"FALTA  {nombre}: el texto a reemplazar aparece {apariciones[nombre]} veces en {archivo_de[nombre]} "
@@ -218,18 +255,36 @@ def main():
             print(f"FALLA  control: tests/app_contract.py no pasa con app/ sin cambios "
                   f"(código {control_app['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
 
+        control_spice = correr_spice(tmp / "control-spice", spice, python, args.limite_s)
+        control_spice_pasa = control_spice["codigo_salida"] == 0
+        if control_spice_pasa:
+            print("ok     control: spice/verify.py pasa con spice/ sin cambios")
+            aplicables = [m for m in MUTACIONES_SPICE if apariciones[m[0]] == 1]
+            with ThreadPoolExecutor(max_workers=args.trabajos) as ex:
+                futuros = [ex.submit(correr_spice, tmp / nombre,
+                                     {**spice, archivo: spice[archivo].replace(original, reemplazo)}, python, args.limite_s)
+                           for nombre, _, archivo, original, reemplazo in aplicables]
+                for (nombre, descripcion, archivo, original, reemplazo), futuro in zip(aplicables, futuros):
+                    registrar(resultados, nombre, descripcion, archivo, "spice/verify.py", original, reemplazo,
+                              futuro.result())
+        else:
+            print(f"FALLA  control: spice/verify.py no pasa con spice/ sin cambios "
+                  f"(código {control_spice['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
+
     sobreviven = [r["mutacion"] for r in resultados if not r["detectada"]]
     informe = {
         "fecha_hora": ahora.isoformat(timespec="seconds"),
         "analizador_sha256": sha256(analizador),
         "calibrar_sha256": sha256(calibrar),
         "app_sha256": {relativa: sha256(texto) for relativa, texto in app.items()},
+        "spice_sha256": {relativa: sha256(texto) for relativa, texto in spice.items()},
         "python_de_las_pruebas": python,
         "versiones": versiones(python),
         "plataforma": platform.platform(),
         "condiciones": {"trabajos": args.trabajos, "limite_s": args.limite_s},
         "control": {**control, "pasa": control_pasa},
         "control_app": {**control_app, "pasa": control_app_pasa},
+        "control_spice": {**control_spice, "pasa": control_spice_pasa},
         "textos_no_encontrados": {nombre: apariciones[nombre] for nombre in faltan},
         "resumen": {
             "mutaciones": total,
@@ -243,7 +298,7 @@ def main():
     ruta = carpeta / "resultados.json"
     ruta.write_text(json.dumps(informe, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    if faltan or sobreviven or not control_pasa or not control_app_pasa or len(resultados) != total:
+    if faltan or sobreviven or not control_pasa or not control_app_pasa or not control_spice_pasa or len(resultados) != total:
         print(f"\nMUTACIONES FALLIDAS. Detalle en {os.path.relpath(ruta)}", file=sys.stderr)
         sys.exit(1)
     print(f"\nLas {total} mutaciones hicieron fallar sus pruebas. Guardado en {os.path.relpath(ruta)}")

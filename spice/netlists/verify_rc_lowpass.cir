@@ -1,0 +1,24 @@
+* Verification: first-order RC low-pass with a known response.
+* R = 4.7 kOhm and C = 1 nF, the values of the filter between the two stages: cutoff at 33.86 kHz, time constant 4.7 us.
+* The source has AC 1 for the AC and noise analyses, and a 1 V step with a 1 ns rise for the transient.
+
+V1 in 0 DC 0 AC 1 PWL(0 0 1n 1)
+R1 in out 4.7k
+C1 out 0 1n
+
+.control
+set noaskquit
+set filetype=ascii
+ac dec 100 10 10meg
+write rc_ac.raw v(out)
+tran 5n 40u 0 5n
+write rc_tran.raw v(out)
+noise v(out) v1 dec 20 1 1g
+setplot noise1
+write rc_noise_spectrum.raw onoise_spectrum
+setplot noise2
+write rc_noise_total.raw onoise_total
+quit
+.endc
+
+.end
