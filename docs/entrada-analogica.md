@@ -46,3 +46,21 @@ Es la del diseño original, que se simula para compararla con la partida. Una pi
 - Offset en continua. Sin C2, la ganancia en continua es la misma que en audio, de 1 a 11. El offset de entrada del TL072, hasta 10 mV en la tabla 5.8 de su hoja, llega a 110 mV en la salida de la etapa A. C3 lo bloquea antes del PCM1808, y sobre ±9 V solo resta un poco de margen.
 - Golpe al mover el potenciómetro. Como el offset de salida cambia con la ganancia, al mover el potenciómetro C3 tiene que recargarse contra los 60 kΩ del PCM1808. La constante de tiempo es de 2.2 µF por 60 kΩ, 0.13 s, y se oye como un golpe mientras se ajusta. Es inofensivo y solo pasa al mover la perilla.
 - Inversión de fase fuera del rango de modo común. Es el motivo del cambio a ±9 V (entrada 24), y no es simulable con los modelos disponibles (ver al principio, y la entrada 27).
+
+## Qué dio la simulación
+
+Del 2026-09-14, con spice/simulate_input.py (docs/simulador-spice.md, simulaciones de la etapa de entrada). Las carpetas están en mediciones/2026-09-14-sim-respuesta-en-frecuencia, 2026-09-14-sim-transitorio-1v5, 2026-09-14-sim-ruido y 2026-09-14-sim-carga-guitarra. Detalle en la entrada 28.
+
+- Ganancia a 1 kHz: 0, 9.54, 13.97, 18.06 y 20.82 dB con el potenciómetro en 0, 2, 4, 7 y 10 kΩ, lo mismo que 1 + Rpot/R4.
+- Forma con ±9 V: no cambia con la ganancia en la banda de audio. Entre ganancia 1 y 11 la diferencia de 20 Hz a 20 kHz es de 0.01 dB como mucho. El corte de abajo queda en 2.18 Hz con cualquier ganancia y el de arriba baja de 33.8 kHz a 33.5 kHz. Las curvas se separan recién por encima de 100 kHz, donde con más ganancia el TL072 tiene menos ancho de banda.
+- Forma con 9 V simples: cambia con la ganancia en graves. El corte de abajo pasa de 1.89 Hz con ganancia 1 a 7.89 Hz con ganancia 11, y en 20 Hz la ganancia 11 cae 0.61 dB, contra 0.14 dB de la ganancia 1. Con ±9 V, en 20 Hz cae 0.04 dB con cualquier ganancia.
+- Margen de entrada con 1.5 V de pico y ganancia 11, contra los 4 V sobre el riel negativo de la tabla 5.3: +3.46 V con ±9 V y pilas frescas, +1.37 V con ±7 V y pilas gastadas y -1.01 V con 9 V simples, fuera del rango. Con ±7 V el margen sigue sobrando. El modelo consume más que el chip, así que con pilas gastadas el margen real es un poco mayor.
+- Ruido de 20 Hz a 20 kHz en la entrada del PCM1808, con ±9 V: con ganancia 1, 21.0 µV al aire y 6.5 µV con la guitarra y 300 pF (-97.1 y -107.2 dBFS); con ganancia 11, 226.8 µV al aire y 56.7 µV con la guitarra (-76.4 y -88.4 dBFS). Con la guitarra conectada hay entre 10 y 13 dB menos ruido que al aire. Con la entrada al aire el modelo exagera el ruido entre 1.2 y 1.3 dB a 1 kHz (docs/simulador-spice.md).
+- Carga de la guitarra: con 1 MΩ la pastilla resuena en 3.55 kHz con +14.8 dB (cable de 300 pF) y en 2.69 kHz con +15.0 dB (600 pF). Con 10 kΩ pierde 5.2 dB desde abajo, cae 3 dB más en 593 Hz y no resuena. A 3.55 kHz queda 36 dB por debajo de la carga de 1 MΩ.
+
+## Para discutir
+
+Salen de la simulación y no están decididos. No se cambió nada del circuito.
+
+- La entrada del PCM1808 pasa su máximo absoluto. El pin admite de -0.3 V a 5.3 V (tabla 6.1 de su hoja), o sea 2.8 V hacia cada lado de su centro de 2.5 V, y como mucho ±10 mA. Con 1.5 V de pico y ganancia 11 la etapa B entrega a través de C3 ±7.4 V con ±9 V, ±5.3 V con ±7 V y ±2.9 V con 9 V simples. Con ganancia 11 alcanza con 255 mV de pico en la entrada de la etapa para pasar los 2.8 V, y el fondo de escala llega con 136 mV. La simulación no tiene los diodos de protección del PCM1808: en el chip conducirían, con la corriente limitada por el TL072, y la hoja da ±26 mA de cortocircuito para el TL07xH y no la da para el DIP-8. Tampoco se sabe todavía qué trae el módulo en VINL y VINR.
+- El ruido de corriente del modelo del TL072H es 8 veces el que da la hoja para el DIP-8. Si hace falta el número exacto, ngspice puede listar cuánto aporta cada fuente de ruido.

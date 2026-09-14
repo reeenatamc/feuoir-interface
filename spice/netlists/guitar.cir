@@ -1,0 +1,11 @@
+* Guitar pickup model, in its own file so it can change once the real guitar is measured.
+* A 5 H coil in series with 8 kOhm, 100 pF in parallel with the pickup, and the cable capacitance as a parameter
+* between 300 and 600 pF. The pickup's voltage is applied at emf; the guitar's output, at the end of the cable, is out.
+* The simulations always pass ccable; the default is only the middle of the range.
+
+.subckt guitar emf out params: ccable=450p
+Lcoil emf coil 5
+Rcoil coil out 8k
+Cpickup out 0 100p
+Ccable out 0 {ccable}
+.ends guitar

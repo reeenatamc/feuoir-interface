@@ -1,0 +1,39 @@
+* Analog input stage designed by Renata (docs/entrada-analogica.md), in its two versions.
+* Both use the opamp subcircuit, which each simulation includes from opamp_tl072.cir or opamp_tl072h.cir.
+* rpot is the gain potentiometer, from the output to the inverting input: gain 1 + rpot/1k. At 0 Ohm it is modeled as
+* 1 mOhm, because SPICE does not accept a 0 Ohm resistor. The batteries and the PCM1808 load are outside, in each
+* simulation.
+
+* Split supply of +-9 V, the version to build.
+.subckt input_stage_split in adc vpos vneg params: rpot=10k
+C1 in inp 100n
+R1 inp 0 1meg
+Rpot outa inn {max(rpot, 1m)}
+R4 inn 0 1k
+XA inp inn vpos vneg outa opamp
+R5 outa filt 4.7k
+C5 filt 0 1n
+XB filt outb vpos vneg outb opamp
+C3 outb adc 2.2u
+Cdec_pos vpos 0 100n
+Cdec_neg vneg 0 100n
+.ends input_stage_split
+
+* Single 9 V supply with the bias at 4.5 V, the original version, simulated for comparison (docs/bitacora.md,
+* entrada 24).
+.subckt input_stage_single in adc vpos params: rpot=10k
+C1 in inp 100n
+R1 inp bias 1meg
+R2 vpos bias 100k
+R3 bias 0 100k
+C4 bias 0 47u
+Rpot outa inn {max(rpot, 1m)}
+R4 inn r4c2 1k
+C2 r4c2 bias 47u
+XA inp inn vpos 0 outa opamp
+R5 outa filt 4.7k
+C5 filt 0 1n
+XB filt outb vpos 0 outb opamp
+C3 outb adc 2.2u
+Cdec vpos 0 100n
+.ends input_stage_single

@@ -1,0 +1,73 @@
+{
+  "casos": {
+    "al-aire-ganancia-1": {
+      "fuente": "entrada al aire",
+      "ganancia": 1,
+      "ruido_a_1khz_nv_raiz_hz": 160.33060019305023,
+      "ruido_de_20hz_a_20khz_uv": 20.958745809093564,
+      "ruido_de_20hz_a_20khz_dbfs": -97.09451937106965
+    },
+    "guitarra-300pf-ganancia-1": {
+      "fuente": "guitarra con cable de 300 pF",
+      "ganancia": 1,
+      "ruido_a_1khz_nv_raiz_hz": 55.483911547260696,
+      "ruido_de_20hz_a_20khz_uv": 6.511448098555782,
+      "ruido_de_20hz_a_20khz_dbfs": -107.24827351643083,
+      "referido_a_la_pastilla_a_1khz_nv_raiz_hz": 51.63496389956062,
+      "referido_a_la_pastilla_de_20hz_a_20khz_uv": 63.38843471832248,
+      "contra_la_entrada_al_aire_db": -10.153754145361171
+    },
+    "guitarra-600pf-ganancia-1": {
+      "fuente": "guitarra con cable de 600 pF",
+      "ganancia": 1,
+      "ruido_a_1khz_nv_raiz_hz": 55.7059990256767,
+      "ruido_de_20hz_a_20khz_uv": 6.076350690723395,
+      "ruido_de_20hz_a_20khz_dbfs": -107.84896856508361,
+      "referido_a_la_pastilla_a_1khz_nv_raiz_hz": 48.60371850805791,
+      "referido_a_la_pastilla_de_20hz_a_20khz_uv": 112.50006816189786,
+      "contra_la_entrada_al_aire_db": -10.754449194013961
+    },
+    "al-aire-ganancia-11": {
+      "fuente": "entrada al aire",
+      "ganancia": 11,
+      "ruido_a_1khz_nv_raiz_hz": 1712.6906349323033,
+      "ruido_de_20hz_a_20khz_uv": 226.76018406439087,
+      "ruido_de_20hz_a_20khz_dbfs": -76.41048916427485
+    },
+    "guitarra-300pf-ganancia-11": {
+      "fuente": "guitarra con cable de 300 pF",
+      "ganancia": 11,
+      "ruido_a_1khz_nv_raiz_hz": 442.1399695456375,
+      "ruido_de_20hz_a_20khz_uv": 56.730256811549864,
+      "ruido_de_20hz_a_20khz_dbfs": -88.44553018967625,
+      "referido_a_la_pastilla_a_1khz_nv_raiz_hz": 37.40749136430049,
+      "referido_a_la_pastilla_de_20hz_a_20khz_uv": 42.143412781829355,
+      "contra_la_entrada_al_aire_db": -12.035041025401396
+    },
+    "guitarra-600pf-ganancia-11": {
+      "fuente": "guitarra con cable de 600 pF",
+      "ganancia": 11,
+      "ruido_a_1khz_nv_raiz_hz": 445.5059143554789,
+      "ruido_de_20hz_a_20khz_uv": 50.55676067902415,
+      "ruido_de_20hz_a_20khz_dbfs": -89.44624038840138,
+      "referido_a_la_pastilla_a_1khz_nv_raiz_hz": 35.33808364278172,
+      "referido_a_la_pastilla_de_20hz_a_20khz_uv": 74.21570970097419,
+      "contra_la_entrada_al_aire_db": -13.03575122412652
+    }
+  },
+  "chequeos": [
+    {
+      "prueba": "ruido",
+      "chequeo": "densidad a 1 kHz con la entrada al aire y ganancia 1",
+      "condiciones": "raíz de 4kT·R1 + (in·R1)² + 2·en² + 4kT·R5, con en e in del modelo a 1 kHz",
+      "esperado": 0.0,
+      "obtenido": -0.00814205935832485,
+      "tolerancia": 1.0,
+      "unidad": "dB",
+      "paso": true
+    }
+  ],
+  "advertencias": [
+    "El modelo del TL072H tiene 79 fA/√Hz de ruido de corriente, como su hoja (tabla 5.7), pero la tabla 5.9 da 10 fA/√Hz para el TL07xC, el DIP-8. Pesa donde la impedancia en la entrada es alta: con la entrada al aire, sobre 1 MΩ, esta simulación exagera el ruido."
+  ]
+}

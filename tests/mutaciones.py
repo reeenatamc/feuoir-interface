@@ -7,9 +7,10 @@ Copia analizador.py y calibrar.py a una carpeta temporal, inyecta un error a la 
 calibrar.py sobre esa copia. Cada error tiene que hacer fallar la calibración. Con la app de
 medición hace lo mismo: copia analizador.py, app/ y tests/app_contract.py, inyecta un error en
 app/ y corre esa prueba. Con la verificación del simulador, lo mismo sobre spice/: le cambia un valor
-a un netlist o rompe el lector, y spice/verify.py tiene que fallar. Antes de cada tanda corre una
-copia sin cambios como control, que tiene que pasar: si el control falla, que fallen las copias con
-errores no demuestra nada.
+a un netlist o rompe el lector, y spice/verify.py tiene que fallar. Con las simulaciones de la etapa de
+entrada, le cambia un componente al circuito o a la guitarra, y los chequeos contra el cálculo a mano de
+spice/simulate_input.py tienen que fallar. Antes de cada tanda corre una copia sin cambios como control,
+que tiene que pasar: si el control falla, que fallen las copias con errores no demuestra nada.
 
 Cada mutación reemplaza un texto que tiene que aparecer exactamente una vez en su archivo.
 Si alguien cambia el archivo y un texto deja de aparecer, el script falla. Hay que actualizar
@@ -18,7 +19,7 @@ esa mutación para que siga inyectando el mismo error, no borrarla.
 Guarda el resultado con sus condiciones en calibraciones/<fecha>-mutaciones/resultados.json y
 termina con código 1 si algún error pasa sin detectarse, si falta un texto o si un control no pasa.
 """
-import argparse, hashlib, json, os, platform, subprocess, sys, tempfile
+import argparse, hashlib, json, os, platform, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
@@ -117,6 +118,26 @@ MUTACIONES_SPICE = [
      "spice/verify.py", "TEMPERATURE_K = 300.15", "TEMPERATURE_K = 290.15"),
 ]
 
+# Files spice/simulate_input.py needs to run in a separate folder. TI's models are copied as bytes and never mutated.
+SIMULATION_FILES = ["spice/__init__.py", "spice/run.py", "spice/simulate_input.py",
+                    "spice/netlists/input_stage.cir", "spice/netlists/guitar.cir",
+                    "spice/netlists/opamp_tl072.cir", "spice/netlists/opamp_tl072h.cir"]
+SIMULATION_MODELS = ["spice/models/TL072.301", "spice/models/tl07xh_tl08xh.lib"]
+
+# name, error it simulates, file, original text, replacement
+SIMULATION_MUTATIONS = [
+    ("simulacion_etapa_con_otra_r4", "R4 de 1.2 kΩ en la versión partida: otra ganancia que la del papel",
+     "spice/netlists/input_stage.cir", "R4 inn 0 1k", "R4 inn 0 1.2k"),
+    ("simulacion_simple_con_c4_menor", "C4 de 4.7 µF en la versión simple: otros graves que los del papel",
+     "spice/netlists/input_stage.cir", "C4 bias 0 47u", "C4 bias 0 4.7u"),
+    ("simulacion_simple_con_la_polarizacion_corrida", "R3 de 120 kΩ en la versión simple: la polarización fuera de la mitad del riel",
+     "spice/netlists/input_stage.cir", "R3 bias 0 100k", "R3 bias 0 120k"),
+    ("simulacion_guitarra_con_otra_bobina", "bobina de 4 H en vez de 5 H en el modelo de la guitarra",
+     "spice/netlists/guitar.cir", "Lcoil emf coil 5", "Lcoil emf coil 4"),
+    ("simulacion_ruido_con_la_entrada_cargada", "entrada al aire con 1 MΩ a tierra en vez de 1 GΩ: menos ruido que el del circuito",
+     "spice/simulate_input.py", "Rleak ref in 1G", "Rleak ref in 1meg"),
+]
+
 
 def sha256(texto):
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()
@@ -166,6 +187,27 @@ def correr_spice(carpeta, archivos, python, limite_s):
     return {"codigo_salida": r.returncode, "tiempo_agotado": False, "pruebas_que_fallan": fallan}
 
 
+def run_simulations(folder, texts, python, limit_s):
+    """Runs the four input stage simulations on a copy. The failing tests are the ones named in its FALLA lines."""
+    folder.mkdir()
+    for relative, text in texts.items():
+        (folder / relative).parent.mkdir(parents=True, exist_ok=True)
+        (folder / relative).write_text(text, encoding="utf-8")
+    for relative in SIMULATION_MODELS:
+        (folder / relative).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(RAIZ / relative, folder / relative)
+    try:
+        r = subprocess.run([python, "-m", "spice.simulate_input"], cwd=folder, capture_output=True, text=True,
+                           timeout=limit_s)
+    except subprocess.TimeoutExpired:
+        return {"codigo_salida": None, "tiempo_agotado": True, "pruebas_que_fallan": []}
+    failing = sorted({line[len("FALLA"):].strip().split(",")[0] for line in r.stderr.splitlines()
+                      if line.startswith("FALLA ")})
+    if r.returncode != 0 and not failing:        # it crashed instead of failing a check: say so
+        failing = [f"error: {(r.stderr.strip().splitlines() or ['sin salida'])[-1]}"]
+    return {"codigo_salida": r.returncode, "tiempo_agotado": False, "pruebas_que_fallan": failing}
+
+
 def versiones(python):
     r = subprocess.run([python, "-c", "import platform, numpy, scipy; "
                         "print(platform.python_version(), numpy.__version__, scipy.__version__)"],
@@ -207,14 +249,17 @@ def main():
     calibrar = (RAIZ / "calibrar.py").read_text(encoding="utf-8")
     app = {relativa: (RAIZ / relativa).read_text(encoding="utf-8") for relativa in ARCHIVOS_APP}
     spice = {relativa: (RAIZ / relativa).read_text(encoding="utf-8") for relativa in ARCHIVOS_SPICE}
-    total = len(MUTACIONES) + len(MUTACIONES_APP) + len(MUTACIONES_SPICE)
+    simulation = {relative: (RAIZ / relative).read_text(encoding="utf-8") for relative in SIMULATION_FILES}
+    total = len(MUTACIONES) + len(MUTACIONES_APP) + len(MUTACIONES_SPICE) + len(SIMULATION_MUTATIONS)
 
     archivo_de = {nombre: "analizador.py" for nombre, *_ in MUTACIONES}
     archivo_de.update({nombre: archivo for nombre, _, archivo, _, _ in MUTACIONES_APP})
     archivo_de.update({nombre: archivo for nombre, _, archivo, _, _ in MUTACIONES_SPICE})
+    archivo_de.update({name: file for name, _, file, _, _ in SIMULATION_MUTATIONS})
     apariciones = {nombre: analizador.count(original) for nombre, _, original, _ in MUTACIONES}
     apariciones.update({nombre: app[archivo].count(original) for nombre, _, archivo, original, _ in MUTACIONES_APP})
     apariciones.update({nombre: spice[archivo].count(original) for nombre, _, archivo, original, _ in MUTACIONES_SPICE})
+    apariciones.update({name: simulation[file].count(original) for name, _, file, original, _ in SIMULATION_MUTATIONS})
     faltan = [nombre for nombre, veces in apariciones.items() if veces != 1]
     for nombre in faltan:
         print(f"FALTA  {nombre}: el texto a reemplazar aparece {apariciones[nombre]} veces en {archivo_de[nombre]} "
@@ -271,6 +316,23 @@ def main():
             print(f"FALLA  control: spice/verify.py no pasa con spice/ sin cambios "
                   f"(código {control_spice['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
 
+        simulation_control = run_simulations(tmp / "control-simulacion", simulation, python, args.limite_s)
+        simulation_control_passes = simulation_control["codigo_salida"] == 0
+        if simulation_control_passes:
+            print("ok     control: spice/simulate_input.py pasa sus chequeos con los netlists sin cambios")
+            applicable = [m for m in SIMULATION_MUTATIONS if apariciones[m[0]] == 1]
+            with ThreadPoolExecutor(max_workers=args.trabajos) as ex:
+                futures = [ex.submit(run_simulations, tmp / name,
+                                     {**simulation, file: simulation[file].replace(original, replacement)},
+                                     python, args.limite_s)
+                           for name, _, file, original, replacement in applicable]
+                for (name, description, file, original, replacement), future in zip(applicable, futures):
+                    registrar(resultados, name, description, file, "spice/simulate_input.py", original, replacement,
+                              future.result())
+        else:
+            print(f"FALLA  control: spice/simulate_input.py no pasa sus chequeos con los netlists sin cambios "
+                  f"(código {simulation_control['codigo_salida']}); no se corren sus mutaciones", file=sys.stderr)
+
     sobreviven = [r["mutacion"] for r in resultados if not r["detectada"]]
     informe = {
         "fecha_hora": ahora.isoformat(timespec="seconds"),
@@ -278,6 +340,7 @@ def main():
         "calibrar_sha256": sha256(calibrar),
         "app_sha256": {relativa: sha256(texto) for relativa, texto in app.items()},
         "spice_sha256": {relativa: sha256(texto) for relativa, texto in spice.items()},
+        "simulacion_sha256": {relative: sha256(text) for relative, text in simulation.items()},
         "python_de_las_pruebas": python,
         "versiones": versiones(python),
         "plataforma": platform.platform(),
@@ -285,6 +348,7 @@ def main():
         "control": {**control, "pasa": control_pasa},
         "control_app": {**control_app, "pasa": control_app_pasa},
         "control_spice": {**control_spice, "pasa": control_spice_pasa},
+        "control_simulacion": {**simulation_control, "pasa": simulation_control_passes},
         "textos_no_encontrados": {nombre: apariciones[nombre] for nombre in faltan},
         "resumen": {
             "mutaciones": total,
@@ -298,7 +362,8 @@ def main():
     ruta = carpeta / "resultados.json"
     ruta.write_text(json.dumps(informe, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    if faltan or sobreviven or not control_pasa or not control_app_pasa or not control_spice_pasa or len(resultados) != total:
+    if (faltan or sobreviven or not control_pasa or not control_app_pasa or not control_spice_pasa
+            or not simulation_control_passes or len(resultados) != total):
         print(f"\nMUTACIONES FALLIDAS. Detalle en {os.path.relpath(ruta)}", file=sys.stderr)
         sys.exit(1)
     print(f"\nLas {total} mutaciones hicieron fallar sus pruebas. Guardado en {os.path.relpath(ruta)}")

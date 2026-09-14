@@ -1,0 +1,151 @@
+{
+  "casos": {
+    "simple-9v": {
+      "caso": "9 V simples, pila fresca",
+      "alimentacion": "simple",
+      "pilas": {
+        "vbat": 9.0,
+        "rbat": 2.0
+      },
+      "riel_positivo_v": 8.982474826622145,
+      "riel_negativo_v": 0.0,
+      "corriente_media_del_riel_positivo_ma": 8.743391443839036,
+      "entrada_no_inversora_min_v": 2.98896919832723,
+      "entrada_no_inversora_max_v": 5.988998905361412,
+      "limite_inferior_de_entrada_v": 4.0,
+      "limite_superior_de_entrada_v": 9.082474826622144,
+      "margen_inferior_de_entrada_v": -1.0110308016727698,
+      "margen_superior_de_entrada_v": 3.0934759212607323,
+      "entrada_dentro_de_la_tabla_5_3": false,
+      "salida_etapa_a_min_v": 1.523145856194947,
+      "salida_etapa_a_max_v": 7.459399902419848,
+      "etapa_a_recorta": true,
+      "entrada_pcm1808_min_v": -2.915600090674832,
+      "entrada_pcm1808_max_v": 2.906499886825682,
+      "supera_el_fondo_de_escala_del_pcm1808": true,
+      "pin_del_pcm1808_min_v": -0.41560009067483206,
+      "pin_del_pcm1808_max_v": 5.4064998868256815,
+      "supera_el_maximo_absoluto_del_pcm1808": true
+    },
+    "partida-9v": {
+      "caso": "±9 V, pilas frescas",
+      "alimentacion": "partida",
+      "pilas": {
+        "vbat": 9.0,
+        "rbat": 2.0
+      },
+      "riel_positivo_v": 8.965829183674538,
+      "riel_negativo_v": -8.965828798350563,
+      "corriente_media_del_riel_positivo_ma": 17.072388858659288,
+      "entrada_no_inversora_min_v": -1.502199736959515,
+      "entrada_no_inversora_max_v": 1.497721645891526,
+      "limite_inferior_de_entrada_v": -4.965828798350563,
+      "limite_superior_de_entrada_v": 9.065829183674538,
+      "margen_inferior_de_entrada_v": 3.463629061391048,
+      "margen_superior_de_entrada_v": 7.568107537783012,
+      "entrada_dentro_de_la_tabla_5_3": true,
+      "salida_etapa_a_min_v": -7.442938628610651,
+      "salida_etapa_a_max_v": 7.442673102519981,
+      "etapa_a_recorta": true,
+      "entrada_pcm1808_min_v": -7.3978210754929,
+      "entrada_pcm1808_max_v": 7.375908028314231,
+      "supera_el_fondo_de_escala_del_pcm1808": true,
+      "pin_del_pcm1808_min_v": -4.8978210754929,
+      "pin_del_pcm1808_max_v": 9.875908028314232,
+      "supera_el_maximo_absoluto_del_pcm1808": true
+    },
+    "partida-7v": {
+      "caso": "±7 V, pilas gastadas",
+      "alimentacion": "partida",
+      "pilas": {
+        "vbat": 7.0,
+        "rbat": 10.0
+      },
+      "riel_positivo_v": 6.868377792973928,
+      "riel_negativo_v": -6.868375570447653,
+      "corriente_media_del_riel_positivo_ma": 13.146572694790626,
+      "entrada_no_inversora_min_v": -1.502248070505588,
+      "entrada_no_inversora_max_v": 1.497738302263839,
+      "limite_inferior_de_entrada_v": -2.868375570447653,
+      "limite_superior_de_entrada_v": 6.968377792973928,
+      "margen_inferior_de_entrada_v": 1.366127499942065,
+      "margen_superior_de_entrada_v": 5.470639490710089,
+      "entrada_dentro_de_la_tabla_5_3": true,
+      "salida_etapa_a_min_v": -5.346709687165607,
+      "salida_etapa_a_max_v": 5.346506055646477,
+      "etapa_a_recorta": true,
+      "entrada_pcm1808_min_v": -5.298702771135936,
+      "entrada_pcm1808_max_v": 5.282349049919167,
+      "supera_el_fondo_de_escala_del_pcm1808": true,
+      "pin_del_pcm1808_min_v": -2.798702771135936,
+      "pin_del_pcm1808_max_v": 7.782349049919167,
+      "supera_el_maximo_absoluto_del_pcm1808": true
+    }
+  },
+  "chequeos": [
+    {
+      "prueba": "transitorio",
+      "chequeo": "amplitud en la entrada no inversora, 9 V simples, pila fresca",
+      "condiciones": "1.5 V de pico a 1 kHz",
+      "esperado": 1.5,
+      "obtenido": 1.500014853517091,
+      "tolerancia": 0.03,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "transitorio",
+      "chequeo": "centro de la entrada no inversora, 9 V simples, pila fresca",
+      "condiciones": "0 V con alimentación partida, la mitad del riel con R2 = R3",
+      "esperado": 4.491237413311072,
+      "obtenido": 4.488984051844321,
+      "tolerancia": 0.02,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "transitorio",
+      "chequeo": "amplitud en la entrada no inversora, ±9 V, pilas frescas",
+      "condiciones": "1.5 V de pico a 1 kHz",
+      "esperado": 1.5,
+      "obtenido": 1.4999606914255206,
+      "tolerancia": 0.03,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "transitorio",
+      "chequeo": "centro de la entrada no inversora, ±9 V, pilas frescas",
+      "condiciones": "0 V con alimentación partida, la mitad del riel con R2 = R3",
+      "esperado": 0.0,
+      "obtenido": -0.002239045533994566,
+      "tolerancia": 0.02,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "transitorio",
+      "chequeo": "amplitud en la entrada no inversora, ±7 V, pilas gastadas",
+      "condiciones": "1.5 V de pico a 1 kHz",
+      "esperado": 1.5,
+      "obtenido": 1.4999931863847136,
+      "tolerancia": 0.03,
+      "unidad": "V",
+      "paso": true
+    },
+    {
+      "prueba": "transitorio",
+      "chequeo": "centro de la entrada no inversora, ±7 V, pilas gastadas",
+      "condiciones": "0 V con alimentación partida, la mitad del riel con R2 = R3",
+      "esperado": 0.0,
+      "obtenido": -0.0022548841208744896,
+      "tolerancia": 0.02,
+      "unidad": "V",
+      "paso": true
+    }
+  ],
+  "advertencias": [
+    "El modelo del TL072 no reproduce la inversión de fase (calibraciones/2026-09-14-modelos-tl072): que la versión de 9 V simples salga limpia no prueba que no ocurra.",
+    "El modelo del TL072 clásico consume 8.4 mA por amplificador con ±9 V (RP = 2.143 kΩ entre sus rieles), contra 1.4 mA típicos en la tabla 5.8 de la hoja: los rieles bajan más que en el circuito real y el margen simulado queda un poco por debajo del real."
+  ]
+}

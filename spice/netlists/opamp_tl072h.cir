@@ -1,0 +1,9 @@
+* Op-amp for the noise simulations of the input stage: TI's TL07XH_TL08XH model (docs/simulador-spice.md).
+* Pins: non-inverting input, inverting input, positive supply, negative supply, output.
+* Needs ngbehavior=ps: the library uses PSpice syntax.
+
+.include tl07xh_tl08xh.lib
+
+.subckt opamp inp inn vcc vee out
+XU inp inn vcc vee out TL07XH_TL08XH
+.ends opamp

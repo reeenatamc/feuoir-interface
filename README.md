@@ -25,7 +25,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
 | Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
 | App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones, la salida del estímulo y la lista de guardadas, en ventana propia | tests/app_contract.py: 44 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 11 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
-| Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; tests/mutaciones.py detecta los 4 errores inyectados; el ruido del modelo del TL072H coincide con la hoja a 0.13 dB | el circuito de entrada todavía no se simula |
+| Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría; la etapa de entrada simulada en sus dos versiones: respuesta en frecuencia, transitorio, ruido y carga de la guitarra | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; spice/simulate_input.py: 32 chequeos contra el cálculo a mano del circuito; tests/mutaciones.py detecta los 9 errores inyectados en spice/; el ruido del modelo del TL072H coincide con la hoja a 0.13 dB | discutir la entrada del PCM1808, que con ganancia alta pasa su máximo absoluto (docs/entrada-analogica.md); comparar con el circuito armado |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
 | Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
@@ -43,13 +43,13 @@ jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
 dispositivos.py        lista las entradas de audio de la Mac
 app/                   app de medición en vivo; la interfaz está en app/ui
-spice/                 simulación con ngspice: ejecutor, netlists y verificación contra la teoría
+spice/                 simulación con ngspice: ejecutor, netlists, modelos del TL072, verificación y etapa de entrada
 tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
 firmware/              reloj maestro y firmware de verificación para el Pico
-docs/                  reloj, dominio de reloj, audio USB, compras, primer encendido, app, bitácora y hojas de datos
-calibraciones/         resultados de calibrar.py y de tests/mutaciones.py
+docs/                  reloj, dominio de reloj, audio USB, entrada analógica, simulador, compras, primer encendido, app, bitácora y hojas de datos
+calibraciones/         resultados de calibrar.py, de tests/mutaciones.py y de la verificación del simulador y sus modelos
 simulaciones/          resultados de jitter.py
-mediciones/            capturas y verificaciones, cuando haya hardware
+mediciones/            capturas y verificaciones, y las simulaciones de la etapa de entrada
 ```
 
 ## Convenciones
@@ -139,7 +139,7 @@ tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia ana
 
 Con la app hace lo mismo: copia app/ y tests/app_contract.py, inyecta 11 errores en app/ (un detector de saturación que saltea muestras, un pico que no se sostiene entre bloques, un emisor que espera a cada conexión y deja que una lenta frene a las demás, entre otros) y corre esa prueba sobre cada copia, después de su propio control.
 
-Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Con la verificación del simulador hace lo mismo sobre spice/: le cambia un valor a un netlist, rompe el lector de .raw o calcula el ruido a otra temperatura, y spice/verify.py tiene que fallar. Hay que correrlo cada vez que se toque analizador.py, calibrar.py, app/ o spice/.
+Guarda el resultado en calibraciones/<fecha>-mutaciones/resultados.json y termina con código 1 si algún error pasa sin detectarse o si un control falla. También falla si se cambia un archivo y el texto que reemplaza una mutación deja de existir; en ese caso hay que actualizar la mutación para que siga inyectando el mismo error. Con la verificación del simulador hace lo mismo sobre spice/: le cambia un valor a un netlist, rompe el lector de .raw o calcula el ruido a otra temperatura, y spice/verify.py tiene que fallar. Con las simulaciones de la etapa de entrada, le cambia R4, C4 o R3 al circuito o la bobina a la guitarra, o carga la entrada al aire con 1 MΩ, y los chequeos de spice/simulate_input.py tienen que fallar. Hay que correrlo cada vez que se toque analizador.py, calibrar.py, app/ o spice/.
 
 ## relojes.py
 
@@ -199,6 +199,14 @@ Se usan los dos modelos del TL072 de TI: el del clásico para todo lo lineal y e
 ```
 
 Qué modelo se usa para qué y por qué: docs/simulador-spice.md.
+
+Las simulaciones de la etapa de entrada, en sus dos versiones: respuesta en frecuencia con cinco ganancias, transitorio con 1.5 V de pico, ruido con la entrada al aire y con la guitarra, y la guitarra sola cargada con 1 MΩ y con 10 kΩ.
+
+```
+.venv/bin/python -m spice.simulate_input
+```
+
+Cada una guarda su carpeta en mediciones/<fecha>-sim-<nombre>/ con sus condiciones, los datos, los netlists que corrió y las gráficas, y aparece en Guardadas de la app. Compara cada corrida con cálculos a mano del circuito y termina con código 1 si no coinciden. Qué dieron: docs/entrada-analogica.md.
 
 ## firmware
 

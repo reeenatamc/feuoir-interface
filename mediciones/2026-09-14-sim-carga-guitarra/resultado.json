@@ -1,0 +1,86 @@
+{
+  "curvas": {
+    "1meg-300pf": {
+      "carga_ohm": 1000000.0,
+      "cable_pf": 300.0,
+      "nivel_a_100hz_db": -0.06251794049646145,
+      "pico_db": 14.734756295124514,
+      "frecuencia_del_pico_hz": 3548.133892335716,
+      "pico_sobre_100hz_db": 14.797274235620975,
+      "nivel_a_5khz_db": 0.004239762653183599,
+      "cae_3db_bajo_100hz_en_hz": 5515.9181407276565
+    },
+    "1meg-600pf": {
+      "carga_ohm": 1000000.0,
+      "cable_pf": 600.0,
+      "nivel_a_100hz_db": -0.05748615950565928,
+      "pico_db": 14.92364062500794,
+      "frecuencia_del_pico_hz": 2691.534803926887,
+      "pico_sobre_100hz_db": 14.981126784513599,
+      "nivel_a_5khz_db": -7.849679399331986,
+      "cae_3db_bajo_100hz_en_hz": 4169.869657951257
+    },
+    "10k-300pf": {
+      "carga_ohm": 10000.0,
+      "cable_pf": 300.0,
+      "nivel_a_100hz_db": -5.2337202854812155,
+      "pico_db": null,
+      "frecuencia_del_pico_hz": null,
+      "pico_sobre_100hz_db": null,
+      "nivel_a_5khz_db": -23.97834786739545,
+      "cae_3db_bajo_100hz_en_hz": 593.176173170747
+    },
+    "10k-600pf": {
+      "carga_ohm": 10000.0,
+      "cable_pf": 600.0,
+      "nivel_a_100hz_db": -5.232191218951705,
+      "pico_db": null,
+      "frecuencia_del_pico_hz": null,
+      "pico_sobre_100hz_db": null,
+      "nivel_a_5khz_db": -24.066021706034636,
+      "cae_3db_bajo_100hz_en_hz": 596.4474168921026
+    }
+  },
+  "chequeos": [
+    {
+      "prueba": "carga",
+      "chequeo": "magnitud contra el cálculo a mano, 1 MΩ, cable de 300 pF",
+      "condiciones": "el peor punto de 1 Hz a 1 MHz",
+      "esperado": 0.0,
+      "obtenido": 6.110667527536862e-13,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "carga",
+      "chequeo": "magnitud contra el cálculo a mano, 1 MΩ, cable de 600 pF",
+      "condiciones": "el peor punto de 1 Hz a 1 MHz",
+      "esperado": 0.0,
+      "obtenido": 4.547473508864641e-13,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "carga",
+      "chequeo": "magnitud contra el cálculo a mano, 10 kΩ, cable de 300 pF",
+      "condiciones": "el peor punto de 1 Hz a 1 MHz",
+      "esperado": 0.0,
+      "obtenido": 6.679101716144942e-13,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    },
+    {
+      "prueba": "carga",
+      "chequeo": "magnitud contra el cálculo a mano, 10 kΩ, cable de 600 pF",
+      "condiciones": "el peor punto de 1 Hz a 1 MHz",
+      "esperado": 0.0,
+      "obtenido": 4.405364961712621e-13,
+      "tolerancia": 0.01,
+      "unidad": "dB",
+      "paso": true
+    }
+  ]
+}

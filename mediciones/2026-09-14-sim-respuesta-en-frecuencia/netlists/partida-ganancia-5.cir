@@ -1,0 +1,21 @@
+* Input stage, split supply, gain 5: frequency response at the PCM1808 input
+.include opamp_tl072.cir
+.include input_stage.cir
+
+Vbat_pos bpos 0 DC 9.0
+Rbat_pos bpos vpos 2.0
+Vbat_neg 0 bneg DC 9.0
+Rbat_neg bneg vneg 2.0
+Vin in 0 DC 0 AC 1
+Xstage in adc vpos vneg input_stage_split params: rpot=4000
+Rload adc 0 60000
+
+.control
+set noaskquit
+set filetype=ascii
+ac dec 50 1 1meg
+write ac.raw v(adc)
+quit
+.endc
+
+.end

@@ -517,3 +517,27 @@ Qué se decidió y por qué (decisiones de Renata):
 - El ruido sale de un modelo distinto al del resto, y es aceptable: el DIP-8 de TI que se va a comprar figura con 37 nV/√Hz, la misma cifra que el H, así que ese modelo reproduce el ruido que va a tener el circuito aunque por dentro sea otro chip. El chequeo a 1 kHz confirma que se puede usar.
 - La inversión de fase no es simulable con los modelos disponibles. La alimentación partida se apoya en la tabla de condiciones recomendadas de la hoja (entrada 24), no en una simulación, y una simulación limpia de 9 V simples no prueba que el problema no exista. Queda escrito junto a esa decisión en docs/entrada-analogica.md.
 - El offset del H es del modelo y no de la configuración: sale igual con ±9 V que con 0 y 18 V, cambia con la tensión total, y la biblioteca lo trae fijado. No se persigue, porque en el circuito C3 bloquea la continua.
+
+## Entrada 28: simulación de la etapa de entrada (2026-09-14)
+
+Qué se midió: nada en hardware. Con spice/simulate_input.py se corrieron las cuatro simulaciones que pidió Renata sobre el circuito de docs/entrada-analogica.md: respuesta en frecuencia, transitorio con 1.5 V de pico, ruido con la entrada al aire y con la guitarra, y la guitarra sola con dos cargas.
+
+Condiciones: ngspice 47 a 27 °C. Modelo del TL072 clásico para lo lineal y del TL072H para el ruido. Pilas frescas de 9 V con 2 Ω y gastadas de 7 V con 10 Ω. 60 kΩ de carga detrás de C3. Potenciómetro en 0, 2, 4, 7 y 10 kΩ, con el 0 como 1 mΩ. Guitarra de spice/netlists/guitar.cir con cable de 300 y 600 pF. Resultados en mediciones/2026-09-14-sim-respuesta-en-frecuencia, 2026-09-14-sim-transitorio-1v5, 2026-09-14-sim-ruido y 2026-09-14-sim-carga-guitarra.
+
+Resultado:
+
+- Los 32 chequeos contra el cálculo a mano pasan. Las 10 curvas de respuesta coinciden con el circuito resuelto con opamps ideales a 0.0013 dB hasta 5 kHz, en las dos versiones.
+- Con ±9 V la forma de la respuesta no cambia con la ganancia en la banda de audio: 0.01 dB como mucho entre ganancia 1 y 11. Con 9 V simples sí cambia en graves: el corte de abajo pasa de 1.89 Hz a 7.89 Hz, y en 20 Hz la ganancia 11 cae 0.61 dB.
+- Margen de entrada con 1.5 V de pico y ganancia 11: +3.46 V con ±9 V, +1.37 V con ±7 V y pilas gastadas y -1.01 V con 9 V simples.
+- A la entrada del PCM1808 llegan ±7.4 V con ±9 V, ±5.3 V con ±7 V y ±2.9 V con 9 V simples. Las tres pasan el máximo absoluto del pin, 2.8 V hacia cada lado de su centro.
+- Ruido de 20 Hz a 20 kHz con ganancia 11: 226.8 µV al aire y 56.7 µV con la guitarra y 300 pF (-76.4 y -88.4 dBFS). Con la guitarra hay entre 10 y 13 dB menos que al aire, con ganancia 1 y con 11.
+- Carga: con 1 MΩ la pastilla resuena en 3.55 kHz con +14.8 dB (300 pF) y en 2.69 kHz con +15.0 dB (600 pF). Con 10 kΩ cae 3 dB en 593 Hz, no resuena, y a 3.55 kHz queda 36 dB por debajo.
+- Del modelo del TL072 clásico: consume 8.4 mA por amplificador, contra 1.4 mA típicos de la hoja, por su RP de 2.143 kΩ. Se vio en la corriente de las pilas del transitorio.
+- Del modelo del TL072H: su ruido de corriente, 79.2 fA/√Hz, es el del TL07xH, y la tabla 5.9 da 10 fA/√Hz para el DIP-8. Con la entrada al aire exagera el ruido entre 1.2 y 1.3 dB a 1 kHz, según el cálculo a mano.
+- Una cuenta rápida a mano de la versión simple dio 0.12 dB de caída en 20 Hz con ganancia 11, y la simulación dio 0.61 dB. La cuenta estaba mal: tomaba el nodo de polarización como tierra, pero la corriente que vuelve por R4 y C2 lo mueve, porque a 20 Hz C4 no es un corto. Con C4 ideal la caída sería de 0.16 dB. El circuito entero resuelto con opamps ideales coincide con la simulación, y ese cálculo quedó como chequeo del script.
+- tests/mutaciones.py le inyecta 5 errores a las simulaciones: R4, C4 y R3 cambiados en el circuito, otra bobina en la guitarra y la entrada al aire cargada con 1 MΩ. Los atrapan los chequeos de respuesta, transitorio, carga y ruido, y las 40 mutaciones del repo hacen fallar sus pruebas (calibraciones/2026-09-14-mutaciones-3).
+
+Qué queda abierto (no se cambió nada del diseño):
+
+- La entrada del PCM1808 pasa su máximo absoluto con ganancia alta y señal fuerte: con ganancia 11 alcanza con 255 mV de pico en la entrada de la etapa. La simulación no tiene los diodos de protección del chip ni lo que traiga el módulo en VINL y VINR. Para discutir con Renata (docs/entrada-analogica.md, para discutir).
+- Cuánto ruido aporta exactamente la corriente del modelo del H: ngspice lo puede separar por fuente, si hace falta.

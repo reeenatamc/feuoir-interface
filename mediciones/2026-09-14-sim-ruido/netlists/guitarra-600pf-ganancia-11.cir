@@ -1,0 +1,24 @@
+* Input stage, split supply, gain 11: noise at the PCM1808 input, guitar with a 600 pF cable
+.include opamp_tl072h.cir
+.include input_stage.cir
+.include guitar.cir
+
+Vbat_pos bpos 0 DC 9.0
+Rbat_pos bpos vpos 2.0
+Vbat_neg 0 bneg DC 9.0
+Rbat_neg bneg vneg 2.0
+Vemf emf 0 DC 0 AC 1
+Xguitar emf in guitar params: ccable=600p
+Xstage in adc vpos vneg input_stage_split params: rpot=10000
+Rload adc 0 60000
+
+.control
+set noaskquit
+set filetype=ascii
+noise v(adc) vemf dec 50 1 1meg
+setplot noise1
+write noise.raw onoise_spectrum inoise_spectrum
+quit
+.endc
+
+.end

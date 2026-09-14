@@ -1,0 +1,8 @@
+* Op-amp for the linear simulations of the input stage: TI's classic TL072 model (docs/simulador-spice.md).
+* Pins: non-inverting input, inverting input, positive supply, negative supply, output.
+
+.include TL072.301
+
+.subckt opamp inp inn vcc vee out
+XU inp inn vcc vee out TL072
+.ends opamp
