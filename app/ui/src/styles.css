@@ -190,6 +190,14 @@ button, input { font: inherit; color: inherit; }
 }
 @keyframes fire { to { background-position: -200% 100%; } }
 
+.notes-field { display: flex; align-items: baseline; gap: 10px; width: 220px; }
+.text-input {
+  flex: 1; min-width: 0; padding: 6px 0; outline: none; border: 0; border-bottom: 1px solid var(--ink-20);
+  background: transparent; font-size: 13px; transition: border-color 150ms ease;
+}
+.text-input:focus { border-color: var(--ink); }
+.text-input::placeholder { color: var(--ink-45); }
+
 .measurement-notice { max-width: 48ch; margin: 0 0 0 auto; font-size: 12px; line-height: 1.5; text-align: right; color: var(--ink-60); }
 .measurement-notice[data-state="error"] { color: var(--fire-red); }
 .folder-link {

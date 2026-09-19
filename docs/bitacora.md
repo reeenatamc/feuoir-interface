@@ -569,3 +569,9 @@ Qué queda abierto:
 - captura-3, grabada por Renata desde la app: qué nota se tocó. La 4 y la 5 se identificaron por su espectro.
 - La app no guarda notas: las condiciones de sus capturas se completaron a mano con lo informado en la sesión.
 - Medir siempre con la Mac a batería, o las tomas no se pueden comparar.
+
+## Entrada 30: notas en las mediciones de la app (2026-09-19)
+
+Cierra lo abierto en la entrada 29: la app no guardaba notas y las condiciones de sus capturas se completaban a mano. Ahora el pie de la ventana tiene un campo Notas, y cada medición lo guarda en condiciones.json con la clave notas, igual que medir.py. El servidor lo valida antes de marcar la medición como en curso: texto de hasta 2000 caracteres, con el error en español si no cumple. El contrato sube a la versión 4.
+
+Probado: tests/app_contract.py pasa a 52 comprobaciones, con las notas guardadas, vacías, demasiado largas y de tipo equivocado. tests/mutaciones.py agrega notas_ignoradas; las 44 mutaciones fallan (calibraciones/2026-09-19-mutaciones-2).

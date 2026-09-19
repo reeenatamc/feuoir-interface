@@ -1,6 +1,6 @@
 """App server: serves the interface and talks to it over a WebSocket at /ws.
 
-Contract, version 3. Every message is a JSON object with a "type" field. Keys and values the code reads are
+Contract, version 4. Every message is a JSON object with a "type" field. Keys and values the code reads are
 in English; text meant for the user (names, summaries, error messages) comes in Spanish.
 
 From Python to the interface:
@@ -16,7 +16,8 @@ From the interface to Python:
   input           {"id": "synthetic" or the device index}
   output          {"id": "default" or the device index}: where measurement stimuli play with a real input
   signal          {"shape", "frequency_hz", "level_dbfs"}
-  measure         {"measurement": "capture", "thd_n", "snr", "response" or "jitter"}
+  measure         {"measurement": "capture", "thd_n", "snr", "response" or "jitter", "notes": optional text
+                  with the conditions of this measurement, kept in condiciones.json}
   clear_clipping  resets the clipping warning
   refresh_devices reads the Mac's inputs and outputs again
   list_saved      asks for the list of saved measurements
@@ -36,7 +37,8 @@ from aiohttp import WSMsgType, web
 from app import measurements, sources
 from app.processing import WAVEFORM_MS, Processor
 
-CONTRACT = 3
+CONTRACT = 4
+NOTES_MAX_LENGTH = 2000
 FRAMES_PER_SECOND = 30
 UI_DIST = Path(__file__).resolve().parent / "ui" / "dist"
 
@@ -199,7 +201,7 @@ def _broadcast(app, message):
         client.send(text)
 
 
-async def _measure(app, measurement_id):
+async def _measure(app, measurement_id, notes):
     engine, loop = app[ENGINE], asyncio.get_running_loop()
 
     def notify(text):
@@ -210,7 +212,8 @@ async def _measure(app, measurement_id):
     _broadcast(app, {"type": "measurement", "measurement": measurement_id, "status": "running", "message": "Midiendo"})
     try:
         folder, summary = await asyncio.to_thread(measurements.measure, measurement_id, engine.source, engine.processor,
-                                                  dict(engine.signal), engine.destination, notify, engine.output_info())
+                                                  dict(engine.signal), engine.destination, notify, engine.output_info(),
+                                                  notes)
         message = {"type": "measurement", "measurement": measurement_id, "status": "done", "folder_name": folder.name,
                    "folder": f"{folder.parent.name}/{folder.name}/", "path": str(folder), "summary": summary}
     except Exception as e:
@@ -245,9 +248,15 @@ async def _handle(app, message):
             raise ValueError("Ya hay una medición en curso")
         if message.get("measurement") not in {m["id"] for m in measurements.MEASUREMENTS}:
             raise ValueError(f"Medición desconocida: {message.get('measurement')!r}")
+        notes = message.get("notes", "")
+        if not isinstance(notes, str):
+            raise ValueError("Las notas tienen que ser texto")
+        notes = notes.strip()
+        if len(notes) > NOTES_MAX_LENGTH:
+            raise ValueError(f"Las notas no pueden pasar de {NOTES_MAX_LENGTH} caracteres")
         # Marked before creating the task: a second request can arrive before the task starts.
         engine.measuring = message["measurement"]
-        task = asyncio.create_task(_measure(app, message["measurement"]))
+        task = asyncio.create_task(_measure(app, message["measurement"], notes))
         app[TASKS].add(task)
         task.add_done_callback(app[TASKS].discard)
     elif kind == "clear_clipping":

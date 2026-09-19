@@ -1,7 +1,7 @@
-// WebSocket messages, mirroring contract 3 in app/server.py. If it changes there, it changes here.
+// WebSocket messages, mirroring contract 4 in app/server.py. If it changes there, it changes here.
 // Keys and values the code reads are in English; names, summaries and messages for the user come in Spanish.
 
-export const CONTRACT = 3;
+export const CONTRACT = 4;
 
 export type Shape = "sine" | "sweep" | "noise" | "silence";
 
@@ -60,7 +60,7 @@ export type Request =
   | { type: "input"; id: string }
   | { type: "output"; id: string }
   | ({ type: "signal" } & Signal)
-  | { type: "measure"; measurement: string }
+  | { type: "measure"; measurement: string; notes?: string }
   | { type: "clear_clipping" }
   | { type: "refresh_devices" }
   | { type: "list_saved" }

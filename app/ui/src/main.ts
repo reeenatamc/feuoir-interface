@@ -83,7 +83,9 @@ function updateButtons(s: State) {
         button.className = "measure-button";
         button.dataset.measurement = measurement.id;
         button.textContent = measurement.name;
-        button.addEventListener("click", () => send({ type: "measure", measurement: measurement.id }));
+        button.addEventListener("click", () =>
+          send({ type: "measure", measurement: measurement.id, notes: $<HTMLInputElement>("measurement-notes").value }),
+        );
         return button;
       }),
     );

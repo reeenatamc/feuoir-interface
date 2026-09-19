@@ -132,8 +132,11 @@ class Client:
         first = await self.wait_for(lambda d: d["type"] == "frame")
         return await self.wait_for(lambda d: d["type"] == "frame" and d["samples"] >= first["samples"] + 0.4*self.fs)
 
-    async def measure(self, measurement, timeout_s):
-        await self.send(type="measure", measurement=measurement)
+    async def measure(self, measurement, timeout_s, notes=None):
+        if notes is None:
+            await self.send(type="measure", measurement=measurement)
+        else:
+            await self.send(type="measure", measurement=measurement, notes=notes)
         return await self.wait_for(lambda d: d["type"] == "measurement" and d["status"] != "running", timeout_s)
 
 
@@ -171,7 +174,7 @@ async def contract(tmp):
     try:
         async with ClientSession() as session, session.ws_connect(f"http://127.0.0.1:{port}/ws") as ws:
             state = json.loads((await ws.receive()).data)
-            check("al conectarse llega el estado con el contrato 3", state["type"] == "state" and state["contract"] == 3)
+            check("al conectarse llega el estado con el contrato 4", state["type"] == "state" and state["contract"] == 4)
             check("estado: 512 puntos de espectro y 5 mediciones",
                   len(state["frequencies_hz"]) == 512 and len(state["measurements"]) == 5)
             check("estado: las salidas con la de por defecto primero, y elegida la de por defecto",
@@ -247,8 +250,19 @@ async def contract(tmp):
                 rms = q["level"]["rms_dbfs"]
                 check(f"forma {label}: RMS cerca de {expected} dBFS", abs(rms - expected) <= 1.5, f"{rms} dBFS")
 
+            folders_before_errors = {p.name for p in (tmp / "mediciones").iterdir()} if (tmp / "mediciones").is_dir() else set()
+            await c.send(type="measure", measurement="capture", notes=123)
+            error = await c.wait_for(lambda d: d["type"] == "error")
+            check("notas que no son texto responden con error sin medir", "texto" in error["message"], error)
+            await c.send(type="measure", measurement="capture", notes="x"*2001)
+            error = await c.wait_for(lambda d: d["type"] == "error")
+            check("notas de más de 2000 caracteres responden con error sin medir", "2000" in error["message"], error)
+            folders_after_errors = {p.name for p in (tmp / "mediciones").iterdir()} if (tmp / "mediciones").is_dir() else set()
+            check("las notas inválidas no crean ninguna carpeta", folders_after_errors == folders_before_errors,
+                  (folders_before_errors, folders_after_errors))
+
             await c.signal(shape="sine", frequency_hz=1000.0, level_dbfs=-6.0)
-            r = await c.measure("capture", 20)
+            r = await c.measure("capture", 20, notes="  Ganancia de entrada a 40 dB  ")
             check("captura: termina y guarda su carpeta", r["status"] == "done" and Path(r["path"]).is_dir(), r)
             if r["status"] == "done":
                 conditions, result = read_json(r["path"], "condiciones.json"), read_json(r["path"], "resultado.json")
@@ -256,6 +270,8 @@ async def contract(tmp):
                       conditions["entrada"]["tipo"] == "sintetica" and conditions["frecuencia_muestreo_hz"] == 48000
                       and conditions["estimulo"] is None and (Path(r["path"]) / "captura.wav").is_file(), conditions)
                 check("captura: pico -6 dBFS", abs(result["pico_dbfs"] + 6.0) <= 0.1, result)
+                check("captura: las notas quedan recortadas de espacios en condiciones.json",
+                      conditions["notas"] == "Ganancia de entrada a 40 dB", conditions["notas"])
 
             await c.send(type="measure", measurement="thd_n")
             await c.send(type="measure", measurement="snr")
@@ -273,8 +289,9 @@ async def contract(tmp):
             r = await c.measure("snr", 20)
             check("SNR: termina y guarda su carpeta", r["status"] == "done", r)
             if r["status"] == "done":
-                result = read_json(r["path"], "resultado.json")
+                conditions, result = read_json(r["path"], "condiciones.json"), read_json(r["path"], "resultado.json")
                 check("SNR: entre 85 y 98 dB con el tono a -6 dBFS y ruido a -100 dBFS", 85.0 < result["snr_db"] < 98.0, result)
+                check("SNR: sin notas, condiciones.json guarda una cadena vacía", conditions["notas"] == "", conditions["notas"])
 
             r = await c.measure("response", 60)
             check("respuesta en frecuencia: termina y guarda su carpeta", r["status"] == "done", r)

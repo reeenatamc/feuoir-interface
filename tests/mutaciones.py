@@ -106,6 +106,8 @@ MUTACIONES_APP = [
     ("cuadros_esperando_a_cada_conexion", "emisor que espera a que cada conexión reciba el cuadro: una lenta frena a todas",
      "app/server.py", '            for client in list(app[CLIENTS]):\n                client.send_frame(text)\n',
      '            await asyncio.gather(*(client.ws.send_str(text) for client in list(app[CLIENTS])))\n'),
+    ("notas_ignoradas", "notas de la medición ignoradas: condiciones.json siempre las guarda vacías",
+     "app/server.py", 'notes = message.get("notes", "")', 'notes = ""'),
 ]
 
 # Los archivos que necesita spice/verify.py para correr en una carpeta aparte

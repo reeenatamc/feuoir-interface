@@ -156,10 +156,11 @@ class Measurement:
 
 
 def measure(measurement_id, source, processor, signal, destination=ROOT / "mediciones", notify=lambda text: None,
-            output=None):
+            output=None, notes=""):
     """Runs a measurement and saves its folder. Returns the folder and a one-line summary.
 
     output is the output chosen for the stimulus, {"name", "index"}, with index None for the Mac's default one.
+    notes is the text the interface saved with this measurement's conditions, already validated by the server.
     """
     info = next((m for m in MEASUREMENTS if m["id"] == measurement_id), None)
     if info is None:
@@ -192,7 +193,7 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
         "ganancia_entrada_db": gain_db,
         "estimulo": stimulus or None,
         "resumen": summary,
-        "notas": "",
+        "notas": notes,
     })
     _write_json(folder / "resultado.json", result)
     return folder, summary
