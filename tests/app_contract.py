@@ -29,7 +29,6 @@ from aiohttp import ClientSession, web
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import analizador as an  # noqa: E402
-import device_volume  # noqa: E402
 from app import sources  # noqa: E402
 from app.processing import Processor  # noqa: E402
 from app.server import Engine, create_app  # noqa: E402
@@ -359,7 +358,9 @@ async def contract(tmp):
 
 def volumes():
     """The volume saved in condiciones.json, read from Core Audio for any device, against two references on this
-    Mac: osascript, which only knows the default input, and Core Audio's own conversion of that volume to dB."""
+    Mac: osascript, which only knows the default input, and Core Audio's own conversion of that volume to dB.
+    device_volume.py only exists on macOS, so it is imported here and this check only runs there."""
+    import device_volume
     import sounddevice as sd
     name = sd.query_devices(kind="input")["name"]
     r = subprocess.run(["osascript", "-e", "input volume of (get volume settings)"], capture_output=True, text=True)
@@ -390,7 +391,8 @@ def volumes():
 def main():
     processing()
     devices()
-    volumes()
+    if sys.platform == "darwin":
+        volumes()
     with tempfile.TemporaryDirectory(prefix="app-") as tmp:
         try:
             asyncio.run(contract(Path(tmp)))
