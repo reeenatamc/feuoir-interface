@@ -1,0 +1,664 @@
+{
+  "tomas": [
+    {
+      "toma": "mediciones/2026-09-19-piso-tarjeta-al-aire-2",
+      "tipo": "piso",
+      "que_se_toco": "tarjeta sin nada en la entrada",
+      "duracion_s": 5.0,
+      "pico_dbfs": -58.27,
+      "rms_dbfs": -73.02,
+      "factor_de_cresta_db": 14.76,
+      "red": {
+        "frecuencia_hz": 59.978,
+        "armonicos_dbfs_pico": [
+          -107.9,
+          -111.2,
+          -124.6,
+          -120.9,
+          -121.5,
+          -119.7,
+          -132.7,
+          -126.2,
+          -119.6,
+          -127.9
+        ],
+        "zumbido_rms_dbfs": -106.54,
+        "residuo_rms_dbfs": -73.02
+      },
+      "espectro_promediado": {
+        "maximo_hz": 16002.0,
+        "maximo_dbfs": -81.6,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-piso-tarjeta-al-aire-3",
+      "tipo": "piso",
+      "que_se_toco": "tarjeta sin nada en la entrada, ruido en el cuarto",
+      "duracion_s": 5.0,
+      "pico_dbfs": -59.18,
+      "rms_dbfs": -73.18,
+      "factor_de_cresta_db": 13.99,
+      "red": {
+        "frecuencia_hz": 60.031,
+        "armonicos_dbfs_pico": [
+          -105.3,
+          -117.2,
+          -121.0,
+          -113.7,
+          -120.4,
+          -118.6,
+          -116.4,
+          -119.4,
+          -119.4,
+          -119.9
+        ],
+        "zumbido_rms_dbfs": -105.36,
+        "residuo_rms_dbfs": -73.18
+      },
+      "espectro_promediado": {
+        "maximo_hz": 16002.0,
+        "maximo_dbfs": -79.5,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-piso-con-guitarra-2",
+      "tipo": "piso",
+      "que_se_toco": "guitarra en volumen 0, Mac con cargador",
+      "duracion_s": 5.0,
+      "pico_dbfs": -36.72,
+      "rms_dbfs": -43.83,
+      "factor_de_cresta_db": 7.1,
+      "red": {
+        "frecuencia_hz": 60.048,
+        "armonicos_dbfs_pico": [
+          -41.7,
+          -49.0,
+          -75.7,
+          -58.2,
+          -66.6,
+          -65.7,
+          -79.6,
+          -66.4,
+          -72.5,
+          -80.7
+        ],
+        "zumbido_rms_dbfs": -43.87,
+        "residuo_rms_dbfs": -64.1
+      },
+      "espectro_promediado": {
+        "maximo_hz": 58.6,
+        "maximo_dbfs": -75.5,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-piso-con-guitarra-3",
+      "tipo": "piso",
+      "que_se_toco": "guitarra en volumen 0, Mac con cargador, conexión revisada",
+      "duracion_s": 5.0,
+      "pico_dbfs": -32.78,
+      "rms_dbfs": -42.28,
+      "factor_de_cresta_db": 9.5,
+      "red": {
+        "frecuencia_hz": 60.012,
+        "armonicos_dbfs_pico": [
+          -40.2,
+          -47.4,
+          -73.6,
+          -56.7,
+          -65.2,
+          -64.2,
+          -77.0,
+          -65.0,
+          -72.0,
+          -78.3
+        ],
+        "zumbido_rms_dbfs": -42.35,
+        "residuo_rms_dbfs": -60.32
+      },
+      "espectro_promediado": {
+        "maximo_hz": 58.6,
+        "maximo_dbfs": -73.0,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-piso-con-guitarra-4",
+      "tipo": "piso",
+      "que_se_toco": "guitarra en volumen 0, Mac a batería",
+      "duracion_s": 5.0,
+      "pico_dbfs": -50.31,
+      "rms_dbfs": -60.07,
+      "factor_de_cresta_db": 9.76,
+      "red": {
+        "frecuencia_hz": 60.04,
+        "armonicos_dbfs_pico": [
+          -57.6,
+          -73.7,
+          -79.6,
+          -86.8,
+          -83.8,
+          -81.6,
+          -85.7,
+          -85.4,
+          -82.3,
+          -88.1
+        ],
+        "zumbido_rms_dbfs": -60.37,
+        "residuo_rms_dbfs": -71.8
+      },
+      "espectro_promediado": {
+        "maximo_hz": 16002.0,
+        "maximo_dbfs": -79.9,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-rasgueo-fuerte",
+      "tipo": "rasgueo",
+      "que_se_toco": "rasgueo fuerte, medir.py",
+      "duracion_s": 5.0,
+      "pico_dbfs": -39.91,
+      "rms_dbfs": -56.54,
+      "factor_de_cresta_db": 16.63,
+      "red": {
+        "frecuencia_hz": 60.043,
+        "armonicos_dbfs_pico": [
+          -61.3,
+          -77.5,
+          -84.1,
+          -94.2,
+          -87.1,
+          -85.0,
+          -89.7,
+          -92.1,
+          -86.7,
+          -91.3
+        ],
+        "zumbido_rms_dbfs": -64.12,
+        "residuo_rms_dbfs": -57.38
+      },
+      "espectro_promediado": {
+        "maximo_hz": 23.4,
+        "maximo_dbfs": -68.8,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 18000,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-rasgueo-fuerte-2",
+      "tipo": "rasgueo",
+      "que_se_toco": "rasgueo fuerte continuo, medir.py",
+      "duracion_s": 12.0,
+      "pico_dbfs": -52.47,
+      "rms_dbfs": -61.31,
+      "factor_de_cresta_db": 8.84,
+      "red": {
+        "frecuencia_hz": 59.976,
+        "armonicos_dbfs_pico": [
+          -58.9,
+          -75.7,
+          -81.2,
+          -89.6,
+          -85.9,
+          -83.7,
+          -88.5,
+          -90.0,
+          -85.1,
+          -91.5
+        ],
+        "zumbido_rms_dbfs": -61.7,
+        "residuo_rms_dbfs": -72.01
+      },
+      "espectro_promediado": {
+        "maximo_hz": 16002.0,
+        "maximo_dbfs": -79.9,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-rasgueo-suave",
+      "tipo": "rasgueo",
+      "que_se_toco": "rasgueo suave, medir.py",
+      "duracion_s": 12.0,
+      "pico_dbfs": -29.19,
+      "rms_dbfs": -42.72,
+      "factor_de_cresta_db": 13.54,
+      "red": {
+        "frecuencia_hz": 59.691,
+        "armonicos_dbfs_pico": [
+          -92.8,
+          -74.8,
+          -93.6,
+          -84.9,
+          -94.0,
+          -89.1,
+          -95.8,
+          -94.1,
+          -102.9,
+          -67.6
+        ],
+        "zumbido_rms_dbfs": -69.49,
+        "residuo_rms_dbfs": -42.73
+      },
+      "espectro_promediado": {
+        "maximo_hz": 169.9,
+        "maximo_dbfs": -48.6,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 1125,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": 18006,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-captura",
+      "tipo": "rasgueo",
+      "que_se_toco": "rasgueo fuerte, app",
+      "duracion_s": 5.0,
+      "pico_dbfs": -19.71,
+      "rms_dbfs": -41.21,
+      "factor_de_cresta_db": 21.49,
+      "red": {
+        "frecuencia_hz": 59.806,
+        "armonicos_dbfs_pico": [
+          -84.0,
+          -91.6,
+          -90.8,
+          -89.7,
+          -97.3,
+          -86.0,
+          -83.0,
+          -96.7,
+          -80.6,
+          -82.7
+        ],
+        "zumbido_rms_dbfs": -63.63,
+        "residuo_rms_dbfs": -41.23
+      },
+      "espectro_promediado": {
+        "maximo_hz": 668.0,
+        "maximo_dbfs": -46.2,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 17320,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": 19928,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": null,
+            "tapado_por_el_piso": false
+          }
+        ]
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-captura-2",
+      "tipo": "nota",
+      "que_se_toco": "cuerda grave al aire, app",
+      "duracion_s": 5.0,
+      "pico_dbfs": -28.49,
+      "rms_dbfs": -39.71,
+      "factor_de_cresta_db": 11.22,
+      "red": {
+        "frecuencia_hz": 59.967,
+        "armonicos_dbfs_pico": [
+          -74.6,
+          -87.2,
+          -91.4,
+          -95.3,
+          -92.8,
+          -98.6,
+          -102.5,
+          -102.0,
+          -111.3,
+          -90.4
+        ],
+        "zumbido_rms_dbfs": -76.82,
+        "residuo_rms_dbfs": -39.71
+      },
+      "espectro_promediado": {
+        "maximo_hz": 76.2,
+        "maximo_dbfs": -37.4,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 223,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": 1805,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": 3123,
+            "tapado_por_el_piso": false
+          }
+        ]
+      },
+      "fundamental": {
+        "frecuencia_hz": 74.44,
+        "nota": "Re2",
+        "cents": 23.9
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-captura-3",
+      "tipo": "nota",
+      "que_se_toco": "nota sin identificar, app",
+      "duracion_s": 5.0,
+      "pico_dbfs": -16.35,
+      "rms_dbfs": -39.52,
+      "factor_de_cresta_db": 23.17,
+      "red": {
+        "frecuencia_hz": 59.804,
+        "armonicos_dbfs_pico": [
+          -91.4,
+          -84.2,
+          -82.0,
+          -79.9,
+          -93.6,
+          -70.3,
+          -65.4,
+          -87.4,
+          -101.3,
+          -94.3
+        ],
+        "zumbido_rms_dbfs": -65.22,
+        "residuo_rms_dbfs": -39.53
+      },
+      "espectro_promediado": {
+        "maximo_hz": 392.6,
+        "maximo_dbfs": -43.5,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 1799,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": 4705,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": 19945,
+            "tapado_por_el_piso": true
+          }
+        ]
+      },
+      "fundamental": {
+        "frecuencia_hz": 389.42,
+        "nota": "Sol4",
+        "cents": -11.4
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-captura-4",
+      "tipo": "nota",
+      "que_se_toco": "cuerda aguda, app",
+      "duracion_s": 5.0,
+      "pico_dbfs": -34.86,
+      "rms_dbfs": -50.09,
+      "factor_de_cresta_db": 15.23,
+      "red": {
+        "frecuencia_hz": 60.031,
+        "armonicos_dbfs_pico": [
+          -86.8,
+          -96.1,
+          -96.7,
+          -107.6,
+          -108.4,
+          -87.4,
+          -106.0,
+          -107.4,
+          -108.6,
+          -94.1
+        ],
+        "zumbido_rms_dbfs": -72.18,
+        "residuo_rms_dbfs": -50.12
+      },
+      "espectro_promediado": {
+        "maximo_hz": 656.2,
+        "maximo_dbfs": -48.4,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 1658,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": 12334,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": 19904,
+            "tapado_por_el_piso": true
+          }
+        ]
+      },
+      "fundamental": {
+        "frecuencia_hz": 330.29,
+        "nota": "Mi4",
+        "cents": 3.5
+      }
+    },
+    {
+      "toma": "mediciones/2026-09-19-captura-5",
+      "tipo": "nota",
+      "que_se_toco": "cuerda aguda, app",
+      "duracion_s": 5.0,
+      "pico_dbfs": -32.04,
+      "rms_dbfs": -49.05,
+      "factor_de_cresta_db": 17.01,
+      "red": {
+        "frecuencia_hz": 60.199,
+        "armonicos_dbfs_pico": [
+          -85.0,
+          -97.3,
+          -100.0,
+          -103.6,
+          -99.4,
+          -99.6,
+          -104.7,
+          -110.8,
+          -103.4,
+          -108.3
+        ],
+        "zumbido_rms_dbfs": -75.45,
+        "residuo_rms_dbfs": -49.06
+      },
+      "espectro_promediado": {
+        "maximo_hz": 656.2,
+        "maximo_dbfs": -47.7,
+        "puntos": [
+          {
+            "caida_db": 20.0,
+            "frecuencia_hz": 3645,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 40.0,
+            "frecuencia_hz": 9973,
+            "tapado_por_el_piso": false
+          },
+          {
+            "caida_db": 60.0,
+            "frecuencia_hz": 19939,
+            "tapado_por_el_piso": true
+          }
+        ]
+      },
+      "fundamental": {
+        "frecuencia_hz": 333.1,
+        "nota": "Mi4",
+        "cents": 18.1
+      }
+    }
+  ],
+  "piso": {
+    "tarjeta_sola_rms_dbfs": -73.1,
+    "guitarra_en_volumen_0": {
+      "a_bateria": {
+        "toma": "mediciones/2026-09-19-piso-con-guitarra-4",
+        "rms_dbfs": -60.07,
+        "sobre_la_tarjeta_db": 13.03,
+        "zumbido_rms_dbfs": -60.37,
+        "residuo_rms_dbfs": -71.8,
+        "residuo_sobre_la_tarjeta_db": 1.3
+      },
+      "con_cargador": {
+        "toma": "mediciones/2026-09-19-piso-con-guitarra-2",
+        "rms_dbfs": -43.83,
+        "sobre_la_tarjeta_db": 29.27,
+        "zumbido_rms_dbfs": -43.87,
+        "residuo_rms_dbfs": -64.1,
+        "residuo_sobre_la_tarjeta_db": 9.0
+      },
+      "con_cargador_2": {
+        "toma": "mediciones/2026-09-19-piso-con-guitarra-3",
+        "rms_dbfs": -42.28,
+        "sobre_la_tarjeta_db": 30.82,
+        "zumbido_rms_dbfs": -42.35,
+        "residuo_rms_dbfs": -60.32,
+        "residuo_sobre_la_tarjeta_db": 12.78
+      }
+    }
+  }
+}

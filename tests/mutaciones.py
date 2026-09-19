@@ -69,6 +69,21 @@ MUTACIONES = [
      "+ 1e-9)) + 1", "+ 1e-9)) + 2"),
     ("respuesta_con_fase_invertida", "fase de la respuesta en frecuencia restada al revés",
      'sal["fase_rad"] - ent["fase_rad"]', 'ent["fase_rad"] - sal["fase_rad"]'),
+    ("crest_sin_restar_el_rms", "factor de cresta que se queda con el pico, sin restar el RMS",
+     "return pico_dbfs(x) - rms_dbfs(x)", "return pico_dbfs(x)"),
+    ("averaged_spectrum_sin_factor_2", "espectro promediado de un solo lado sin el factor 2",
+     "20*np.log10(np.sqrt(2*power) + EPS)", "20*np.log10(np.sqrt(power) + EPS)"),
+    ("rolloff_primera_frecuencia_en_vez_de_la_ultima", "caída espectral que toma la primera frecuencia que cumple en vez de la última",
+     "last = int(above[-1])", "last = int(above[0])"),
+    ("remove_mains_sin_refinar_frecuencia", "frecuencia de red que se queda en el mejor punto de la rejilla, sin el refinamiento fino",
+     "mains_hz = float(result.x)", "mains_hz = float(best)"),
+    ("fundamental_sin_producto_armonico", "fundamental por HPS con un solo factor, que es lo mismo que no usar HPS",
+     "def fundamental(x, fs, fmin=60.0, fmax=1400.0, factors=4, min_prominence_db=20.0, max_below_peak_db=30.0):",
+     "def fundamental(x, fs, fmin=60.0, fmax=1400.0, factors=1, min_prominence_db=20.0, max_below_peak_db=30.0):"),
+    ("fundamental_prominencia_invertida", "corrección de octava que exige la prominencia al revés y nunca baja de octava",
+     "peak_db >= median_db + min_prominence_db", "peak_db <= median_db + min_prominence_db"),
+    ("nota_octava_sin_el_menos_uno", "octava de la nota calculada sin el -1 de la notación científica",
+     "octave = midi//12 - 1", "octave = midi//12"),
 ]
 
 # Los archivos que necesita tests/app_contract.py para correr en una carpeta aparte

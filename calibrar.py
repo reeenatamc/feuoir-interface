@@ -176,6 +176,209 @@ def test_snr():
                   banda_hz=None if banda is None else list(banda))
 
 
+# Guitar and mains
+
+def test_crest_factor_db():
+    fs = 48000
+    t = np.arange(fs) / fs
+    seno = np.sin(2*np.pi*1000*t)
+    cuadrada = np.sign(np.sin(2*np.pi*1000*t))
+    c = dict(fs_hz=fs, frecuencia_hz=1000, duracion_s=1.0)
+    verificar("crest_factor_db_seno", an.crest_factor_db(seno), 3.01, 1e-2, "dB", **c)
+    verificar("crest_factor_db_cuadrada", an.crest_factor_db(cuadrada), 0.0, 1e-2, "dB", **c)
+
+
+def test_averaged_spectrum():
+    fs, n_fft = 48000, 8192
+    t = np.arange(int(fs*5.0)) / fs
+    for A in (1.0, 0.3):
+        k = 100
+        f0 = k*fs/n_fft            # exact bin of an n_fft-point FFT
+        x = A*np.sin(2*np.pi*f0*t)
+        f, db = an.averaged_spectrum(x, fs, n_fft)
+        i = int(np.argmin(np.abs(f - f0)))
+        verificar("pico_averaged_spectrum_dbfs", db[i], 20*np.log10(A), 0.01, "dBFS",
+                  fs_hz=fs, n_fft=n_fft, frecuencia_hz=f0, amplitud=A)
+
+    # White noise: the expected power per bin follows from Welch's own normalization
+    # (spectrum scaling, one-sided): 2*sigma^2*sum(w^2)/sum(w)^2, w the Hann window of
+    # n_fft samples. The tolerance comes from the number of segments Welch averages
+    # (50% overlap, so step = n_fft/2) times the bins compared, which sets how much the
+    # averaged power estimate is expected to wander around that value.
+    fs, n_fft, duracion, sigma, semilla = 48000, 8192, 5.0, 0.01, 999
+    n = int(fs*duracion)
+    x = np.random.default_rng(semilla).normal(0.0, sigma, n)
+    f, db = an.averaged_spectrum(x, fs, n_fft)
+    w = signal.get_window("hann", n_fft)
+    ganancia = np.sum(w**2) / np.sum(w)**2
+    esperado_db = 10*np.log10(4*sigma**2*ganancia)
+
+    banda = (f > 100) & (f < 20000)
+    potencia_media = np.mean(10**(db[banda]/10) / 2)
+    obtenido_db = 10*np.log10(2*potencia_media)
+
+    step = n_fft - n_fft//2
+    segmentos = 1 + (n - n_fft)//step
+    tol = 4*4.343/np.sqrt(segmentos*np.count_nonzero(banda)/1.5)   # /1.5: bins correlated by 50% Hann overlap
+    verificar("ruido_promedio_por_bin_dbfs", obtenido_db, esperado_db, tol, "dBFS",
+              fs_hz=fs, n_fft=n_fft, duracion_s=duracion, desviacion=sigma, semilla=semilla,
+              segmentos=segmentos, ventana="hann")
+
+
+def test_rolloff_points():
+    # First-order lowpass, db = -10*log10(1+(f/fc)^2): the reference is at f=0 (0 dB),
+    # so the point at drop N lands exactly at fc*sqrt(10**(N/10)-1).
+    fc = 200.0
+    f = np.arange(0.0, 20000.0 + 1.0, 1.0)
+    db = -10*np.log10(1 + (f/fc)**2)
+    r = an.rolloff_points(f, db, drops_db=(20, 40, 60), band=(0.0, 20000.0))
+    c = dict(fc_hz=fc, banda_hz=[0.0, 20000.0])
+    verificar("rolloff_referencia_hz", r["reference_hz"], 0.0, 1e-9, "Hz", **c)
+    verificar("rolloff_referencia_db", r["reference_db"], 0.0, 1e-9, "dB", **c)
+    for punto, N in zip(r["points"], (20, 40, 60)):
+        esperado = fc*np.sqrt(10**(N/10) - 1)
+        cc = dict(c, drop_db=N)
+        if esperado <= 20000.0:
+            verificar("rolloff_frecuencia_hz", punto["frequency_hz"], esperado, 1.0, "Hz", **cc)
+            verificar("rolloff_no_limitado_por_piso", punto["limited_by_floor"], 0, 0, "", **cc)
+        else:
+            verificar("rolloff_fuera_de_banda_es_none", punto["frequency_hz"] is None, 1, 0, "", **cc)
+
+    # A noise floor high enough to sit above the -60 dB point hides whether the signal
+    # really dropped that far; a floor well below it does not.
+    fc = 15.0
+    db = -10*np.log10(1 + (f/fc)**2)
+    esperado60 = fc*np.sqrt(10**(60/10) - 1)
+    c = dict(fc_hz=fc, banda_hz=[0.0, 20000.0], drop_db=60, frecuencia_hz=esperado60)
+    piso_bajo = an.rolloff_points(f, db, drops_db=(60,), band=(0.0, 20000.0),
+                                   floor_db=np.full_like(f, -100.0))["points"][0]
+    piso_alto = an.rolloff_points(f, db, drops_db=(60,), band=(0.0, 20000.0),
+                                   floor_db=np.full_like(f, -30.0))["points"][0]
+    verificar("rolloff_piso_bajo_no_limita", piso_bajo["limited_by_floor"], 0, 0, "", piso_dbfs=-100.0, **c)
+    verificar("rolloff_piso_alto_limita", piso_alto["limited_by_floor"], 1, 0, "", piso_dbfs=-30.0, **c)
+
+
+def test_remove_mains():
+    fs, duracion, sigma, semilla = 48000, 4.0, 10**(-70/20), 20260913
+    n = int(fs*duracion)
+    t = np.arange(n) / fs
+    rng = np.random.default_rng(semilla)
+    ruido = rng.normal(0.0, sigma, n)
+
+    f_red = 60.037
+    amplitud_db = {1: -40.0, 2: -50.0, 4: -60.0}   # el 3 queda ausente a propósito
+    fases = {k: rng.uniform(0, 2*np.pi) for k in amplitud_db}
+    zumbido = sum(10**(amplitud_db[k]/20)*np.sin(2*np.pi*k*f_red*t + fases[k]) for k in amplitud_db)
+    x = ruido + zumbido
+
+    r = an.remove_mains(x, fs)
+    c = dict(fs_hz=fs, duracion_s=duracion, frecuencia_red_hz=f_red, desviacion_ruido=sigma, semilla=semilla,
+              armonicos_db=amplitud_db)
+    verificar("remove_mains_frecuencia_hz", r["mains_hz"], f_red, 0.002, "Hz", **c)
+    for k, adb in amplitud_db.items():
+        verificar("remove_mains_armonico_dbfs", r["harmonic_dbfs"][k - 1], adb, 0.1, "dBFS", armonico=k, **c)
+    verificar("remove_mains_armonico_ausente_bajo", r["harmonic_dbfs"][2] < -90.0, 1, 0, "", armonico=3, **c)
+
+    ruido_rms_db = an.rms_dbfs(ruido)
+    verificar("remove_mains_residual_rms_dbfs", r["residual_rms_dbfs"], ruido_rms_db, 0.1, "dBFS", **c)
+    amplitudes = np.array([10**(adb/20) for adb in amplitud_db.values()])
+    zumbido_rms_db = float(20*np.log10(np.sqrt(np.sum(amplitudes**2)/2)))
+    verificar("remove_mains_hum_rms_dbfs", r["hum_rms_dbfs"], zumbido_rms_db, 0.1, "dBFS", **c)
+
+    # Sin zumbido, el ajuste no tiene nada que quitar y el residuo queda igual al ruido.
+    r2 = an.remove_mains(ruido, fs)
+    verificar("remove_mains_sin_zumbido_residual_igual_al_ruido", r2["residual_rms_dbfs"], ruido_rms_db, 0.05, "dBFS", **c)
+
+
+def test_fundamental():
+    fs, duracion, B = 48000, 3.0, 1e-4
+    n = int(fs*duracion)
+    t = np.arange(n) / fs
+
+    def cuerda(f0, amplitud_db_por_parcial, semilla):
+        rng = np.random.default_rng(semilla)
+        x = np.zeros(n)
+        frecuencias = {}
+        for k, adb in amplitud_db_por_parcial.items():
+            fk = k*f0*np.sqrt(1 + B*k**2)
+            frecuencias[k] = fk
+            x += 10**(adb/20)*np.sin(2*np.pi*fk*t + rng.uniform(0, 2*np.pi))
+        x *= np.exp(-t/1.0)
+        x += rng.normal(0.0, 10**(-80/20), n)
+        return x, frecuencias
+
+    # Cuerda aguda: el 2do parcial es el más fuerte y la fundamental queda 12 dB abajo.
+    amplitudes = {1: -32.0, 2: -20.0, 3: -26.0, 4: -32.0, 5: -38.0, 6: -44.0, 7: -50.0, 8: -56.0}
+    x, frecuencias = cuerda(329.63, amplitudes, semilla=42)
+    c = dict(fs_hz=fs, duracion_s=duracion, f0_hz=329.63, inarmonicidad_B=B, amplitudes_db=amplitudes)
+    verificar("fundamental_cuerda_aguda_hz", an.fundamental(x, fs), frecuencias[1], 0.5, "Hz", **c)
+    # frecuencia_dominante() se deja engañar por el 2do parcial, que es 12 dB más fuerte: por
+    # eso hace falta fundamental().
+    verificar("frecuencia_dominante_da_el_segundo_parcial", an.frecuencia_dominante(x, fs), frecuencias[2],
+              0.5, "Hz", **c)
+
+    # Cuerda grave: el 2do y el 3er parcial son más fuertes que la fundamental.
+    amplitudes2 = {1: -40.0, 2: -20.0, 3: -20.0, 4: -30.0, 5: -36.0, 6: -42.0, 7: -48.0, 8: -54.0}
+    x2, frecuencias2 = cuerda(82.41, amplitudes2, semilla=7)
+    c2 = dict(c, f0_hz=82.41, amplitudes_db=amplitudes2)
+    verificar("fundamental_cuerda_grave_hz", an.fundamental(x2, fs), frecuencias2[1], 0.5, "Hz", **c2)
+
+
+def test_fundamental_correccion_octava():
+    # Cuerda sintética como la toma real que motivó la corrección: parcial 2 de referencia, la
+    # fundamental 16 dB abajo, los impares 3, 5 y 7 débiles y los pares bajando. Con la
+    # inarmonicidad de una cuerda aguda (B = 1e-5) el HPS puro se engancha en la octava de
+    # arriba; con B = 1e-4 los parciales altos se corren fuera de los bins que el HPS
+    # multiplica y el error no aparece, así que la prueba no ejercitaría la corrección.
+    fs, duracion, B = 48000, 2.0, 1e-5
+    n = int(fs*duracion)
+    t = np.arange(n) / fs
+    f0 = 329.63
+    amplitudes_db = {1: -16.0, 2: 0.0, 3: -35.0, 4: -10.0, 5: -35.0, 6: -20.0, 7: -35.0, 8: -30.0}
+    frecuencias = {k: k*f0*np.sqrt(1 + B*k**2) for k in amplitudes_db}
+    rng = np.random.default_rng(2026)
+    x = np.zeros(n)
+    for k, adb in amplitudes_db.items():
+        x += 10**(adb/20)*np.sin(2*np.pi*frecuencias[k]*t + rng.uniform(0, 2*np.pi))
+    x += rng.normal(0.0, 10**(-90/20), n)
+    c = dict(fs_hz=fs, duracion_s=duracion, f0_hz=f0, inarmonicidad_B=B, amplitudes_db=amplitudes_db)
+    verificar("fundamental_sin_correccion_da_la_octava_de_arriba",
+              an.fundamental(x, fs, min_prominence_db=np.inf), frecuencias[2], 1.0, "Hz", **c)
+    verificar("fundamental_con_correccion_da_la_fundamental",
+              an.fundamental(x, fs), frecuencias[1], 0.5, "Hz", **c)
+
+    # Un tono con armónicos propios (para que el HPS puro ya acierte) más ruido en f/2, sin
+    # ninguna línea real ahí: la corrección no debe confundir el ruido con la fundamental.
+    f0b = 800.0
+    amplitudes_db_b = {1: 0.0, 2: -6.0, 3: -9.0, 4: -12.0}
+    frecuencias_b = {k: k*f0b*np.sqrt(1 + B*k**2) for k in amplitudes_db_b}
+    rng2 = np.random.default_rng(2027)
+    x2 = np.zeros(n)
+    for k, adb in amplitudes_db_b.items():
+        x2 += 10**(adb/20)*np.sin(2*np.pi*frecuencias_b[k]*t + rng2.uniform(0, 2*np.pi))
+    x2 += rng2.normal(0.0, 10**(-40/20), n)
+    verificar("fundamental_ruido_en_f_medios_no_baja_de_octava", an.fundamental(x2, fs, fmin=60.0, fmax=1400.0),
+              frecuencias_b[1], 1.0, "Hz", fs_hz=fs, duracion_s=duracion, f0_hz=f0b, ruido_dbfs=-40.0)
+
+
+def test_note_name():
+    for freq, esperado_midi, esperado_cents, nombre, nombre_en in (
+        (440.0, 69, 0.0, "La4", "A4"),
+        (329.63, 64, 0.0, "Mi4", "E4"),
+        (82.41, 40, 0.0, "Mi2", "E2"),
+        (333.0, 64, 17.6, "Mi4", "E4"),
+        (261.63, 60, 0.0, "Do4", "C4"),
+    ):
+        r = an.note_name(freq)
+        c = dict(frecuencia_hz=freq, a4_hz=440.0)
+        verificar("note_name_midi", r["midi"], esperado_midi, 0, "", **c)
+        verificar("note_name_cents", r["cents"], esperado_cents, 0.1, "cents", **c)
+        verificar("note_name_nombre", r["name"] == nombre, 1, 0, "", nombre_obtenido=r["name"],
+                  nombre_esperado=nombre, **c)
+        verificar("note_name_nombre_en", r["name_en"] == nombre_en, 1, 0, "", nombre_obtenido=r["name_en"],
+                  nombre_esperado=nombre_en, **c)
+
+
 # Generadores
 
 def test_generador_tono():
@@ -327,6 +530,13 @@ PRUEBAS = [
     test_generador_tono,
     test_generador_barrido_log,
     test_barrido_escalonado_y_respuesta,
+    test_crest_factor_db,
+    test_averaged_spectrum,
+    test_rolloff_points,
+    test_remove_mains,
+    test_fundamental,
+    test_fundamental_correccion_octava,
+    test_note_name,
 ]
 
 

@@ -2,7 +2,7 @@
 
 Interfaz de audio USB propia, para guitarra. Una Raspberry Pi Pico (RP2040) toma el audio de un ADC PCM1808 y lo manda a la Mac por USB, y recibe audio de la Mac para un DAC PCM5102A. Antes de diseñar la parte analógica hay que conocer la señal que va a recibir: cuánto voltaje entrega la guitarra, hasta qué frecuencia tiene energía y cuánto ruido trae. El repo empieza por las herramientas para medir eso y por el diseño de la parte digital, verificado sin hardware.
 
-Al 2026-09-19 el Pico está probado en una placa: el reloj maestro sale por GP21 y la Mac lo reconoce como micrófono USB con un tono de prueba. Los módulos del ADC y del DAC todavía no llegaron. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
+Al 2026-09-19 el Pico está probado en una placa: el reloj maestro sale por GP21 y la Mac lo reconoce como micrófono USB con un tono de prueba. La guitarra está grabada con una tarjeta de sonido USB y analizada: zumbido de la red, espectro, caída y notas (docs/bitacora.md, entrada 34). Los módulos del ADC y del DAC todavía no llegaron. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
 
 Las mediciones se hacen en dos máquinas: la Mac, donde empezó el repo, y una laptop ASUS con Windows, con una tarjeta de sonido USB externa. Las dos usan los mismos scripts, y cada medición guarda el sistema operativo, la API de audio y el nivel de entrada, que es lo que hace falta para poder compararlas (docs/configuracion-windows.md).
 
@@ -18,7 +18,7 @@ Las mediciones se hacen en dos máquinas: la Mac, donde empezó el repo, y una l
 | Parte | Estado | Probado | Sin probar |
 |---|---|---|---|
 | medir.py y dispositivos.py | funcionan en la Mac y en Windows | con la tarjeta USB y la guitarra en la Mac el 2026-09-19 (docs/bitacora.md, entrada 30); en Windows corren por WASAPI a 48 kHz y guardan su carpeta, comprobado con una captura de prueba que no se conservó (docs/bitacora.md, entrada 29) | la guitarra con la carga de la etapa de entrada; la tarjeta de sonido USB y la guitarra en Windows |
-| analizador.py | cubre lo que se necesita hasta ahora | calibrar.py: 13 pruebas y 180 chequeos con señales sintéticas; tests/mutaciones.py detecta los 20 errores inyectados | nunca se usó con una captura de hardware |
+| analizador.py | cubre lo que se necesita hasta ahora, y el análisis de la guitarra | calibrar.py: 20 pruebas y 228 chequeos con señales sintéticas; tests/mutaciones.py detecta los 27 errores inyectados; usado con las tomas de guitarra del 2026-09-19 (docs/bitacora.md, entrada 34) | una captura de la interfaz |
 | Reloj maestro | elegido: GPOUT0 con DC50 | búsqueda exhaustiva de configuraciones con relojes.py; firmware/feuoir compila sin avisos | en una placa |
 | Verificación del reloj | funciona en la placa | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; en el Pico el 2026-09-19: PLL en 61440000 Hz y 12288000 Hz en GP20 por R1, con 0.0 ppm (docs/bitacora.md, entrada 32) | con los módulos conectados |
 | Jitter | simulado, con la prueba lista | jitter.py: 19 casos contra la teoría; prueba_jitter validada con jitter conocido | la comparación entre GPOUT0 y el oscilador externo |
@@ -39,6 +39,7 @@ Hasta que lleguen los módulos, el firmware nuevo se prueba en el Pico solo, con
 ```
 medir.py               captura de una entrada de audio, en la Mac o en Windows
 analizador.py          análisis y señales de prueba
+guitar_report.py       análisis de las tomas de guitarra: zumbido de la red, espectro, caída y nota
 calibrar.py            verificación del análisis con señales sintéticas
 relojes.py             búsqueda de configuraciones del reloj maestro
 jitter.py              simulación del efecto del jitter
@@ -137,6 +138,22 @@ El análisis y las señales de prueba. medir.py lo importa y calibrar.py lo veri
 - respuesta_en_frecuencia: nivel, ganancia y fase de cada tono de un barrido escalonado, relativos a la captura de entrada del circuito.
 - prueba_jitter: con una captura por tono de 1 a 10 kHz, mide THD+N en una banda fija alrededor de cada tono, ajusta cuánto crece con la frecuencia y responde si el patrón es compatible con jitter. Da también la pendiente en dB por década y un jitter RMS equivalente.
 - tono, barrido_log, frecuencias_log y barrido_escalonado: señales para excitar el circuito cuando exista.
+- crest_factor_db: pico menos RMS. Un seno da 3.01 dB.
+- averaged_spectrum: espectro promediado de Welch, en la misma escala que espectro, con menos varianza en capturas con ruido.
+- rolloff_points: la frecuencia más alta que sigue a menos de 20, 40 o 60 dB del máximo del espectro. Con el espectro del piso marca los puntos que el piso no deja ver.
+- remove_mains: ajusta el zumbido de la red, 60 Hz y 40 armónicos, por mínimos cuadrados en el tiempo y lo resta. Busca la frecuencia real de la red en ±0.3 Hz.
+- fundamental: la fundamental de una nota por producto armónico, con una corrección de octava para cuando la fundamental es mucho más débil que el segundo armónico.
+- note_name: la nota más cercana a una frecuencia, en solfeo y en inglés, con el desvío en cents.
+
+## guitar_report.py
+
+Analiza las tomas de guitarra del 2026-09-19 y guarda el resultado en mediciones/<fecha>-analisis-guitarra/:
+
+```
+.venv/bin/python guitar_report.py
+```
+
+Por toma: pico, RMS y factor de cresta; el zumbido de la red y lo que queda sin él; el espectro promediado sin la red, con sus puntos de -20, -40 y -60 dB contra el piso de la tarjeta; y, en las tomas de una sola cuerda, la fundamental y la nota. Compara además la tarjeta sola con la guitarra conectada en volumen 0, a batería y con cargador. La lista de tomas y lo que se tocó en cada una está en el script. Los .wav no se versionan, así que corre en la Mac donde se grabaron.
 
 ## calibrar.py
 
@@ -160,7 +177,7 @@ Ninguna función entra a analizador.py sin su prueba en calibrar.py, y cada capa
 
 ### Errores inyectados
 
-tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia analizador.py a una carpeta temporal, le inyecta 20 errores, uno a la vez (RMS sin raíz, pico sin valor absoluto, fase con el signo invertido, entre otros), y corre calibrar.py sobre cada copia: todas tienen que fallar. Antes corre una copia sin cambios como control, que tiene que pasar.
+tests/mutaciones.py comprueba que calibrar.py sigue atrapando errores. Copia analizador.py a una carpeta temporal, le inyecta 27 errores, uno a la vez (RMS sin raíz, pico sin valor absoluto, fase con el signo invertido, entre otros), y corre calibrar.py sobre cada copia: todas tienen que fallar. Antes corre una copia sin cambios como control, que tiene que pasar.
 
 ```
 .venv/bin/python tests/mutaciones.py

@@ -641,3 +641,32 @@ Qué queda abierto:
 - Con el ritmo del USB, la frecuencia del tono no dice nada del reloj: la Mac cuenta muestras. La variante con el ritmo del reloj de audio, que ejercita el ajuste de 47, 48 y 49 muestras por paquete de docs/audio-usb.md, queda por hacer.
 - La comparación muestra a muestra se hizo a mano en la sesión; no es todavía una herramienta del repo con su prueba y su mutación.
 - VID y PID de desarrollo de TinyUSB.
+
+## Entrada 34: análisis de las tomas de guitarra (2026-09-19)
+
+Qué se hizo: el análisis de las tomas de la entrada 30, con funciones nuevas en analizador.py y un script que las recorre, guitar_report.py. Resultado en mediciones/2026-09-19-analisis-guitarra.
+
+Condiciones: las de la entrada 30. Datos de la guitarra informados después de grabar: Yamaha ERG121C, pastillas HSH cerámicas y pasivas. El largo del cable y la posición del selector en cada toma no están registrados.
+
+Cambios en las herramientas:
+
+- analizador.py suma crest_factor_db, averaged_spectrum, rolloff_points, remove_mains, fundamental y note_name. remove_mains ajusta 60 Hz y 40 armónicos por mínimos cuadrados en el tiempo, buscando la frecuencia real de la red, y los resta: así no hay fuga de la FFT hacia el residuo.
+- fundamental usa el producto armónico. En captura-5 dio 657.8 Hz, una octava arriba, porque la fundamental estaba 16 dB bajo el segundo armónico. Lleva ahora una corrección de octava: baja si en f/2 hay una línea clara, 20 dB sobre la mediana a su alrededor y a no más de 30 dB del máximo. En esa toma la línea en f/2 estaba 32.9 dB sobre su mediana, y en las tomas donde f/2 no es la fundamental, entre 8.9 y 11.4 dB.
+- calibrar.py pasa a 20 pruebas y 228 chequeos (calibraciones/2026-09-19-calibracion-4). tests/mutaciones.py suma 7 errores al analizador, uno por capacidad nueva y otro para la corrección de octava; las 53 mutaciones fallan (calibraciones/2026-09-19-mutaciones-4).
+
+Resultado:
+
+- Tarjeta sola contra guitarra en volumen 0: la tarjeta da -73.1 dBFS de RMS, y la guitarra a batería -60.1, 13.0 dB más. Sin el zumbido de la red la guitarra queda en -71.8, 1.3 dB sobre la tarjeta: la diferencia es casi toda zumbido. Con el cargador, -43.8 y -42.3, y sin el zumbido todavía -64.1 y -60.3: el cargador mete también ruido que no es de la red. En volumen 0 la pastilla queda a tierra, así que ese zumbido entra por el cable y la tarjeta, no por las pastillas.
+- La red midió entre 60.01 y 60.05 Hz en las tomas con la guitarra en volumen 0. A batería, 60 Hz a -57.6 dBFS de pico y 120 Hz a -73.7. Con cargador, 60 Hz a -40.2 y 120 Hz a -47.4.
+- Factor de cresta: 13.5 dB en el rasgueo suave y 21.5 dB en el fuerte; entre 11.2 y 23.2 dB en las cuerdas sueltas.
+- Notas: captura-2 en 74.44 Hz, Re2 +24 cents: la cuerda grave estaba un tono abajo de Mi2. captura-3 en 389.4 Hz, Sol4 -11 cents. captura-4 en 330.3 Hz, Mi4 +4 cents, y captura-5 en 333.1 Hz, Mi4 +18 cents.
+- Puntos de caída del espectro promediado sin la red: la cuerda grave cae 20 dB en 223 Hz, 40 dB en 1.8 kHz y 60 dB en 3.1 kHz. La cuerda aguda (captura-4) cae 20 dB en 1.66 kHz y 40 dB en 12.3 kHz, y la caída de 60 dB queda tapada por el piso.
+- En los rasgueos los puntos caen entre 17 y 20 kHz. No miden el ancho de banda de la guitarra: el rasgueo fuerte de la app tiene contenido de banda ancha a unos -80 dBFS por bin hasta 18 kHz, 25 dB sobre el piso de la tarjeta, y el punto lo marca una línea aislada.
+
+Qué queda abierto:
+
+- La comparación entre posiciones del selector, para ver si la pastilla simple capta más zumbido que las dobles. Hacen falta tomas nuevas: guitarra en volumen máximo, sin tocar las cuerdas, la Mac a batería, una por posición y con la posición en las notas.
+- De dónde sale la banda ancha del rasgueo fuerte: ruido de la púa y las cuerdas, o el preamplificador de micrófono de la tarjeta.
+- En los agudos, las tomas de la app bajan a -115 a -120 dBFS por bin, bajo el piso de la tarjeta grabado con medir.py, que está en -107. El piso para comparar tiene que grabarse con la misma herramienta que la toma.
+- captura-3: qué se tocó. El análisis dice Sol4.
+- El modelo de la guitarra en la simulación no se ajusta con estas tomas: la entrada de micrófono carga la pastilla, así que se esperan los valores de la calibración de la tarjeta.
