@@ -78,7 +78,7 @@ mediciones/2026-09-13-piso-de-ruido/
 
 condiciones.json registra fecha y hora, dispositivo (nombre e índice según sounddevice), frecuencia de muestreo, duración, volumen de entrada del dispositivo y su ganancia en dB, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
 
-El dispositivo se elige por su nombre con DISPOSITIVO dentro de medir.py, hoy la tarjeta USB (USB PnP Sound Device). El número cambia según lo que esté conectado y el nombre no. dispositivos.py lista las entradas. Si la tarjeta no está conectada, medir.py lo dice y no graba.
+El dispositivo se elige por su nombre con DISPOSITIVO dentro de medir.py, hoy la tarjeta USB (USB PnP Sound Device), o con --dispositivo, por ejemplo --dispositivo feuoir para el Pico. --canal elige cuál de sus canales se analiza y se guarda, desde 1, y queda en condiciones.json. El número cambia según lo que esté conectado y el nombre no. dispositivos.py lista las entradas. Si la tarjeta no está conectada, medir.py lo dice y no graba.
 
 El pico, el RMS y el espectro salen de analizador.py, el mismo código que verifica calibrar.py.
 

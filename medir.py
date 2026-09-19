@@ -16,6 +16,8 @@ p = argparse.ArgumentParser(description="Graba una captura y la guarda en medici
 p.add_argument("etiqueta", help="nombre de la medición, por ejemplo piso-de-ruido")
 p.add_argument("--notas", default="", help="texto libre que se guarda en condiciones.json")
 p.add_argument("--segundos", type=float, default=SEG, help=f"duración de la captura, por defecto {SEG}")
+p.add_argument("--dispositivo", default=DISPOSITIVO, help=f"entrada a grabar, por defecto «{DISPOSITIVO}»")
+p.add_argument("--canal", type=int, default=1, help="canal que se analiza y se guarda, desde 1; por defecto 1")
 args = p.parse_args()
 if not re.fullmatch(r"[\w.-]+", args.etiqueta):
     p.error("la etiqueta solo puede tener letras, números, puntos, guiones y guiones bajos")
@@ -28,7 +30,9 @@ def find_input(name):
     return matches[0]
 
 
-info = find_input(DISPOSITIVO)
+info = find_input(args.dispositivo)
+if not 1 <= args.canal <= info["max_input_channels"]:
+    p.error(f"«{info['name']}» tiene {info['max_input_channels']} canales de entrada; --canal va de 1 a ese número")
 volumen = device_volume.input_volume(info["name"])
 ganancia_db = device_volume.input_gain_db(info["name"])
 if volumen is None:
@@ -38,7 +42,8 @@ else:
 
 ahora = datetime.now().astimezone()
 print(f"Grabando {args.segundos:g} segundos...")
-x = sd.rec(int((SETTLE_S + args.segundos)*FS), samplerate=FS, channels=1, device=info["index"], blocking=True)[int(SETTLE_S*FS):,0]
+x = sd.rec(int((SETTLE_S + args.segundos)*FS), samplerate=FS, channels=args.canal, device=info["index"],
+           blocking=True)[int(SETTLE_S*FS):, args.canal - 1]
 
 base = Path(__file__).resolve().parent / "mediciones" / f"{ahora:%Y-%m-%d}-{args.etiqueta}"
 carpeta, n = base, 2
@@ -56,6 +61,7 @@ condiciones = {
     "fecha_hora": ahora.isoformat(timespec="seconds"),
     "etiqueta": args.etiqueta,
     "dispositivo": {"nombre": info["name"], "indice": info["index"]},
+    "canal": args.canal,
     "frecuencia_muestreo_hz": FS,
     "duracion_s": args.segundos,
     "descartado_al_inicio_s": SETTLE_S,
