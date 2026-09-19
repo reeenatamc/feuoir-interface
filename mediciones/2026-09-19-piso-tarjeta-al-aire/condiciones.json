@@ -1,0 +1,15 @@
+{
+  "fecha_hora": "2026-09-19T09:51:42-05:00",
+  "etiqueta": "piso-tarjeta-al-aire",
+  "dispositivo": {
+    "nombre": "USB PnP Sound Device",
+    "indice": 1
+  },
+  "frecuencia_muestreo_hz": 48000,
+  "duracion_s": 5,
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "pico_dbfs": -28.58,
+  "rms_dbfs": -49.31,
+  "notas": "tarjeta USB PnP 08bb:2902 en el puerto USB de la Mac, sin nada en la entrada de micrófono; grabada por Claude a pedido de Renata"
+}

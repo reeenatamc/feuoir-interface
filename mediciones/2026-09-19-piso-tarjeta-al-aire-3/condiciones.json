@@ -1,0 +1,16 @@
+{
+  "fecha_hora": "2026-09-19T09:56:44-05:00",
+  "etiqueta": "piso-tarjeta-al-aire",
+  "dispositivo": {
+    "nombre": "USB PnP Sound Device",
+    "indice": 1
+  },
+  "frecuencia_muestreo_hz": 48000,
+  "duracion_s": 5,
+  "descartado_al_inicio_s": 1.0,
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "pico_dbfs": -59.18,
+  "rms_dbfs": -73.18,
+  "notas": "tarjeta USB PnP 08bb:2902 sin nada en la entrada de micrófono, tercera toma; Renata haciendo ruido en la habitación mientras se grababa; grabada por Claude a pedido de Renata"
+}

@@ -541,3 +541,31 @@ Qué queda abierto (no se cambió nada del diseño):
 
 - La entrada del PCM1808 pasa su máximo absoluto con ganancia alta y señal fuerte: con ganancia 11 alcanza con 255 mV de pico en la entrada de la etapa. La simulación no tiene los diodos de protección del chip ni lo que traiga el módulo en VINL y VINR. Para discutir con Renata (docs/entrada-analogica.md, para discutir).
 - Cuánto ruido aporta exactamente la corriente del modelo del H: ngspice lo puede separar por fuente, si hace falta.
+
+## Entrada 29: primeras mediciones con la tarjeta USB y la guitarra (2026-09-19)
+
+Qué se midió: el piso de ruido de la tarjeta de sonido USB, el piso con la guitarra conectada, y la guitarra tocando: rasgueo fuerte, rasgueo suave, cuerda grave y cuerda aguda. Las grabó Claude con medir.py y Renata con la app.
+
+Condiciones: tarjeta USB PnP Sound Device (08bb:2902, se anuncia como C-Media y el ID es el del PCM2902 de TI), entrada de micrófono mono a 48 kHz, ganancia de entrada en 0 dB, el mínimo de su rango de 0 a 23.8 dB. Guitarra por adaptador de 6.35 a 3.5 mm. Desde piso-con-guitarra-4, la Mac a batería con el cargador desenchufado. Modelo de la guitarra, pastilla y cable sin informar.
+
+Cambios en las herramientas antes de medir:
+
+- medir.py elegía la entrada por número, y el 0 era ese día el micrófono del iPhone. Ahora la busca por nombre.
+- El volumen de entrada solo se podía leer para la entrada por defecto. device_volume.py lo lee de Core Audio para cualquier dispositivo, junto con la ganancia en dB, y medir.py y la app lo guardan en condiciones.json. La tarjeta marca volumen 0, que es 0 dB de ganancia y no silencio. tests/app_contract.py lo compara con osascript y con la conversión a dB de Core Audio, y tests/mutaciones.py le inyecta 3 errores; las 43 mutaciones fallan (calibraciones/2026-09-19-mutaciones).
+- La tarjeta da un golpe de -28.6 dBFS en el primer medio segundo después de abrir la grabación (mediciones/2026-09-19-piso-tarjeta-al-aire). medir.py graba un segundo de más y lo descarta, y lo anota en descartado_al_inicio_s.
+- medir.py acepta --segundos: con 5 s y la latencia del chat, el rasgueo quedaba fuera de la toma (rasgueo-fuerte y rasgueo-fuerte-2 no tienen rasgueo completo).
+
+Resultado:
+
+- Piso de la tarjeta sin nada conectado: -73.0, -73.0 y -73.2 dBFS de RMS en tres tomas (piso-tarjeta-al-aire-2, piso-con-guitarra con su corrección, y piso-tarjeta-al-aire-3).
+- Con la guitarra conectada en volumen 0 y la Mac con cargador: -42.3 dBFS de RMS, con 60 Hz a -40 dBFS y 120 y 240 Hz más fuertes que 180 Hz. A batería: -60.1 dBFS, con 60 Hz a -57.8 dBFS. Era un lazo de tierra por el cargador (piso-con-guitarra-3 y -4).
+- Rasgueo fuerte, desde la app: pico -19.7 dBFS, RMS -41.2 dBFS (captura). Rasgueo suave, 12 s: pico -29.2 dBFS, RMS -42.7 dBFS (rasgueo-suave). Cuerda grave: pico -28.5 dBFS, fundamental en 74.6 Hz, la cuerda estaba en re o floja (captura-2). captura-3: pico -16.4 dBFS con la dominante en 391 Hz, sin saber qué nota fue. captura-4 y captura-5: la cuerda aguda, con la serie armónica en 333, 657, 995, 1321 y 1653 Hz (mi de 329.6 Hz) y RMS de -50.1 y -49.0 dBFS. Ninguna toma satura.
+- La tarjeta vacía no capta el sonido del cuarto: con aplausos que el micrófono de la Mac ve hasta -17 dBFS, la tarjeta queda entre -71 y -75 dBFS, igual que en silencio (diagnostico-ruido-ambiente-2, grabado con ambient_check.py). Lo que se mueve en la app sin señal es el ruido propio en el espectro, que se dibuja hasta -140 dBFS.
+
+Qué queda abierto:
+
+- La entrada de micrófono carga la pastilla con pocos kΩ, así que los agudos medidos no son los que va a ver la etapa de entrada con 1 MΩ. La simulación con 10 kΩ predice que desaparece la resonancia de 3.5 kHz.
+- La entrada de micrófono suele poner tensión de polarización en la punta; no se midió.
+- captura-3, grabada por Renata desde la app: qué nota se tocó. La 4 y la 5 se identificaron por su espectro.
+- La app no guarda notas: las condiciones de sus capturas se completaron a mano con lo informado en la sesión.
+- Medir siempre con la Mac a batería, o las tomas no se pueden comparar.

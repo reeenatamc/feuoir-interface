@@ -1,0 +1,18 @@
+{
+  "fecha_hora": "2026-09-19T10:11:17-05:00",
+  "etiqueta": "captura",
+  "medicion": "Captura de 5 s",
+  "entrada": {
+    "tipo": "dispositivo",
+    "nombre": "USB PnP Sound Device",
+    "indice": 1,
+    "bloques_perdidos": 0
+  },
+  "salida_del_estimulo": null,
+  "frecuencia_muestreo_hz": 48000,
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "estimulo": null,
+  "resumen": "Pico -19.7 dBFS, RMS -41.2 dBFS",
+  "notas": "Rasgueo fuerte con la guitarra al máximo, entrada de micrófono de la tarjeta con adaptador de 6.35 a 3.5 mm, Mac a batería con el cargador desenchufado. Grabada por Renata desde la app. La app no guarda notas: Claude las agregó después con lo informado en la sesión. Modelo, pastilla y cable no informados."
+}

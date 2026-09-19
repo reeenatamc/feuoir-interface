@@ -1,0 +1,18 @@
+{
+  "fecha_hora": "2026-09-19T10:13:47-05:00",
+  "etiqueta": "captura",
+  "medicion": "Captura de 5 s",
+  "entrada": {
+    "tipo": "dispositivo",
+    "nombre": "USB PnP Sound Device",
+    "indice": 1,
+    "bloques_perdidos": 0
+  },
+  "salida_del_estimulo": null,
+  "frecuencia_muestreo_hz": 48000,
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "estimulo": null,
+  "resumen": "Pico -28.5 dBFS, RMS -39.7 dBFS",
+  "notas": ""
+}

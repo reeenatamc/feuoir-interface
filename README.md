@@ -15,7 +15,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 
 | Parte | Estado | Probado | Sin probar |
 |---|---|---|---|
-| medir.py | funciona en la Mac | con el micrófono interno, solo para validar el script | la tarjeta de sonido USB y la guitarra; no hay capturas guardadas |
+| medir.py | funciona en la Mac | con la tarjeta USB y la guitarra el 2026-09-19 (docs/bitacora.md, entrada 29) | la guitarra con la carga de la etapa de entrada |
 | analizador.py | cubre lo que se necesita hasta ahora | calibrar.py: 13 pruebas y 180 chequeos con señales sintéticas; tests/mutaciones.py detecta los 20 errores inyectados | nunca se usó con una captura de hardware |
 | Reloj maestro | elegido: GPOUT0 con DC50 | búsqueda exhaustiva de configuraciones con relojes.py; firmware/feuoir compila sin avisos | en una placa |
 | Verificación del reloj | firmware y lectura por USB escritos | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; el firmware compila sin avisos | la lectura de registros, el contador de frecuencia y el puerto USB reales |
@@ -42,6 +42,7 @@ relojes.py             búsqueda de configuraciones del reloj maestro
 jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
 dispositivos.py        lista las entradas de audio de la Mac
+device_volume.py       lee el volumen y la ganancia de entrada de cualquier dispositivo
 app/                   app de medición en vivo; la interfaz está en app/ui
 spice/                 simulación con ngspice: ejecutor, netlists, modelos del TL072, verificación y etapa de entrada
 tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
@@ -75,9 +76,9 @@ mediciones/2026-09-13-piso-de-ruido/
   condiciones.json
 ```
 
-condiciones.json registra fecha y hora, dispositivo (nombre e índice según sounddevice), frecuencia de muestreo, duración, volumen de entrada del sistema, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
+condiciones.json registra fecha y hora, dispositivo (nombre e índice según sounddevice), frecuencia de muestreo, duración, volumen de entrada del dispositivo y su ganancia en dB, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
 
-El dispositivo se elige con DISPOSITIVO dentro de medir.py. dispositivos.py lista las entradas con su número.
+El dispositivo se elige por su nombre con DISPOSITIVO dentro de medir.py, hoy la tarjeta USB (USB PnP Sound Device). El número cambia según lo que esté conectado y el nombre no. dispositivos.py lista las entradas. Si la tarjeta no está conectada, medir.py lo dice y no graba.
 
 El pico, el RMS y el espectro salen de analizador.py, el mismo código que verifica calibrar.py.
 
@@ -95,6 +96,8 @@ Pico y RMS están en dBFS, decibeles relativos al fondo de escala del conversor,
 ## Volumen de entrada
 
 El volumen de entrada del sistema está en 71 y no se toca. Si cambia, las mediciones dejan de ser comparables entre sí. Cada condiciones.json guarda el valor que tenía en esa corrida.
+
+Cada dispositivo tiene su propio volumen. device_volume.py lo lee de Core Audio para cualquier entrada, sea o no la de por defecto, y también la ganancia en dB, porque el volumen solo engaña: la tarjeta USB marca 0, y eso es 0 dB de ganancia, el mínimo de su rango de 0 a 23.8 dB, no silencio. Solo lee, no cambia nada de la Mac. Al 2026-09-19 la tarjeta está en 0 (0 dB) y tampoco se toca.
 
 ## analizador.py
 

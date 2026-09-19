@@ -1,0 +1,16 @@
+{
+  "fecha_hora": "2026-09-19T10:25:14-05:00",
+  "etiqueta": "rasgueo-suave",
+  "dispositivo": {
+    "nombre": "USB PnP Sound Device",
+    "indice": 1
+  },
+  "frecuencia_muestreo_hz": 48000,
+  "duracion_s": 12.0,
+  "descartado_al_inicio_s": 1.0,
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "pico_dbfs": -29.19,
+  "rms_dbfs": -42.72,
+  "notas": "rasgueo suave, nivel normal de tocar, guitarra con el volumen al máximo; entrada de micrófono de la tarjeta con adaptador de 6.35 a 3.5 mm; Mac a batería, cargador desenchufado; modelo, pastilla y cable no informados; grabada por Claude a pedido de Renata"
+}

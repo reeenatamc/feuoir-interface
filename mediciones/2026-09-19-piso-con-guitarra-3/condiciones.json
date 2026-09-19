@@ -1,0 +1,16 @@
+{
+  "fecha_hora": "2026-09-19T10:04:02-05:00",
+  "etiqueta": "piso-con-guitarra",
+  "dispositivo": {
+    "nombre": "USB PnP Sound Device",
+    "indice": 1
+  },
+  "frecuencia_muestreo_hz": 48000,
+  "duracion_s": 5,
+  "descartado_al_inicio_s": 1.0,
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "pico_dbfs": -32.78,
+  "rms_dbfs": -42.28,
+  "notas": "guitarra conectada a la entrada de micrófono de la tarjeta con adaptador de 6.35 a 3.5 mm, volumen de la guitarra en 0, sin tocar; repetida después de que Renata revisara la conexión por el zumbido de la toma -2; modelo, pastilla y cable no informados al grabar; grabada por Claude a pedido de Renata"
+}
