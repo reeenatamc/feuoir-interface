@@ -99,6 +99,8 @@ py -m venv .venv                                                   en Windows
 .venv/Scripts/pip install sounddevice numpy matplotlib scipy
 ```
 
+Los dibujos de docs/armado/ necesitan además schemdraw 0.23 (`.venv/bin/pip install schemdraw==0.23`). El esquema de la etapa de entrada de ±9 V, con los valores de spice/netlists/input_stage.cir, está en docs/armado/etapa_entrada.png y .pdf, y se rehace con `.venv/bin/python docs/armado/draw_input_stage.py`.
+
 En Windows el python del entorno está en `.venv/Scripts/python`, no en `.venv/bin/python`: donde el resto de este README diga `.venv/bin/python`, en Windows va `.venv/Scripts/python`.
 
 ## Los valores son dBFS
