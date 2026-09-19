@@ -2,7 +2,7 @@
 
 Interfaz de audio USB propia, para guitarra. Una Raspberry Pi Pico (RP2040) toma el audio de un ADC PCM1808 y lo manda a la Mac por USB, y recibe audio de la Mac para un DAC PCM5102A. Antes de diseñar la parte analógica hay que conocer la señal que va a recibir: cuánto voltaje entrega la guitarra, hasta qué frecuencia tiene energía y cuánto ruido trae. El repo empieza por las herramientas para medir eso y por el diseño de la parte digital, verificado sin hardware.
 
-Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en una placa. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
+Al 2026-09-19 el Pico está probado en una placa: el reloj maestro sale por GP21 y la Mac lo reconoce como micrófono USB con un tono de prueba. Los módulos del ADC y del DAC todavía no llegaron. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
 
 ## Cómo está armado
 
@@ -26,11 +26,11 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | Primer encendido | etapas 1 y 2 hechas el 2026-09-19 | sin fallas inesperadas; un falso contacto en la protoboard dio 0 Hz hasta apretar el Pico (docs/bitacora.md, entrada 31) | las etapas 3 y 4, que necesitan los módulos y un multímetro |
 | App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones con notas y su salida del estímulo, y la lista de guardadas, en ventana propia | tests/app_contract.py: 52 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 15 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
 | Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría; la etapa de entrada simulada en sus dos versiones: respuesta en frecuencia, transitorio, ruido y carga de la guitarra | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; spice/simulate_input.py: 32 chequeos contra el cálculo a mano del circuito; tests/mutaciones.py detecta los 9 errores inyectados en spice/; el ruido del modelo del TL072H coincide con la hoja a 0.13 dB | discutir la entrada del PCM1808, que con ganancia alta pasa su máximo absoluto (docs/entrada-analogica.md); comparar con el circuito armado |
-| Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
-| Fase 5: captura por USB | no empezada | arquitectura en docs/audio-usb.md, con TinyUSB 0.18.0 | todo |
+| Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto; carga en el Pico con BOOTSEL o con picotool load | nada |
+| Fase 5: captura por USB | primer paso: firmware/tono_usb.c, el Pico como micrófono UAC2 con tono de prueba y el ritmo del USB | la Mac lo ve como feuoir; 240000 muestras por toma idénticas a la tabla y el canal de silencio en ceros exactos (docs/bitacora.md, entrada 32) | el ritmo del reloj de audio con 47, 48 y 49 muestras por paquete; el audio del PCM1808 |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
 
-Hasta que lleguen los componentes no se escribe firmware nuevo: lo que falta necesita placa para validarse.
+Hasta que lleguen los módulos, el firmware nuevo se prueba en el Pico solo, con señales que genera él mismo.
 
 ## Estructura
 
@@ -274,6 +274,22 @@ La parte que decodifica los registros y arma el informe (firmware/informe.c) no 
 ```
 
 Lo que solo se puede probar en la placa es la lectura real de los registros y el contador de frecuencia.
+
+### tono_usb
+
+firmware/tono_usb.c hace que la Mac reconozca al Pico como un micrófono USB (UAC2) llamado feuoir y le mande un tono de prueba de 1 kHz por el canal izquierdo, con el derecho en silencio. Todavía no hay ADC: el firmware genera las muestras él mismo. Especificación completa en docs/audio-usb.md. Se compila junto con los otros dos:
+
+```
+cd firmware
+cmake -S . -B build
+make -C build tono_usb -j4
+```
+
+Probado en el Pico el 2026-09-19 (docs/bitacora.md, entrada 32). Se carga con BOOTSEL o, si el Pico corre el firmware de verificación, con picotool load -f -x firmware/build/tono_usb.uf2. Para grabarlo:
+
+```
+.venv/bin/python medir.py tono-usb --dispositivo feuoir --canal 1
+```
 
 ## Documentación
 

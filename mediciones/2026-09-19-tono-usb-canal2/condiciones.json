@@ -1,0 +1,17 @@
+{
+  "fecha_hora": "2026-09-19T12:03:12-05:00",
+  "etiqueta": "tono-usb-canal2",
+  "dispositivo": {
+    "nombre": "feuoir",
+    "indice": 1
+  },
+  "canal": 2,
+  "frecuencia_muestreo_hz": 48000,
+  "duracion_s": 5,
+  "descartado_al_inicio_s": 1.0,
+  "volumen_entrada_sistema": 50,
+  "ganancia_entrada_db": 0.0,
+  "pico_dbfs": -240.0,
+  "rms_dbfs": -240.0,
+  "notas": "firmware tono_usb con el arreglo del cierre del endpoint, ritmo del USB; canal 1 = seno 1 kHz -6 dBFS de pico por tabla de 48, canal 2 = ceros"
+}

@@ -592,3 +592,21 @@ Qué queda abierto:
 - El Pico no entra hasta el fondo: quedan unos 2 mm de pata a la vista. Hizo contacto al apretarlo, pero hay que volver a apretarlo antes de cada etapa y desconfiar primero del contacto si una lectura da 0.
 - Hace falta un multímetro antes de la etapa 3.
 - R1 quedó puesta en j14 a j24; el puente de GP20 se quitó.
+
+## Entrada 32: el Pico como micrófono USB, con tono de prueba (2026-09-19)
+
+Qué se hizo: el primer paso de la fase 5 sin esperar al ADC. firmware/tono_usb.c hace que la Mac vea al Pico como un micrófono UAC2 llamado feuoir, a 48 kHz, estéreo, 24 bits en subslot de 4 bytes. El Pico genera las muestras: en el canal 1 un seno de 1 kHz a -6 dBFS de pico desde una tabla de 48 muestras, y en el canal 2 ceros exactos. El ritmo lo marca el USB, 48 cuadros por paquete de 1 ms. clk_sys queda en 61.44 MHz con GPOUT0 encendido, como en el firmware final.
+
+Condiciones: el mismo armado de la entrada 31, con R1 puesta y sin el puente de GP20. Cargado con picotool load -f, que reinicia en BOOTSEL al firmware de verificación sin tocar el botón. medir.py acepta ahora --dispositivo y --canal para grabar el Pico; el volumen que reporta el dispositivo es 50, 0.0 dB, y el firmware no lo aplica.
+
+Resultado:
+
+- La Mac lo lista como feuoir con 2 entradas. La primera grabación del canal 1 dio pico -6.0 dBFS y RMS -9.0 dBFS (mediciones/2026-09-19-tono-usb-canal1).
+- La segunda apertura falló con PaErrorCode -9986 y el LED dejó de parpadear. Causa, leída en TinyUSB 0.18.0: en el RP2040 los endpoints isócronos no se cierran al pasar a la alternativa 0, el último buffer IN queda marcado disponible en la DPRAM porque el host ya no lo lee, y la próxima transferencia cae en panic("ep 81 was already available") de rp2040_usb.c. El firmware limpia el control de ese buffer en tud_audio_set_itf_close_EP_cb.
+- Con el arreglo, tres aperturas seguidas sin error (tono-usb-canal1-2, tono-usb-canal2, tono-usb-canal1-3). Comparadas contra la tabla recalculada en Python, las 240000 muestras de cada toma del canal 1 coinciden todas, sin parte fraccionaria después de escalar por 2^23, y las 240000 del canal 2 son cero. El camino del Pico a la Mac pasa las muestras intactas.
+
+Qué queda abierto:
+
+- Con el ritmo del USB, la frecuencia del tono no dice nada del reloj: la Mac cuenta muestras. La variante con el ritmo del reloj de audio, que ejercita el ajuste de 47, 48 y 49 muestras por paquete de docs/audio-usb.md, queda por hacer.
+- La comparación muestra a muestra se hizo a mano en la sesión; no es todavía una herramienta del repo con su prueba y su mutación.
+- VID y PID de desarrollo de TinyUSB.
