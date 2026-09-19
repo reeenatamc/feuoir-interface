@@ -25,7 +25,7 @@ from datetime import datetime
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-PYTHON_VENV = RAIZ / ".venv" / "bin" / "python"
+PYTHON_VENV = RAIZ / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 
 # nombre, error que simula, texto original en analizador.py, texto que lo reemplaza
 MUTACIONES = [
@@ -72,8 +72,8 @@ MUTACIONES = [
 ]
 
 # Los archivos que necesita tests/app_contract.py para correr en una carpeta aparte
-ARCHIVOS_APP = ["analizador.py", "app/__init__.py", "app/processing.py", "app/sources.py", "app/measurements.py",
-                "app/server.py", "tests/app_contract.py"]
+ARCHIVOS_APP = ["analizador.py", "dispositivos.py", "app/__init__.py", "app/processing.py", "app/sources.py",
+                "app/measurements.py", "app/server.py", "tests/app_contract.py"]
 
 # nombre, error que simula, archivo, texto original, texto que lo reemplaza
 MUTACIONES_APP = [
@@ -97,6 +97,11 @@ MUTACIONES_APP = [
      "app/measurements.py", "self.source.play(stimulus, self.output_index)", "self.source.play(stimulus, None)"),
     ("reproducir_sin_pasar_la_salida", "entrada real que reproduce sin decirle a sounddevice por qué salida",
      "app/sources.py", "self.fs, device=output)", "self.fs)"),
+    ("condiciones_sin_el_entorno", "condiciones guardadas sin el sistema operativo: una medición de la Mac y "
+     "una de Windows quedan indistinguibles",
+     "app/measurements.py", '        "sistema_operativo": devices.operating_system(),\n', ""),
+    ("condiciones_sin_nivel_de_entrada", "condiciones guardadas sin el nivel de entrada",
+     "app/measurements.py", '        "nivel_entrada": level,\n', ""),
     ("cuadros_esperando_a_cada_conexion", "emisor que espera a que cada conexión reciba el cuadro: una lenta frena a todas",
      "app/server.py", '            for client in list(app[CLIENTS]):\n                client.send_frame(text)\n',
      '            await asyncio.gather(*(client.ws.send_str(text) for client in list(app[CLIENTS])))\n'),

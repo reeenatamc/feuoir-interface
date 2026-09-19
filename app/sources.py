@@ -10,6 +10,7 @@ import numpy as np
 import sounddevice as sd
 
 import analizador as an
+import dispositivos as devices
 
 BLOCK_SIZE = 1024                # at 48 kHz, about 47 blocks per second
 PREFERRED_FS = 48000
@@ -163,6 +164,7 @@ class DeviceSource:
     def __init__(self, blocks, index):
         info = sd.query_devices(int(index), "input")
         self.blocks, self.index, self.name = blocks, info["index"], info["name"]
+        self.api = devices.host_api_name(info["hostapi"])
         self.fs = PREFERRED_FS
         try:
             sd.check_input_settings(device=self.index, channels=1, samplerate=self.fs, dtype="float32")
@@ -184,7 +186,7 @@ class DeviceSource:
 
     def describe(self):
         # Spanish keys: this goes into condiciones.json, whose format is shared with medir.py.
-        return {"tipo": "dispositivo", "nombre": self.name, "indice": self.index,
+        return {"tipo": "dispositivo", "nombre": self.name, "indice": self.index, "api": self.api,
                 "bloques_perdidos": self.lost_blocks}
 
     def play(self, x, output=None):

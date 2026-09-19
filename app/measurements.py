@@ -7,10 +7,9 @@ captures as WAV, which the repo does not version. File names and JSON keys stay 
 shared with medir.py and leer_verificacion.py.
 
 With the synthetic source the stimulus goes straight into the simulated converter. With a real input it goes
-out through the Mac's default output and has to come back through a cable to the input.
+out through the system's default output and has to come back through a cable to the input.
 """
 import json
-import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -19,6 +18,7 @@ import sounddevice as sd
 from scipy.io import wavfile
 
 import analizador as an
+import dispositivos as devices
 
 ROOT = Path(__file__).resolve().parent.parent
 RAMP_S = 0.005
@@ -35,18 +35,6 @@ MEASUREMENTS = [
     {"id": "response", "name": "Respuesta en frecuencia", "label": "respuesta-en-frecuencia"},
     {"id": "jitter", "name": "Prueba de jitter", "label": "prueba-de-jitter"},
 ]
-
-
-def input_volume(index):
-    """Same as medir.py: osascript only reports the volume of the default input, and it is only read."""
-    if index != sd.query_devices(kind="input")["index"]:
-        return None
-    try:
-        r = subprocess.run(["osascript", "-e", "input volume of (get volume settings)"],
-                           capture_output=True, text=True)
-        return int(r.stdout)
-    except (OSError, ValueError):   # "missing value" when the device has no volume control
-        return None
 
 
 def new_folder(destination, label, now):
@@ -167,7 +155,7 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
             output=None):
     """Runs a measurement and saves its folder. Returns the folder and a one-line summary.
 
-    output is the output chosen for the stimulus, {"name", "index"}, with index None for the Mac's default one.
+    output is the output chosen for the stimulus, {"name", "index"}, with index None for the system's default one.
     """
     info = next((m for m in MEASUREMENTS if m["id"] == measurement_id), None)
     if info is None:
@@ -180,11 +168,11 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
     described = source.describe()
     if described["tipo"] == "sintetica":
         output_used = {"tipo": "lazo de la fuente sintética"}
-        volume = None
+        level = {"valor": None, "origen": "la fuente sintética no tiene control de entrada"}
     else:
-        kind = "salida por defecto de la Mac" if output["index"] is None else "dispositivo"
+        kind = "salida por defecto del sistema" if output["index"] is None else "dispositivo"
         output_used = {"tipo": kind, "nombre": output["name"], "indice": output["index"]}
-        volume = input_volume(described["indice"])
+        level = devices.input_level(described["indice"])
 
     folder = new_folder(destination, info["label"], now)
     for name, x in m.captures.items():
@@ -193,10 +181,11 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
         "fecha_hora": now.isoformat(timespec="seconds"),
         "etiqueta": info["label"],
         "medicion": info["name"],
+        "sistema_operativo": devices.operating_system(),
         "entrada": described,
         "salida_del_estimulo": output_used if stimulus else None,
         "frecuencia_muestreo_hz": processor.fs,
-        "volumen_entrada_sistema": volume,
+        "nivel_entrada": level,
         "estimulo": stimulus or None,
         "resumen": summary,
         "notas": "",

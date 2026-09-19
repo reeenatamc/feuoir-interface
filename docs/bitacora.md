@@ -541,3 +541,34 @@ Qué queda abierto (no se cambió nada del diseño):
 
 - La entrada del PCM1808 pasa su máximo absoluto con ganancia alta y señal fuerte: con ganancia 11 alcanza con 255 mV de pico en la entrada de la etapa. La simulación no tiene los diodos de protección del chip ni lo que traiga el módulo en VINL y VINR. Para discutir con Renata (docs/entrada-analogica.md, para discutir).
 - Cuánto ruido aporta exactamente la corriente del modelo del H: ngspice lo puede separar por fuente, si hace falta.
+## Entrada 29: medir en Windows con la tarjeta USB (2026-09-19)
+
+Qué se midió: nada en hardware todavía. Se comprobó que la cadena de medición corre en la laptop ASUS con Windows 11: dispositivos.py lista las entradas y medir.py graba, analiza y guarda su carpeta. La captura de prueba se hizo con la entrada que Windows trae por defecto y se borró: no es una medición.
+
+Condiciones: Windows 10.0.26200 (Windows 11), Python 3.11.9, entorno nuevo en `.venv` con sounddevice, numpy, scipy, matplotlib y aiohttp. El repo se clonó de GitHub; en la Mac ya estaba subido desde el 2026-09-13.
+
+Resultado:
+
+- medir.py grabó 5 s por WASAPI a 48 kHz, en un canal, y guardó captura.wav, captura.png y condiciones.json con el sistema operativo, el dispositivo con su API y el nivel de entrada.
+- dispositivos.py lista 22 entradas en la ASUS, que son 6 aparatos repartidos entre MME, DirectSound, WASAPI y WDM-KS. Solo las de WASAPI dan 48000 Hz por defecto; las de MME y DirectSound dan 44100 Hz.
+- Dos entradas de WDM-KS con nombres de más de 90 caracteres traían saltos de línea dentro del nombre y rompían la tabla. Ahora los nombres se pasan a una línea y se recortan a 45 caracteres.
+- calibrar.py pasa en Windows sus 13 pruebas y 180 chequeos (calibraciones/2026-09-19-calibracion), así que el análisis da lo mismo en las dos máquinas.
+- tests/app_contract.py pasa sus 45 comprobaciones en Windows, con la fuente sintética, ya con la elección de la salida del estímulo que llegó de la Mac mientras esto se escribía.
+
+Qué se decidió y por qué:
+
+- WASAPI es la API con la que se mide en Windows. MME y DirectSound llegan al mismo conversor pero con mezcla y remuestreo del sistema por el medio, y WDM-KS no acepta 48 kHz en la mayoría de las entradas. dispositivos.py marca con un asterisco las filas de la API recomendada de cada sistema y muestra una columna que dice si la entrada acepta un canal a 48 kHz, que es lo que necesita medir.py.
+- Cada medición guarda ahora el sistema operativo, la API de audio y el nivel de entrada. Sin esos tres datos una captura de la Mac y una de la ASUS no se pueden poner una al lado de la otra: no se sabría si la diferencia está en la guitarra, en la tarjeta o en la máquina.
+- El nivel de entrada se anota a mano en Windows, con --nivel-entrada o con la variable FEUOIR_NIVEL_ENTRADA, y condiciones.json guarda también de dónde salió el número. Leerlo desde Python en Windows pide instalar una dependencia más (pycaw) y tocar la API de audio del sistema; anotarlo cuesta menos y el nivel, de todos modos, no se mueve nunca. En la Mac se sigue leyendo con osascript.
+- medir.py avisa y no graba si la entrada no acepta un canal a 48 kHz, en vez de dejar que PortAudio tire un error sin explicación. El aviso manda a docs/configuracion-windows.md.
+- El dispositivo se elige con --dispositivo y ya no editando una constante: los índices no son los mismos en la Mac y en la ASUS, así que una constante en el archivo estaría mal en una de las dos máquinas.
+- docs/configuracion-windows.md deja escrito el procedimiento para que Windows no toque la señal: Comunicaciones en "No hacer nada", todas las mejoras del micrófono desactivadas, formato en 24 bits y 48000 Hz, sin control exclusivo de aplicaciones, y cerrados los programas de videollamada. El micrófono interno de la ASUS no se usa para caracterizar la guitarra: la entrada que aparece como AI Noise-cancelling Input (ASUS Utility) es ese micrófono con el procesado del fabricante encima.
+- medir.py y dispositivos.py pasaron a código en inglés con comentarios y salida en español, y medir.py quedó partido en funciones con un main(). Es la regla de Renata para el repo, la misma que ya seguía la app. Los nombres de los archivos no cambian, porque son los que se escriben en la terminal y los que nombra toda la documentación; las claves de condiciones.json tampoco, porque las comparten la app y leer_verificacion.py.
+
+Errores que aparecieron en el camino:
+
+- platform.platform() reporta "Windows-10" en un Windows 11, porque platform.release() no distingue las dos. El sistema operativo se guarda con el número de build, que sí las distingue: "Windows 10.0.26200".
+- tests/mutaciones.py buscaba el python del entorno en .venv/bin/python, que en Windows no existe, y caía al python del sistema, donde no están las dependencias. Ahora elige según el sistema.
+- La app abría las carpetas de mediciones/ con el comando open de macOS, que en Windows no existe. Ahora usa open, os.startfile o xdg-open según el sistema.
+
+Lo que sigue sin probar en Windows: leer_verificacion.py, que importa termios y tty y busca el puerto del Pico en /dev/cu.usbmodem*. Nada de eso existe en Windows, donde el Pico aparece como un COM. No se tocó porque hasta que el firmware esté en una placa no hay informe que leer.

@@ -1,77 +1,134 @@
-import argparse, json, os, re, subprocess
+#!/usr/bin/env python3
+"""Graba una captura de una entrada de audio y la guarda con sus condiciones.
+
+    .venv/bin/python medir.py piso-de-ruido --notas "entrada al aire"          en la Mac
+    .venv/Scripts/python medir.py piso-de-ruido --dispositivo 12               en Windows
+
+Cada corrida deja una carpeta en mediciones/<fecha>-<etiqueta>/ con el audio, una gráfica de la
+forma de onda y el espectro, y condiciones.json: con qué se midió, en qué sistema, por qué API de
+audio y con qué nivel de entrada. El pico, el RMS y el espectro salen de analizador.py.
+"""
+import argparse
+import json
+import os
+import re
 from datetime import datetime
 from pathlib import Path
 
-import sounddevice as sd, numpy as np, matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import numpy as np
+import sounddevice as sd
 from scipy.io import wavfile
 
 import analizador as an
+import dispositivos as devices
 
-FS, SEG = 48000, 5
-DISPOSITIVO = 0           # pon aquí el número del paso 2
-
-p = argparse.ArgumentParser(description="Graba una captura y la guarda en mediciones/<fecha>-<etiqueta>/")
-p.add_argument("etiqueta", help="nombre de la medición, por ejemplo piso-de-ruido")
-p.add_argument("--notas", default="", help="texto libre que se guarda en condiciones.json")
-args = p.parse_args()
-if not re.fullmatch(r"[\w.-]+", args.etiqueta):
-    p.error("la etiqueta solo puede tener letras, números, puntos, guiones y guiones bajos")
+ROOT = Path(__file__).resolve().parent
+FS = 48000
+SECONDS = 5
+DEVICE = None        # None: la entrada por defecto del sistema. --dispositivo manda sobre esto
 
 
-def volumen_entrada(indice):
-    # osascript solo da el volumen de la entrada por defecto del sistema
-    if indice != sd.query_devices(kind="input")["index"]:
-        print("Aviso: el dispositivo no es la entrada por defecto, su volumen no se puede leer")
-        return None
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Graba una captura y la guarda en mediciones/<fecha>-<etiqueta>/")
+    parser.add_argument("etiqueta", help="nombre de la medición, por ejemplo piso-de-ruido")
+    parser.add_argument("--dispositivo", type=int, default=DEVICE,
+                        help="índice de la entrada, el que lista dispositivos.py; "
+                             "sin esto, la entrada por defecto del sistema")
+    parser.add_argument("--nivel-entrada", type=int, default=None,
+                        help="nivel del control de entrada, para guardarlo en condiciones.json; "
+                             f"también se puede dejar puesta la variable {devices.LEVEL_VARIABLE}")
+    parser.add_argument("--notas", default="", help="texto libre que se guarda en condiciones.json")
+    args = parser.parse_args()
+    if not re.fullmatch(r"[\w.-]+", args.etiqueta):
+        parser.error("la etiqueta solo puede tener letras, números, puntos, guiones y guiones bajos")
+    return args
+
+
+def check_input(index):
+    """El dispositivo y su nivel, o termina explicando qué falta antes de grabar."""
     try:
-        r = subprocess.run(["osascript", "-e", "input volume of (get volume settings)"],
-                           capture_output=True, text=True)
-        return int(r.stdout)
-    except (OSError, ValueError):   # "missing value" si no tiene control de volumen
-        print("Aviso: el dispositivo no reporta volumen de entrada")
-        return None
+        device = devices.describe(index)
+    except (sd.PortAudioError, ValueError) as error:
+        raise SystemExit(f"No se puede usar esa entrada: {error}\n"
+                         "Corre dispositivos.py para ver las que hay.")
+
+    print(f"Entrada: {device['nombre']} "
+          f"(índice {device['indice']}, {devices.short_api(device['api'])})")
+    if not devices.accepts_48k(device["indice"]):
+        raise SystemExit(f"Esa entrada no acepta 1 canal a {FS} Hz.\n"
+                         "En Windows el formato se fija en el panel de sonido, en 24 bits y "
+                         "48000 Hz (docs/configuracion-windows.md).")
+    return device
 
 
-info = sd.query_devices(DISPOSITIVO, "input")
-volumen = volumen_entrada(info["index"])
+def new_folder(label, now):
+    """La carpeta de la medición. Misma etiqueta el mismo día: -2, -3..."""
+    base = ROOT / "mediciones" / f"{now:%Y-%m-%d}-{label}"
+    folder, n = base, 2
+    while folder.exists():
+        folder, n = base.with_name(f"{base.name}-{n}"), n + 1
+    folder.mkdir(parents=True)
+    return folder
 
-ahora = datetime.now().astimezone()
-print("Grabando 5 segundos...")
-x = sd.rec(int(SEG*FS), samplerate=FS, channels=1, device=DISPOSITIVO, blocking=True)[:,0]
 
-base = Path(__file__).resolve().parent / "mediciones" / f"{ahora:%Y-%m-%d}-{args.etiqueta}"
-carpeta, n = base, 2
-while carpeta.exists():           # misma etiqueta el mismo día: -2, -3...
-    carpeta, n = base.with_name(f"{base.name}-{n}"), n + 1
-carpeta.mkdir(parents=True)
-wavfile.write(carpeta / "captura.wav", FS, x)
+def save_plot(path, x, fs):
+    """La forma de onda arriba y el espectro en dBFS abajo, en escala logarítmica."""
+    figure, (wave, spectrum) = plt.subplots(2, 1, figsize=(9, 6))
+    wave.plot(np.arange(len(x))/fs, x)
+    wave.set_xlabel("segundos")
 
-pico, rms = float(np.max(np.abs(x))), an.rms(x)
-pico_db, rms_db = an.pico_dbfs(x), an.rms_dbfs(x)
-print(f"Pico: {pico:.4f}  ({pico_db:.1f} dBFS)")
-print(f"RMS:  {rms:.4f}  ({rms_db:.1f} dBFS)")
+    f, level_db = an.espectro(x, fs)
+    spectrum.semilogx(f, level_db)
+    spectrum.set_xlim(20, 20000)
+    spectrum.set_ylim(-160, 5)
+    spectrum.set_xlabel("Hz")
+    spectrum.set_ylabel("dBFS")
+    spectrum.grid(True, which="both", alpha=.3)
 
-condiciones = {
-    "fecha_hora": ahora.isoformat(timespec="seconds"),
-    "etiqueta": args.etiqueta,
-    "dispositivo": {"nombre": info["name"], "indice": info["index"]},
-    "frecuencia_muestreo_hz": FS,
-    "duracion_s": SEG,
-    "volumen_entrada_sistema": volumen,
-    "pico_dbfs": round(pico_db, 2),
-    "rms_dbfs": round(rms_db, 2),
-    "notas": args.notas,
-}
-(carpeta / "condiciones.json").write_text(json.dumps(condiciones, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    plt.tight_layout()
+    plt.savefig(path, dpi=120)
 
-f, espectro_db = an.espectro(x, FS)
 
-fig, (a1, a2) = plt.subplots(2, 1, figsize=(9, 6))
-a1.plot(np.arange(len(x))/FS, x); a1.set_xlabel("segundos")
-a2.semilogx(f, espectro_db)
-a2.set_xlim(20, 20000); a2.set_ylim(-160, 5); a2.set_xlabel("Hz"); a2.set_ylabel("dBFS")
-a2.grid(True, which="both", alpha=.3)
-plt.tight_layout(); plt.savefig(carpeta / "captura.png", dpi=120)
+def main():
+    args = parse_arguments()
+    device = check_input(args.dispositivo)
+    level = devices.input_level(device["indice"], args.nivel_entrada)
+    if level["valor"] is None:
+        print(f"Aviso: no se guarda el nivel de entrada ({level['origen']})")
 
-print(f"Guardado en {os.path.relpath(carpeta)}")
-plt.show()
+    now = datetime.now().astimezone()
+    print(f"Grabando {SECONDS} segundos...")
+    x = sd.rec(SECONDS*FS, samplerate=FS, channels=1, device=device["indice"], blocking=True)[:, 0]
+
+    peak_db, rms_db = an.pico_dbfs(x), an.rms_dbfs(x)
+    print(f"Pico: {float(np.max(np.abs(x))):.4f}  ({peak_db:.1f} dBFS)")
+    print(f"RMS:  {an.rms(x):.4f}  ({rms_db:.1f} dBFS)")
+
+    folder = new_folder(args.etiqueta, now)
+    wavfile.write(folder / "captura.wav", FS, x)
+    save_plot(folder / "captura.png", x, FS)
+
+    # Claves en español: este formato lo comparten la app y leer_verificacion.py
+    conditions = {
+        "fecha_hora": now.isoformat(timespec="seconds"),
+        "etiqueta": args.etiqueta,
+        "sistema_operativo": devices.operating_system(),
+        "dispositivo": device,
+        "frecuencia_muestreo_hz": FS,
+        "duracion_s": SECONDS,
+        "nivel_entrada": level,
+        "pico_dbfs": round(peak_db, 2),
+        "rms_dbfs": round(rms_db, 2),
+        "notas": args.notas,
+    }
+    (folder / "condiciones.json").write_text(
+        json.dumps(conditions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    print(f"Guardado en {os.path.relpath(folder)}")
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()

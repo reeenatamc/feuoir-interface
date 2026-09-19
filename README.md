@@ -2,7 +2,9 @@
 
 Interfaz de audio USB propia, para guitarra. Una Raspberry Pi Pico (RP2040) toma el audio de un ADC PCM1808 y lo manda a la Mac por USB, y recibe audio de la Mac para un DAC PCM5102A. Antes de diseñar la parte analógica hay que conocer la señal que va a recibir: cuánto voltaje entrega la guitarra, hasta qué frecuencia tiene energía y cuánto ruido trae. El repo empieza por las herramientas para medir eso y por el diseño de la parte digital, verificado sin hardware.
 
-Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en una placa. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
+Al 2026-09-19 los componentes ya están, pero nada se probó todavía en una placa. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
+
+Las mediciones se hacen en dos máquinas: la Mac, donde empezó el repo, y una laptop ASUS con Windows, con una tarjeta de sonido USB externa. Las dos usan los mismos scripts, y cada medición guarda el sistema operativo, la API de audio y el nivel de entrada, que es lo que hace falta para poder compararlas (docs/configuracion-windows.md).
 
 ## Cómo está armado
 
@@ -15,7 +17,7 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 
 | Parte | Estado | Probado | Sin probar |
 |---|---|---|---|
-| medir.py | funciona en la Mac | con el micrófono interno, solo para validar el script | la tarjeta de sonido USB y la guitarra; no hay capturas guardadas |
+| medir.py y dispositivos.py | funcionan en la Mac y en Windows | en la Mac con el micrófono interno; en Windows corren por WASAPI a 48 kHz y guardan su carpeta, comprobado con una captura de prueba que no se conservó | la tarjeta de sonido USB y la guitarra; no hay capturas guardadas |
 | analizador.py | cubre lo que se necesita hasta ahora | calibrar.py: 13 pruebas y 180 chequeos con señales sintéticas; tests/mutaciones.py detecta los 20 errores inyectados | nunca se usó con una captura de hardware |
 | Reloj maestro | elegido: GPOUT0 con DC50 | búsqueda exhaustiva de configuraciones con relojes.py; firmware/feuoir compila sin avisos | en una placa |
 | Verificación del reloj | firmware y lectura por USB escritos | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; el firmware compila sin avisos | la lectura de registros, el contador de frecuencia y el puerto USB reales |
@@ -35,18 +37,18 @@ Hasta que lleguen los componentes no se escribe firmware nuevo: lo que falta nec
 ## Estructura
 
 ```
-medir.py               captura de la entrada de audio de la Mac
+medir.py               captura de una entrada de audio, en la Mac o en Windows
 analizador.py          análisis y señales de prueba
 calibrar.py            verificación del análisis con señales sintéticas
 relojes.py             búsqueda de configuraciones del reloj maestro
 jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
-dispositivos.py        lista las entradas de audio de la Mac
+dispositivos.py        lista las entradas con su API y describe el entorno de la medición
 app/                   app de medición en vivo; la interfaz está en app/ui
 spice/                 simulación con ngspice: ejecutor, netlists, modelos del TL072, verificación y etapa de entrada
 tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
 firmware/              reloj maestro y firmware de verificación para el Pico
-docs/                  reloj, dominio de reloj, audio USB, entrada analógica, simulador, compras, primer encendido, app, bitácora y hojas de datos
+docs/                  reloj, dominio de reloj, audio USB, entrada analógica, simulador, compras, primer encendido, app, configuración de Windows, bitácora y hojas de datos
 calibraciones/         resultados de calibrar.py, de tests/mutaciones.py y de la verificación del simulador y sus modelos
 simulaciones/          resultados de jitter.py
 mediciones/            capturas y verificaciones, y las simulaciones de la etapa de entrada
@@ -57,15 +59,17 @@ mediciones/            capturas y verificaciones, y las simulaciones de la etapa
 - Cada resultado queda guardado con sus condiciones en una carpeta con fecha. Nada queda solo en la terminal.
 - Ninguna función entra a analizador.py sin su prueba en calibrar.py, y cada capacidad nueva entra además con una mutación en tests/mutaciones.py que la ataque.
 - Cada decisión queda en docs/bitacora.md, con qué se midió, en qué condiciones y por qué.
-- El código va en inglés: archivos, nombres, comentarios y contratos. Todo lo que ve el usuario va en español: la interfaz, los avisos, la salida de consola y la documentación. La app ya sigue esta regla; el código anterior a ella todavía está en español.
-- El volumen de entrada del sistema queda en 71, ver Volumen de entrada.
+- El código va en inglés: archivos, nombres y contratos. Los comentarios y las docstrings van en español, igual que todo lo que ve el usuario: la interfaz, los avisos, la salida de consola y la documentación. La app y los dos scripts de medición ya siguen esta regla; los comentarios de la app y el código anterior a ella todavía están en inglés o en español sin migrar.
+- Cada medición guarda el sistema operativo, la API de audio y el nivel de entrada. Sin esos tres datos una medición hecha en la Mac y otra hecha en la ASUS no se pueden comparar.
+- El nivel de entrada se anota una vez y no se toca, ver Nivel de entrada.
 
 ## Qué mide medir.py
 
 Graba 5 segundos de una entrada de audio a 48 kHz y calcula el pico y el RMS de la señal. Cada corrida guarda el audio, una gráfica con la forma de onda y el espectro en dBFS, y las condiciones en que se hizo:
 
 ```
-.venv/bin/python medir.py piso-de-ruido --notas "ventana cerrada"
+.venv/bin/python medir.py piso-de-ruido --notas "ventana cerrada"              en la Mac
+.venv/Scripts/python medir.py piso-de-ruido --dispositivo 18 --nivel-entrada 50    en Windows
 ```
 
 ```
@@ -75,26 +79,48 @@ mediciones/2026-09-13-piso-de-ruido/
   condiciones.json
 ```
 
-condiciones.json registra fecha y hora, dispositivo (nombre e índice según sounddevice), frecuencia de muestreo, duración, volumen de entrada del sistema, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
+condiciones.json registra fecha y hora, etiqueta, sistema operativo, dispositivo (nombre, índice y API de audio), frecuencia de muestreo, duración, nivel de entrada con el origen del dato, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
 
-El dispositivo se elige con DISPOSITIVO dentro de medir.py. dispositivos.py lista las entradas con su número.
+El dispositivo se elige con --dispositivo y el índice que lista dispositivos.py; sin eso se usa la entrada por defecto del sistema. Si esa entrada no acepta un canal a 48 kHz, medir.py lo dice y no graba.
+
+El nivel de entrada se pasa con --nivel-entrada, o dejando puesta la variable FEUOIR_NIVEL_ENTRADA. En la Mac se lee solo, y solo el de la entrada por defecto; Windows no lo expone, así que ahí se anota a mano. Sin el nivel, medir.py avisa y lo guarda como null: esa captura sirve para mirarla, no para compararla.
 
 El pico, el RMS y el espectro salen de analizador.py, el mismo código que verifica calibrar.py.
 
 Instalación:
 
 ```
-python3 -m venv .venv
+python3 -m venv .venv                                              en la Mac
 .venv/bin/pip install sounddevice numpy matplotlib scipy
+
+py -m venv .venv                                                   en Windows
+.venv/Scripts/pip install sounddevice numpy matplotlib scipy
 ```
+
+En Windows el python del entorno está en `.venv/Scripts/python`, no en `.venv/bin/python`: donde el resto de este README diga `.venv/bin/python`, en Windows va `.venv/Scripts/python`.
 
 ## Los valores son dBFS
 
 Pico y RMS están en dBFS, decibeles relativos al fondo de escala del conversor, donde 0 dBFS es la muestra más grande que se puede representar. No son niveles absolutos de presión sonora (dB SPL) ni voltajes. El mismo sonido da otro número con otro dispositivo u otro volumen de entrada, y para pasar a voltios hace falta calibrar la entrada con una señal conocida. El RMS se calcula contra 1.0, así que una senoidal a fondo de escala da -3 dBFS.
 
-## Volumen de entrada
+## Nivel de entrada
 
-El volumen de entrada del sistema está en 71 y no se toca. Si cambia, las mediciones dejan de ser comparables entre sí. Cada condiciones.json guarda el valor que tenía en esa corrida.
+El nivel del control de entrada se anota una vez y no se vuelve a mover. Si cambia, las mediciones dejan de ser comparables entre sí y hay que repetirlas. En la Mac está en 71 y se lee solo. En Windows hay que anotarlo a mano, y en la ASUS es el nivel de la tarjeta de sonido USB, no el del micrófono interno: docs/configuracion-windows.md dice dónde está y qué más hay que apagar para que Windows no toque la señal.
+
+Cada condiciones.json guarda el valor y de dónde salió, para que se vea si el número es leído o anotado.
+
+## Las entradas de audio y sus APIs
+
+```
+.venv/bin/python dispositivos.py           en la Mac
+.venv/Scripts/python dispositivos.py       en Windows
+```
+
+Una fila por entrada, con índice, nombre, API de audio, canales, frecuencia y si acepta un canal a 48 kHz, y marca cuál es la entrada por defecto del sistema.
+
+En Windows el mismo aparato aparece una vez por cada API: MME, DirectSound, WASAPI y WDM-KS son caminos distintos hacia el mismo conversor. La tabla marca con un asterisco las filas de WASAPI, que es la que habla con el driver sin remuestrear ni mezclar por el medio, y es la que hay que elegir. MME además recorta los nombres a 31 caracteres, así que la misma tarjeta puede aparecer con dos nombres. En la Mac hay una sola API, Core Audio, y cada entrada aparece una vez.
+
+medir.py y la app toman de dispositivos.py el sistema operativo, la API de audio y el nivel de entrada que guardan en condiciones.json.
 
 ## analizador.py
 
@@ -282,6 +308,7 @@ Lo que solo se puede probar en la placa es la lectura real de los registros y el
 - docs/entrada-analogica.md: la etapa analógica de entrada en sus dos versiones, las condiciones para simularla y los efectos que hay que conocer
 - docs/simulador-spice.md: por qué ngspice y no LTspice, cómo se instala sin Homebrew, cómo se verifica contra la teoría y qué hay que saber de los modelos del TL072
 - docs/primer-encendido.md: lista paso a paso para el primer encendido, con qué medir y qué esperar en cada etapa
+- docs/configuracion-windows.md: cómo dejar Windows sin tocar la señal antes de medir, y por qué el nivel de entrada se anota y no se mueve
 - docs/app.md: la app de medición en vivo: cómo abrirla, cómo está hecha, qué calcula, sus mediciones, el contrato del WebSocket y las pruebas
 - docs/app-cascara.md: por qué la app es una ventana de pywebview con Python detrás, y qué se descartó
 - docs/app-ideas.md: ideas para la app, anotadas en vez de construidas

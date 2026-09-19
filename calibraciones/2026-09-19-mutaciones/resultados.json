@@ -1,0 +1,505 @@
+{
+  "fecha_hora": "2026-09-19T09:38:10-05:00",
+  "analizador_sha256": "a519e1e12ded2b510c813ab34bb11c0d73222f258f0c2215539228c35d728591",
+  "calibrar_sha256": "377dcc929035710e6ca0a551c9506a9f955d3ca1efa2d8c4b20da05853aa781d",
+  "app_sha256": {
+    "analizador.py": "a519e1e12ded2b510c813ab34bb11c0d73222f258f0c2215539228c35d728591",
+    "dispositivos.py": "2fffb7d59b1bcb8abdc25e9f7a9b0eedd9c2b88eb03250b47e9233210cac402f",
+    "app/__init__.py": "4d6de2511ec03f5e675eaca89d3531540b5c7cf5efba65b7e07fb4f492eb2d57",
+    "app/processing.py": "01a53b6a84b512b73402ebed67c95450575546f9374b897b40f05ce6e49234c9",
+    "app/sources.py": "366d194c5a3e2af3096d7a66ae6e592b2ab63e1e5359060ee7f629b370529f21",
+    "app/measurements.py": "458199ea268ec587b98ebf0569490cd8b9060257d48b2f674db96c589ac00d97",
+    "app/server.py": "d2200778440cfce75de33932c80d2da4958617b8f8d4a78c40af672a725a1e57",
+    "tests/app_contract.py": "76ff29ef990da21b0b3e7f909127e9555c30026edf32cfe932d7e556f98dc80f"
+  },
+  "python_de_las_pruebas": "C:\\Users\\renat\\Documents\\GitHub\\feuoir-interface\\.venv\\Scripts\\python.exe",
+  "versiones": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  },
+  "plataforma": "Windows-10-10.0.26200-SP0",
+  "condiciones": {
+    "trabajos": 3,
+    "limite_s": 900
+  },
+  "control": {
+    "codigo_salida": 0,
+    "tiempo_agotado": false,
+    "pruebas_que_fallan": [],
+    "pasa": true
+  },
+  "control_app": {
+    "codigo_salida": 0,
+    "tiempo_agotado": false,
+    "pruebas_que_fallan": [],
+    "pasa": true
+  },
+  "textos_no_encontrados": {},
+  "resumen": {
+    "mutaciones": 31,
+    "corridas": 31,
+    "detectadas": 31,
+    "sobreviven": []
+  },
+  "mutaciones": [
+    {
+      "mutacion": "rms_sin_raiz",
+      "error_simulado": "RMS calculado como potencia media, sin la raíz",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "np.sqrt(np.mean(x**2))",
+      "reemplazo": "np.mean(x**2)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_seno_pico_rms",
+        "test_ruido_blanco_rms",
+        "test_thd_n_armonico_1pc",
+        "test_thd_n_con_ruido",
+        "test_thd_n_banda_angosta",
+        "test_prueba_jitter",
+        "test_snr"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "pico_sin_valor_absoluto",
+      "error_simulado": "pico calculado como max(x) en vez de max(|x|)",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "np.max(np.abs(x))",
+      "reemplazo": "np.max(x)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_seno_pico_rms"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "espectro_sin_factor_2",
+      "error_simulado": "espectro de un solo lado sin el factor 2",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "amplitud = 2*np.abs(",
+      "reemplazo": "amplitud = np.abs(",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_espectro_amplitud"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "resolucion_a_la_mitad",
+      "error_simulado": "resolución de la FFT calculada con el doble de muestras",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "return fs / n",
+      "reemplazo": "return fs / (2*n)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_dos_tonos_resolucion"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "picos_sin_umbral",
+      "error_simulado": "búsqueda de picos que ignora el umbral",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "height=umbral_db",
+      "reemplazo": "height=None",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_dos_tonos_resolucion"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "ajuste_sin_refinar_frecuencia",
+      "error_simulado": "ajuste de senoidal que no refina la frecuencia",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "for _ in range(iteraciones):",
+      "reemplazo": "for _ in range(0):",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_ajuste_seno",
+        "test_thd_n_armonico_1pc"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "fase_con_signo_invertido",
+      "error_simulado": "fase del ajuste con el signo cambiado",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "np.arctan2(-b, a)",
+      "reemplazo": "np.arctan2(b, a)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_ajuste_seno",
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "thd_n_sin_raiz_de_2",
+      "error_simulado": "RMS de la fundamental tomado igual a su amplitud de pico",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "(aj[\"amplitud\"]/np.sqrt(2))",
+      "reemplazo": "aj[\"amplitud\"]",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_thd_n_armonico_1pc",
+        "test_thd_n_con_ruido",
+        "test_thd_n_banda_angosta",
+        "test_prueba_jitter"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "banda_superior_ignorada",
+      "error_simulado": "filtro de banda que no corta en la frecuencia superior",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "(f > banda[1])",
+      "reemplazo": "(f > 2*banda[1])",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_thd_n_con_ruido",
+        "test_prueba_jitter",
+        "test_snr"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "banda_inferior_ignorada",
+      "error_simulado": "filtro de banda que no corta en la frecuencia inferior",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "(f < banda[0])",
+      "reemplazo": "(f < banda[0]/2)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_thd_n_banda_angosta",
+        "test_prueba_jitter"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "prueba_jitter_pendiente_con_log_natural",
+      "error_simulado": "pendiente de la prueba de jitter por década natural en vez de decimal",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "np.polyfit(np.log10(f), thd_db, 1)",
+      "reemplazo": "np.polyfit(np.log(f), thd_db, 1)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_prueba_jitter"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "prueba_jitter_sin_piso",
+      "error_simulado": "modelo de la prueba de jitter sin el término del ruido de fondo",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "np.column_stack([fe**2, np.ones_like(fe)])",
+      "reemplazo": "np.column_stack([fe**2, np.zeros_like(fe)])",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_prueba_jitter"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "prueba_jitter_sin_fraccion_de_banda",
+      "error_simulado": "jitter equivalente sin corregir por el ancho de la banda medida",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "np.sqrt(a/fraccion)",
+      "reemplazo": "np.sqrt(a)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_prueba_jitter"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "prueba_jitter_banda_proporcional",
+      "error_simulado": "banda que crece con la frecuencia del tono, con más ruido de fondo en los agudos",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "(fr - media_banda_hz, fr + media_banda_hz)",
+      "reemplazo": "(fr/2, 3*fr/2)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_prueba_jitter"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "snr_en_potencia",
+      "error_simulado": "SNR con razón de potencias pasada por 20*log10",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "rms(senal) / (rms(ruido) + EPS)",
+      "reemplazo": "rms(senal)**2 / (rms(ruido)**2 + EPS)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_snr"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "tono_con_amplitud_mal_escalada",
+      "error_simulado": "amplitud del tono con 10**(dB/10) en vez de 10**(dB/20)",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "x = 10**(amplitud_dbfs/20) * np.sin",
+      "reemplazo": "x = 10**(amplitud_dbfs/10) * np.sin",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_generador_tono",
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "rampa_final_sin_invertir",
+      "error_simulado": "rampa del final que sube en vez de bajar",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "env[n-m:] = sube[::-1]",
+      "reemplazo": "env[n-m:] = sube",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_generador_tono"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "barrido_log_con_log10",
+      "error_simulado": "barrido exponencial con log10 en vez de logaritmo natural",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "L = duracion_s / np.log(f_fin/f_inicio)",
+      "reemplazo": "L = duracion_s / np.log10(f_fin/f_inicio)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_generador_barrido_log"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "frecuencias_log_una_de_mas",
+      "error_simulado": "frecuencias_log con una frecuencia de más",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "+ 1e-9)) + 1",
+      "reemplazo": "+ 1e-9)) + 2",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "respuesta_con_fase_invertida",
+      "error_simulado": "fase de la respuesta en frecuencia restada al revés",
+      "archivo": "analizador.py",
+      "prueba": "calibrar.py",
+      "texto_original": "sal[\"fase_rad\"] - ent[\"fase_rad\"]",
+      "reemplazo": "ent[\"fase_rad\"] - sal[\"fase_rad\"]",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "test_barrido_escalonado_y_respuesta"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "saturacion_con_muestras_salteadas",
+      "error_simulado": "detector de saturación que mira una muestra de cada dos",
+      "archivo": "app/processing.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "peak = float(np.max(np.abs(x)))",
+      "reemplazo": "peak = float(np.max(np.abs(x[::2])))",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "procesado: una sola muestra en fondo de escala entre dos cuadros enciende la saturación",
+        "procesado: el cuadro siguiente ya no dice saturando, pero la recuerda"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "pico_sin_sostener_entre_bloques",
+      "error_simulado": "pico del cuadro que se queda con el último bloque en vez del máximo",
+      "archivo": "app/processing.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "self._frame_peak = max(self._frame_peak, peak)",
+      "reemplazo": "self._frame_peak = peak",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "procesado: el pico se sostiene de un bloque al otro hasta el cuadro"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "espectro_reducido_con_minimo",
+      "error_simulado": "reducción del espectro que se queda con el mínimo de cada tramo",
+      "archivo": "app/processing.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "np.maximum.reduceat(",
+      "reemplazo": "np.minimum.reduceat(",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "seno de 1 kHz a -6 dBFS: el máximo del espectro vale -6 dBFS",
+        "seno de 10 kHz, donde cada punto junta decenas de bins: el máximo sigue en -6 dBFS"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "espectro_en_vivo_con_hann",
+      "error_simulado": "espectro en vivo con Hann, que baja el pico de un tono que cae entre bins",
+      "archivo": "app/processing.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "SPECTRUM_WINDOW = \"flattop\"",
+      "reemplazo": "SPECTRUM_WINDOW = \"hann\"",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "tono entre dos bins, 1002.5 Hz: el pico marcado sigue en -6 dBFS"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "fuente_sintetica_nivel_en_potencia",
+      "error_simulado": "nivel de la fuente sintética con 10**(dB/10) en vez de 10**(dB/20)",
+      "archivo": "app/sources.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "amplitude = 10**(s[\"level_dbfs\"]/20)",
+      "reemplazo": "amplitude = 10**(s[\"level_dbfs\"]/10)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "seno de 1 kHz a -6 dBFS: el máximo del espectro vale -6 dBFS",
+        "seno de 1 kHz a -6 dBFS: el pico marcado dice 1 kHz y -6 dBFS",
+        "seno de 1 kHz a -6 dBFS: pico -6 y RMS -9.03 dBFS",
+        "tono entre dos bins, 1002.5 Hz: el pico marcado sigue en -6 dBFS",
+        "seno de 10 kHz, donde cada punto junta decenas de bins: el máximo sigue en -6 dBFS",
+        "buscar entradas con la fuente sintética reinicia PortAudio sin cortar los cuadros",
+        "forma ruido: RMS cerca de -20.0 dBFS",
+        "captura: pico -6 dBFS"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "medicion_marcada_tarde",
+      "error_simulado": "medición en curso marcada recién cuando arranca su tarea",
+      "archivo": "app/server.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "        engine.measuring = message[\"measurement\"]\n",
+      "reemplazo": "",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "el servidor responde a tiempo: la prueba se cortó esperando un mensaje"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "guardadas_de_la_mas_vieja",
+      "error_simulado": "lista de mediciones guardadas de la más vieja a la más reciente",
+      "archivo": "app/measurements.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "reverse=True)",
+      "reemplazo": "reverse=False)",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "guardadas: las cinco, de la más reciente a la más vieja y con su resumen"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "abrir_guardada_sin_validar",
+      "error_simulado": "abre cualquier carpeta que exista, aunque salga de mediciones/",
+      "archivo": "app/server.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "if path.parent != self.destination.resolve() or not path.is_dir():",
+      "reemplazo": "if not path.is_dir():",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "el servidor responde a tiempo: la prueba se cortó esperando un mensaje"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "condiciones_sin_el_entorno",
+      "error_simulado": "condiciones guardadas sin el sistema operativo: una medición de la Mac y una de Windows quedan indistinguibles",
+      "archivo": "app/measurements.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "        \"sistema_operativo\": devices.operating_system(),\n",
+      "reemplazo": "",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "captura: condiciones con el sistema operativo y el nivel de entrada"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "condiciones_sin_nivel_de_entrada",
+      "error_simulado": "condiciones guardadas sin el nivel de entrada",
+      "archivo": "app/measurements.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "        \"nivel_entrada\": level,\n",
+      "reemplazo": "",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "captura: condiciones con el sistema operativo y el nivel de entrada"
+      ],
+      "detectada": true
+    },
+    {
+      "mutacion": "cuadros_esperando_a_cada_conexion",
+      "error_simulado": "emisor que espera a que cada conexión reciba el cuadro: una lenta frena a todas",
+      "archivo": "app/server.py",
+      "prueba": "tests/app_contract.py",
+      "texto_original": "            for client in list(app[CLIENTS]):\n                client.send_frame(text)\n",
+      "reemplazo": "            await asyncio.gather(*(client.ws.send_str(text) for client in list(app[CLIENTS])))\n",
+      "codigo_salida": 1,
+      "tiempo_agotado": false,
+      "pruebas_que_fallan": [
+        "el servidor responde a tiempo: la prueba se cortó esperando un mensaje"
+      ],
+      "detectada": true
+    }
+  ]
+}
