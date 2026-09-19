@@ -575,3 +575,20 @@ Qué queda abierto:
 Cierra lo abierto en la entrada 29: la app no guardaba notas y las condiciones de sus capturas se completaban a mano. Ahora el pie de la ventana tiene un campo Notas, y cada medición lo guarda en condiciones.json con la clave notas, igual que medir.py. El servidor lo valida antes de marcar la medición como en curso: texto de hasta 2000 caracteres, con el error en español si no cumple. El contrato sube a la versión 4.
 
 Probado: tests/app_contract.py pasa a 52 comprobaciones, con las notas guardadas, vacías, demasiado largas y de tipo equivocado. tests/mutaciones.py agrega notas_ignoradas; las 44 mutaciones fallan (calibraciones/2026-09-19-mutaciones-2).
+
+## Entrada 31: primer encendido del Pico, etapas 1 y 2 (2026-09-19)
+
+Qué se hizo: las dos primeras etapas de docs/primer-encendido.md, las únicas posibles sin los módulos del ADC y del DAC.
+
+Condiciones: el Pico en la protoboard en las filas 1 a 20, con las patas en las columnas c y h; la placa tapa b e i en esas filas. Alimentado por el cable de la tableta Wacom (USB-A a micro-USB) con adaptador. Sin multímetro: VBUS y 3V3 no se midieron, y así quedó anotado en --puentes. El diagrama del armado de la etapa 2 está en docs/armado/etapa2.png, y sobre una foto de la protoboard en etapa2_sobre_la_foto.jpg.
+
+Resultado:
+
+- Etapa 1, nada conectado (mediciones/2026-09-19-etapa1-pico): el firmware de verificación cargó con BOOTSEL y el informe llegó por USB. PLL y GPOUT0 en ok, pll_hz en 61440000 exactos, y una sola FALLA, gpio20_hz en 0, la esperada sin el puente.
+- Etapa 2, R1 de 330 Ω de GP21 (fila 14) a la fila 24 y el puente de la fila 24 a GP20 (fila 15): la primera lectura dio gpio20_hz en 0 (etapa2-reloj). Sin cambiar el circuito, al apretar el Pico, el cable y la resistencia, dio 12288000 Hz con 0.0 ppm y sin fallas (etapa2-reloj-2). Era un falso contacto en la protoboard; la etapa 1 no lo podía detectar porque no usa ninguna conexión de la protoboard.
+
+Qué queda abierto:
+
+- El Pico no entra hasta el fondo: quedan unos 2 mm de pata a la vista. Hizo contacto al apretarlo, pero hay que volver a apretarlo antes de cada etapa y desconfiar primero del contacto si una lectura da 0.
+- Hace falta un multímetro antes de la etapa 3.
+- R1 quedó puesta en j14 a j24; el puente de GP20 se quitó.

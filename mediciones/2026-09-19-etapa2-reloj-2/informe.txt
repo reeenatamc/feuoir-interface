@@ -1,0 +1,14 @@
+inicio_informe=8 modo=gpout0
+pll_refdiv=1 esperado=1 resultado=ok
+pll_enganchado=1 esperado=1 resultado=ok
+pll_fbdiv=128 esperado=128 resultado=ok
+pll_postdiv1=5 esperado=5 resultado=ok
+pll_postdiv2=5 esperado=5 resultado=ok
+gpout0_enable=1 esperado=1 resultado=ok
+gpout0_dc50=1 esperado=1 resultado=ok
+gpout0_fuente=6 esperado=6 resultado=ok
+gpout0_divisor_entero=5 esperado=5 resultado=ok
+gpout0_divisor_fraccion=0 esperado=0 resultado=ok
+pll_hz=61440000.00 esperado=61440000 diferencia_ppm=0.0 tolerancia_hz=125.0 resultado=ok
+gpio20_hz=12288000.00 esperado=12288000 diferencia_ppm=0.0 tolerancia_hz=125.0 resultado=ok
+fin_informe=8 fallas=0 resultado=ok

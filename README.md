@@ -18,12 +18,12 @@ Al 2026-09-13 no hay hardware: los componentes no llegaron y nada se probó en u
 | medir.py | funciona en la Mac | con la tarjeta USB y la guitarra el 2026-09-19 (docs/bitacora.md, entrada 29) | la guitarra con la carga de la etapa de entrada |
 | analizador.py | cubre lo que se necesita hasta ahora | calibrar.py: 13 pruebas y 180 chequeos con señales sintéticas; tests/mutaciones.py detecta los 20 errores inyectados | nunca se usó con una captura de hardware |
 | Reloj maestro | elegido: GPOUT0 con DC50 | búsqueda exhaustiva de configuraciones con relojes.py; firmware/feuoir compila sin avisos | en una placa |
-| Verificación del reloj | firmware y lectura por USB escritos | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; el firmware compila sin avisos | la lectura de registros, el contador de frecuencia y el puerto USB reales |
+| Verificación del reloj | funciona en la placa | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; en el Pico el 2026-09-19: PLL en 61440000 Hz y 12288000 Hz en GP20 por R1, con 0.0 ppm (docs/bitacora.md, entrada 31) | con los módulos conectados |
 | Jitter | simulado, con la prueba lista | jitter.py: 19 casos contra la teoría; prueba_jitter validada con jitter conocido | la comparación entre GPOUT0 y el oscilador externo |
 | Oscilador externo | previsto en el diseño, con jumper | la opción FEUOIR_RELOJ_EXTERNO compila | no está comprado ni montado |
 | Dominio de reloj | diseño en papel, con jumper de SCK | revisado contra las hojas del PCM1808, el PCM5102A y el RP2040 | las conexiones, los puentes del módulo y el margen de DIN |
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
-| Primer encendido | lista paso a paso en docs/primer-encendido.md | no aplica | sin usar todavía |
+| Primer encendido | etapas 1 y 2 hechas el 2026-09-19 | sin fallas inesperadas; un falso contacto en la protoboard dio 0 Hz hasta apretar el Pico (docs/bitacora.md, entrada 31) | las etapas 3 y 4, que necesitan los módulos y un multímetro |
 | App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones con notas y su salida del estímulo, y la lista de guardadas, en ventana propia | tests/app_contract.py: 52 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 15 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
 | Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría; la etapa de entrada simulada en sus dos versiones: respuesta en frecuencia, transitorio, ruido y carga de la guitarra | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; spice/simulate_input.py: 32 chequeos contra el cálculo a mano del circuito; tests/mutaciones.py detecta los 9 errores inyectados en spice/; el ruido del modelo del TL072H coincide con la hoja a 0.13 dB | discutir la entrada del PCM1808, que con ganancia alta pasa su máximo absoluto (docs/entrada-analogica.md); comparar con el circuito armado |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto | cargar un .uf2 en una placa |
@@ -230,9 +230,9 @@ cmake -S . -B build-externo -DFEUOIR_RELOJ_EXTERNO=ON
 make -C build-externo -j4
 ```
 
-### Firmware de verificación del reloj: sin probar en placa
+### Firmware de verificación del reloj
 
-Está escrito y compila, pero nunca se corrió en un Pico. firmware/verificar_reloj.c hace los pasos 1 y 2 de la verificación sin osciloscopio de docs/reloj.md. Configura el reloj igual que el firmware principal y cada 2 s imprime por USB un informe con:
+Probado en el Pico el 2026-09-19, en las etapas 1 y 2 del primer encendido (docs/bitacora.md, entrada 31). firmware/verificar_reloj.c hace los pasos 1 y 2 de la verificación sin osciloscopio de docs/reloj.md. Configura el reloj igual que el firmware principal y cada 2 s imprime por USB un informe con:
 
 - los registros del PLL y de GPOUT0 leídos de vuelta: REFDIV, FBDIV, POSTDIV1, POSTDIV2, PLL enganchado, ENABLE, DC50, fuente y divisor de GPOUT0
 - la salida del PLL medida con el contador de frecuencia del RP2040, contra el cristal

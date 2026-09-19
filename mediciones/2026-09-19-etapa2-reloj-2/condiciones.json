@@ -1,0 +1,91 @@
+{
+  "fecha_hora": "2026-09-19T11:25:54-05:00",
+  "etiqueta": "etapa2-reloj",
+  "puerto": "/dev/cu.usbmodem14201",
+  "puentes": "GP21 por R1 (330 Ω) a GP20: R1 j14-j24, cable j15-i24; reintento tras apretar el Pico, el cable y la resistencia",
+  "notas": "",
+  "informe_numero": 8,
+  "modo": "gpout0",
+  "fallas": 0,
+  "resultado": "ok",
+  "coherente": true,
+  "chequeos_fallidos": [],
+  "chequeos": [
+    {
+      "chequeo": "pll_refdiv",
+      "valor": 1,
+      "esperado": 1,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "pll_enganchado",
+      "valor": 1,
+      "esperado": 1,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "pll_fbdiv",
+      "valor": 128,
+      "esperado": 128,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "pll_postdiv1",
+      "valor": 5,
+      "esperado": 5,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "pll_postdiv2",
+      "valor": 5,
+      "esperado": 5,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "gpout0_enable",
+      "valor": 1,
+      "esperado": 1,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "gpout0_dc50",
+      "valor": 1,
+      "esperado": 1,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "gpout0_fuente",
+      "valor": 6,
+      "esperado": 6,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "gpout0_divisor_entero",
+      "valor": 5,
+      "esperado": 5,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "gpout0_divisor_fraccion",
+      "valor": 0,
+      "esperado": 0,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "pll_hz",
+      "valor": 61440000.0,
+      "esperado": 61440000,
+      "diferencia_ppm": 0.0,
+      "tolerancia_hz": 125.0,
+      "resultado": "ok"
+    },
+    {
+      "chequeo": "gpio20_hz",
+      "valor": 12288000.0,
+      "esperado": 12288000,
+      "diferencia_ppm": 0.0,
+      "tolerancia_hz": 125.0,
+      "resultado": "ok"
+    }
+  ]
+}
