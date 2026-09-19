@@ -10,15 +10,14 @@ With the synthetic source the stimulus goes straight into the simulated converte
 out through the Mac's default output and has to come back through a cable to the input.
 """
 import json
-import subprocess
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-import sounddevice as sd
 from scipy.io import wavfile
 
 import analizador as an
+import device_volume
 
 ROOT = Path(__file__).resolve().parent.parent
 RAMP_S = 0.005
@@ -37,16 +36,9 @@ MEASUREMENTS = [
 ]
 
 
-def input_volume(index):
-    """Same as medir.py: osascript only reports the volume of the default input, and it is only read."""
-    if index != sd.query_devices(kind="input")["index"]:
-        return None
-    try:
-        r = subprocess.run(["osascript", "-e", "input volume of (get volume settings)"],
-                           capture_output=True, text=True)
-        return int(r.stdout)
-    except (OSError, ValueError):   # "missing value" when the device has no volume control
-        return None
+def input_volume(name):
+    """Same as medir.py: the input volume of that device and its gain in dB, only read, never changed."""
+    return device_volume.input_volume(name), device_volume.input_gain_db(name)
 
 
 def new_folder(destination, label, now):
@@ -180,11 +172,11 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
     described = source.describe()
     if described["tipo"] == "sintetica":
         output_used = {"tipo": "lazo de la fuente sintética"}
-        volume = None
+        volume, gain_db = None, None
     else:
         kind = "salida por defecto de la Mac" if output["index"] is None else "dispositivo"
         output_used = {"tipo": kind, "nombre": output["name"], "indice": output["index"]}
-        volume = input_volume(described["indice"])
+        volume, gain_db = input_volume(described["nombre"])
 
     folder = new_folder(destination, info["label"], now)
     for name, x in m.captures.items():
@@ -197,6 +189,7 @@ def measure(measurement_id, source, processor, signal, destination=ROOT / "medic
         "salida_del_estimulo": output_used if stimulus else None,
         "frecuencia_muestreo_hz": processor.fs,
         "volumen_entrada_sistema": volume,
+        "ganancia_entrada_db": gain_db,
         "estimulo": stimulus or None,
         "resumen": summary,
         "notas": "",

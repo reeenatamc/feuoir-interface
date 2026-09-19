@@ -64,7 +64,7 @@ Hace de conversor sin hardware. Genera la señal elegida (seno, barrido de 20 Hz
 
 Las listas salen de PortAudio. "Buscar entradas y salidas de nuevo", con la fuente sintética elegida, reinicia PortAudio y encuentra los dispositivos conectados después de abrir la app. Con una entrada real abierta solo relee las listas, porque reiniciar cortaría el audio: para ver una interfaz recién conectada hay que pasar primero a la fuente sintética.
 
-La app pide 48 kHz y, si la entrada no lo acepta, usa la frecuencia por defecto del dispositivo. Toma el primer canal. El volumen de entrada del sistema no se toca: solo se lee para guardarlo en las condiciones, igual que en medir.py.
+La app pide 48 kHz y, si la entrada no lo acepta, usa la frecuencia por defecto del dispositivo. Toma el primer canal. El volumen de entrada no se toca: el de la entrada elegida, sea o no la de por defecto, y su ganancia en dB se leen con device_volume.py para guardarlos en las condiciones, igual que en medir.py. tests/app_contract.py compara ese volumen con osascript y la ganancia con la conversión a dB de Core Audio.
 
 Con una entrada real, el menú de la señal muestra la salida del estímulo: la salida por defecto de la Mac o cualquier otra, sin cambiar la configuración del sistema. La app comprueba que la salida elegida acepte la frecuencia de muestreo, y condiciones.json guarda por cuál sonó el estímulo. Con la fuente sintética la salida no se usa, porque el estímulo entra directo al conversor simulado.
 

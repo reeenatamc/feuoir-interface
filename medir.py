@@ -1,4 +1,4 @@
-import argparse, json, os, re, subprocess
+import argparse, json, os, re
 from datetime import datetime
 from pathlib import Path
 
@@ -6,38 +6,39 @@ import sounddevice as sd, numpy as np, matplotlib.pyplot as plt
 from scipy.io import wavfile
 
 import analizador as an
+import device_volume
 
 FS, SEG = 48000, 5
-DISPOSITIVO = 0           # pon aquí el número del paso 2
+SETTLE_S = 1.0            # la tarjeta USB da un golpe al abrir la grabación; este primer segundo se graba y se descarta
+DISPOSITIVO = "USB PnP Sound Device"   # nombre como lo lista dispositivos.py; el número cambia según lo conectado
 
 p = argparse.ArgumentParser(description="Graba una captura y la guarda en mediciones/<fecha>-<etiqueta>/")
 p.add_argument("etiqueta", help="nombre de la medición, por ejemplo piso-de-ruido")
 p.add_argument("--notas", default="", help="texto libre que se guarda en condiciones.json")
+p.add_argument("--segundos", type=float, default=SEG, help=f"duración de la captura, por defecto {SEG}")
 args = p.parse_args()
 if not re.fullmatch(r"[\w.-]+", args.etiqueta):
     p.error("la etiqueta solo puede tener letras, números, puntos, guiones y guiones bajos")
 
 
-def volumen_entrada(indice):
-    # osascript solo da el volumen de la entrada por defecto del sistema
-    if indice != sd.query_devices(kind="input")["index"]:
-        print("Aviso: el dispositivo no es la entrada por defecto, su volumen no se puede leer")
-        return None
-    try:
-        r = subprocess.run(["osascript", "-e", "input volume of (get volume settings)"],
-                           capture_output=True, text=True)
-        return int(r.stdout)
-    except (OSError, ValueError):   # "missing value" si no tiene control de volumen
-        print("Aviso: el dispositivo no reporta volumen de entrada")
-        return None
+def find_input(name):
+    matches = [d for d in sd.query_devices() if d["name"] == name and d["max_input_channels"] > 0]
+    if not matches:
+        raise SystemExit(f"No está conectada la entrada «{name}». Revisa el cable y corre dispositivos.py")
+    return matches[0]
 
 
-info = sd.query_devices(DISPOSITIVO, "input")
-volumen = volumen_entrada(info["index"])
+info = find_input(DISPOSITIVO)
+volumen = device_volume.input_volume(info["name"])
+ganancia_db = device_volume.input_gain_db(info["name"])
+if volumen is None:
+    print("Aviso: el dispositivo no reporta volumen de entrada")
+else:
+    print(f"Volumen de entrada del dispositivo: {volumen} ({ganancia_db} dB)")
 
 ahora = datetime.now().astimezone()
-print("Grabando 5 segundos...")
-x = sd.rec(int(SEG*FS), samplerate=FS, channels=1, device=DISPOSITIVO, blocking=True)[:,0]
+print(f"Grabando {args.segundos:g} segundos...")
+x = sd.rec(int((SETTLE_S + args.segundos)*FS), samplerate=FS, channels=1, device=info["index"], blocking=True)[int(SETTLE_S*FS):,0]
 
 base = Path(__file__).resolve().parent / "mediciones" / f"{ahora:%Y-%m-%d}-{args.etiqueta}"
 carpeta, n = base, 2
@@ -56,8 +57,10 @@ condiciones = {
     "etiqueta": args.etiqueta,
     "dispositivo": {"nombre": info["name"], "indice": info["index"]},
     "frecuencia_muestreo_hz": FS,
-    "duracion_s": SEG,
+    "duracion_s": args.segundos,
+    "descartado_al_inicio_s": SETTLE_S,
     "volumen_entrada_sistema": volumen,
+    "ganancia_entrada_db": ganancia_db,
     "pico_dbfs": round(pico_db, 2),
     "rms_dbfs": round(rms_db, 2),
     "notas": args.notas,

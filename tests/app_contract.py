@@ -12,9 +12,11 @@ source delivers audio in real time. The checks are printed in Spanish.
 """
 import asyncio
 import base64
+import ctypes
 import json
 import os
 import socket
+import subprocess
 import sys
 import tempfile
 import traceback
@@ -27,6 +29,7 @@ from aiohttp import ClientSession, web
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import analizador as an  # noqa: E402
+import device_volume  # noqa: E402
 from app import sources  # noqa: E402
 from app.processing import Processor  # noqa: E402
 from app.server import Engine, create_app  # noqa: E402
@@ -331,9 +334,40 @@ async def contract(tmp):
         engine.close()
 
 
+def volumes():
+    """The volume saved in condiciones.json, read from Core Audio for any device, against two references on this
+    Mac: osascript, which only knows the default input, and Core Audio's own conversion of that volume to dB."""
+    import sounddevice as sd
+    name = sd.query_devices(kind="input")["name"]
+    r = subprocess.run(["osascript", "-e", "input volume of (get volume settings)"], capture_output=True, text=True)
+    reference = int(r.stdout) if r.stdout.strip().isdigit() else None
+    volume = device_volume.input_volume(name)
+    check(f"volumen: el de la entrada por defecto ({name}) coincide con osascript", volume == reference,
+          (volume, reference))
+
+    gain_db = device_volume.input_gain_db(name)
+    device_id = device_volume._find(name)
+    converted = None
+    for element in (0, 1):
+        addr = device_volume._Address(device_volume._fourcc("v2db"), device_volume.SCOPE_INPUT, element)
+        scalar = device_volume._input_value(device_id, device_volume.VOLUME_SCALAR)
+        if scalar is None or not device_volume._ca.AudioObjectHasProperty(device_id, ctypes.byref(addr)):
+            continue
+        value, size = ctypes.c_float(scalar), ctypes.c_uint32(4)
+        if not device_volume._ca.AudioObjectGetPropertyData(device_id, ctypes.byref(addr), 0, None,
+                                                            ctypes.byref(size), ctypes.byref(value)):
+            converted = round(value.value, 2)
+            break
+    check("volumen: la ganancia en dB coincide con la conversión de Core Audio",
+          gain_db is not None and converted is not None and abs(gain_db - converted) <= 0.01, (gain_db, converted))
+    check("volumen: una entrada que no existe da None, no un número",
+          device_volume.input_volume("no existe") is None and device_volume.input_gain_db("no existe") is None)
+
+
 def main():
     processing()
     devices()
+    volumes()
     with tempfile.TemporaryDirectory(prefix="app-") as tmp:
         try:
             asyncio.run(contract(Path(tmp)))

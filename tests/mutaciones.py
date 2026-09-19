@@ -72,11 +72,17 @@ MUTACIONES = [
 ]
 
 # Los archivos que necesita tests/app_contract.py para correr en una carpeta aparte
-ARCHIVOS_APP = ["analizador.py", "app/__init__.py", "app/processing.py", "app/sources.py", "app/measurements.py",
+ARCHIVOS_APP = ["analizador.py", "device_volume.py", "app/__init__.py", "app/processing.py", "app/sources.py", "app/measurements.py",
                 "app/server.py", "tests/app_contract.py"]
 
 # nombre, error que simula, archivo, texto original, texto que lo reemplaza
 MUTACIONES_APP = [
+    ("volumen_de_la_salida", "volumen leído del lado de la salida del dispositivo en vez de la entrada",
+     "device_volume.py", 'SCOPE_INPUT = _fourcc("inpt")', 'SCOPE_INPUT = _fourcc("outp")'),
+    ("ganancia_leida_como_escalar", "ganancia en dB que guarda el volumen de 0 a 1 en vez de los dB",
+     "device_volume.py", 'VOLUME_DB = _fourcc("vold")', 'VOLUME_DB = _fourcc("volm")'),
+    ("volumen_en_otra_escala", "volumen llevado a 0-127 en vez de la escala de 0 a 100 de la Mac",
+     "device_volume.py", "round(scalar * 100)", "round(scalar * 127)"),
     ("saturacion_con_muestras_salteadas", "detector de saturación que mira una muestra de cada dos",
      "app/processing.py", "peak = float(np.max(np.abs(x)))", "peak = float(np.max(np.abs(x[::2])))"),
     ("pico_sin_sostener_entre_bloques", "pico del cuadro que se queda con el último bloque en vez del máximo",
