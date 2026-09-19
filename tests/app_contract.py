@@ -272,6 +272,12 @@ async def contract(tmp):
                 check("captura: pico -6 dBFS", abs(result["pico_dbfs"] + 6.0) <= 0.1, result)
                 check("captura: las notas quedan recortadas de espacios en condiciones.json",
                       conditions["notas"] == "Ganancia de entrada a 40 dB", conditions["notas"])
+                environment = {"sistema_operativo": conditions.get("sistema_operativo"),
+                               "nivel_entrada": conditions.get("nivel_entrada")}
+                check("captura: condiciones con el sistema operativo y el nivel de entrada",
+                      isinstance(environment["sistema_operativo"], str) and environment["sistema_operativo"] != ""
+                      and isinstance(environment["nivel_entrada"], dict)
+                      and set(environment["nivel_entrada"]) == {"valor", "origen"}, environment)
 
             await c.send(type="measure", measurement="thd_n")
             await c.send(type="measure", measurement="snr")

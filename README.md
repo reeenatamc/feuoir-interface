@@ -4,6 +4,8 @@ Interfaz de audio USB propia, para guitarra. Una Raspberry Pi Pico (RP2040) toma
 
 Al 2026-09-19 el Pico está probado en una placa: el reloj maestro sale por GP21 y la Mac lo reconoce como micrófono USB con un tono de prueba. Los módulos del ADC y del DAC todavía no llegaron. El diseño y la simulación de la parte analógica van por separado y no están en este repo.
 
+Las mediciones se hacen en dos máquinas: la Mac, donde empezó el repo, y una laptop ASUS con Windows, con una tarjeta de sonido USB externa. Las dos usan los mismos scripts, y cada medición guarda el sistema operativo, la API de audio y el nivel de entrada, que es lo que hace falta para poder compararlas (docs/configuracion-windows.md).
+
 ## Cómo está armado
 
 - El PCM1808 trabaja en modo maestro: genera BCK y LRCK a 48 kHz a partir de su reloj maestro SCKI, de 12.288 MHz.
@@ -15,19 +17,19 @@ Al 2026-09-19 el Pico está probado en una placa: el reloj maestro sale por GP21
 
 | Parte | Estado | Probado | Sin probar |
 |---|---|---|---|
-| medir.py | funciona en la Mac | con la tarjeta USB y la guitarra el 2026-09-19 (docs/bitacora.md, entrada 29) | la guitarra con la carga de la etapa de entrada |
+| medir.py y dispositivos.py | funcionan en la Mac y en Windows | con la tarjeta USB y la guitarra en la Mac el 2026-09-19 (docs/bitacora.md, entrada 30); en Windows corren por WASAPI a 48 kHz y guardan su carpeta, comprobado con una captura de prueba que no se conservó (docs/bitacora.md, entrada 29) | la guitarra con la carga de la etapa de entrada; la tarjeta de sonido USB y la guitarra en Windows |
 | analizador.py | cubre lo que se necesita hasta ahora | calibrar.py: 13 pruebas y 180 chequeos con señales sintéticas; tests/mutaciones.py detecta los 20 errores inyectados | nunca se usó con una captura de hardware |
 | Reloj maestro | elegido: GPOUT0 con DC50 | búsqueda exhaustiva de configuraciones con relojes.py; firmware/feuoir compila sin avisos | en una placa |
-| Verificación del reloj | funciona en la placa | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; en el Pico el 2026-09-19: PLL en 61440000 Hz y 12288000 Hz en GP20 por R1, con 0.0 ppm (docs/bitacora.md, entrada 31) | con los módulos conectados |
+| Verificación del reloj | funciona en la placa | firmware/informe.c con 11 casos en la Mac; leer_verificacion.py con un pseudo terminal, 13 casos; en el Pico el 2026-09-19: PLL en 61440000 Hz y 12288000 Hz en GP20 por R1, con 0.0 ppm (docs/bitacora.md, entrada 32) | con los módulos conectados |
 | Jitter | simulado, con la prueba lista | jitter.py: 19 casos contra la teoría; prueba_jitter validada con jitter conocido | la comparación entre GPOUT0 y el oscilador externo |
 | Oscilador externo | previsto en el diseño, con jumper | la opción FEUOIR_RELOJ_EXTERNO compila | no está comprado ni montado |
 | Dominio de reloj | diseño en papel, con jumper de SCK | revisado contra las hojas del PCM1808, el PCM5102A y el RP2040 | las conexiones, los puentes del módulo y el margen de DIN |
 | Resistencias en serie | calculadas: 330 Ω en el reloj maestro y 470 Ω en BCK, LRCK, DOUT y DIN | cálculo contra los límites de corriente y los umbrales de las hojas | sin montar |
-| Primer encendido | etapas 1 y 2 hechas el 2026-09-19 | sin fallas inesperadas; un falso contacto en la protoboard dio 0 Hz hasta apretar el Pico (docs/bitacora.md, entrada 31) | las etapas 3 y 4, que necesitan los módulos y un multímetro |
-| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones con notas y su salida del estímulo, y la lista de guardadas, en ventana propia | tests/app_contract.py: 52 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 15 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
+| Primer encendido | etapas 1 y 2 hechas el 2026-09-19 | sin fallas inesperadas; un falso contacto en la protoboard dio 0 Hz hasta apretar el Pico (docs/bitacora.md, entrada 32) | las etapas 3 y 4, que necesitan los módulos y un multímetro |
+| App de medición en vivo | construida: forma de onda, espectro, nivel con aviso de saturación, cinco mediciones con notas y su salida del estímulo, y la lista de guardadas, en ventana propia | tests/app_contract.py: 53 comprobaciones por WebSocket con la fuente sintética; tests/mutaciones.py detecta los 17 errores inyectados; la ventana abre en la Mac; con el micrófono interno abre a 48 kHz y los cuadros llegan a ritmo real | la tarjeta de sonido USB, la interfaz y las mediciones con el estímulo por cable |
 | Simulación del circuito analógico | ngspice 47 compilado en ~/spice y verificado contra la teoría; la etapa de entrada simulada en sus dos versiones: respuesta en frecuencia, transitorio, ruido y carga de la guitarra | spice/verify.py: 13 chequeos con un divisor y un filtro RC en AC, escalón y ruido; spice/simulate_input.py: 32 chequeos contra el cálculo a mano del circuito; tests/mutaciones.py detecta los 9 errores inyectados en spice/; el ruido del modelo del TL072H coincide con la hoja a 0.13 dB | discutir la entrada del PCM1808, que con ganancia alta pasa su máximo absoluto (docs/entrada-analogica.md); comparar con el circuito armado |
 | Toolchain | instalado en ~/pico | compila blink y el firmware del proyecto; carga en el Pico con BOOTSEL o con picotool load | nada |
-| Fase 5: captura por USB | primer paso: firmware/tono_usb.c, el Pico como micrófono UAC2 con tono de prueba y el ritmo del USB | la Mac lo ve como feuoir; 240000 muestras por toma idénticas a la tabla y el canal de silencio en ceros exactos (docs/bitacora.md, entrada 32) | el ritmo del reloj de audio con 47, 48 y 49 muestras por paquete; el audio del PCM1808 |
+| Fase 5: captura por USB | primer paso: firmware/tono_usb.c, el Pico como micrófono UAC2 con tono de prueba y el ritmo del USB | la Mac lo ve como feuoir; 240000 muestras por toma idénticas a la tabla y el canal de silencio en ceros exactos (docs/bitacora.md, entrada 33) | el ritmo del reloj de audio con 47, 48 y 49 muestras por paquete; el audio del PCM1808 |
 | Fase 6: reproducción | no empezada | opciones de realimentación investigadas | todo |
 
 Hasta que lleguen los módulos, el firmware nuevo se prueba en el Pico solo, con señales que genera él mismo.
@@ -35,19 +37,19 @@ Hasta que lleguen los módulos, el firmware nuevo se prueba en el Pico solo, con
 ## Estructura
 
 ```
-medir.py               captura de la entrada de audio de la Mac
+medir.py               captura de una entrada de audio, en la Mac o en Windows
 analizador.py          análisis y señales de prueba
 calibrar.py            verificación del análisis con señales sintéticas
 relojes.py             búsqueda de configuraciones del reloj maestro
 jitter.py              simulación del efecto del jitter
 leer_verificacion.py   guarda el informe del firmware de verificación
-dispositivos.py        lista las entradas de audio de la Mac
-device_volume.py       lee el volumen y la ganancia de entrada de cualquier dispositivo
+dispositivos.py        lista las entradas con su API y describe el entorno de la medición
+device_volume.py       lee el volumen y la ganancia de entrada de cualquier dispositivo, en macOS
 app/                   app de medición en vivo; la interfaz está en app/ui
 spice/                 simulación con ngspice: ejecutor, netlists, modelos del TL072, verificación y etapa de entrada
 tests/                 errores inyectados y pruebas sin placa del firmware, de la lectura y de la app
 firmware/              reloj maestro y firmware de verificación para el Pico
-docs/                  reloj, dominio de reloj, audio USB, entrada analógica, simulador, compras, primer encendido, app, bitácora y hojas de datos
+docs/                  reloj, dominio de reloj, audio USB, entrada analógica, simulador, compras, primer encendido, app, configuración de Windows, bitácora y hojas de datos
 calibraciones/         resultados de calibrar.py, de tests/mutaciones.py y de la verificación del simulador y sus modelos
 simulaciones/          resultados de jitter.py
 mediciones/            capturas y verificaciones, y las simulaciones de la etapa de entrada
@@ -58,15 +60,17 @@ mediciones/            capturas y verificaciones, y las simulaciones de la etapa
 - Cada resultado queda guardado con sus condiciones en una carpeta con fecha. Nada queda solo en la terminal.
 - Ninguna función entra a analizador.py sin su prueba en calibrar.py, y cada capacidad nueva entra además con una mutación en tests/mutaciones.py que la ataque.
 - Cada decisión queda en docs/bitacora.md, con qué se midió, en qué condiciones y por qué.
-- El código va en inglés: archivos, nombres, comentarios y contratos. Todo lo que ve el usuario va en español: la interfaz, los avisos, la salida de consola y la documentación. La app ya sigue esta regla; el código anterior a ella todavía está en español.
-- El volumen de entrada del sistema queda en 71, ver Volumen de entrada.
+- El código va en inglés: archivos, nombres y contratos. Los comentarios y las docstrings van en español, igual que todo lo que ve el usuario: la interfaz, los avisos, la salida de consola y la documentación. La app y los dos scripts de medición ya siguen esta regla; los comentarios de la app y el código anterior a ella todavía están en inglés o en español sin migrar.
+- Cada medición guarda el sistema operativo, la API de audio y el nivel de entrada. Sin esos tres datos una medición hecha en la Mac y otra hecha en la ASUS no se pueden comparar.
+- El nivel de entrada se anota una vez y no se toca, ver Nivel de entrada.
 
 ## Qué mide medir.py
 
 Graba 5 segundos de una entrada de audio a 48 kHz y calcula el pico y el RMS de la señal. Cada corrida guarda el audio, una gráfica con la forma de onda y el espectro en dBFS, y las condiciones en que se hizo:
 
 ```
-.venv/bin/python medir.py piso-de-ruido --notas "ventana cerrada"
+.venv/bin/python medir.py piso-de-ruido --notas "ventana cerrada"              en la Mac
+.venv/Scripts/python medir.py piso-de-ruido --dispositivo 18 --nivel-entrada 50    en Windows
 ```
 
 ```
@@ -76,26 +80,48 @@ mediciones/2026-09-13-piso-de-ruido/
   condiciones.json
 ```
 
-condiciones.json registra fecha y hora, dispositivo (nombre e índice según sounddevice), frecuencia de muestreo, duración, volumen de entrada del dispositivo y su ganancia en dB, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
+condiciones.json registra fecha y hora, etiqueta, sistema operativo, dispositivo (nombre, índice y API de audio), canal, frecuencia de muestreo, duración, cuánto se descartó al inicio, nivel de entrada con el origen del dato, volumen de entrada del dispositivo y su ganancia en dB, pico y RMS en dBFS, y notas. Si la etiqueta se repite el mismo día, la carpeta nueva termina en -2, -3, etc.
 
-El dispositivo se elige por su nombre con DISPOSITIVO dentro de medir.py, hoy la tarjeta USB (USB PnP Sound Device), o con --dispositivo, por ejemplo --dispositivo feuoir para el Pico. --canal elige cuál de sus canales se analiza y se guarda, desde 1, y queda en condiciones.json. El número cambia según lo que esté conectado y el nombre no. dispositivos.py lista las entradas. Si la tarjeta no está conectada, medir.py lo dice y no graba.
+El dispositivo se elige con --dispositivo, por su nombre o por el índice que lista dispositivos.py; sin eso se usa la tarjeta USB (USB PnP Sound Device). Si esa entrada no acepta un canal a 48 kHz, medir.py lo dice y no graba. --canal elige cuál de sus canales se analiza y se guarda, desde 1, y queda en condiciones.json. La tarjeta da un golpe al abrir la grabación: medir.py graba un segundo de más y lo descarta, y lo anota en descartado_al_inicio_s.
+
+El nivel de entrada se pasa con --nivel-entrada, o dejando puesta la variable FEUOIR_NIVEL_ENTRADA. En la Mac también se lee solo, con device_volume.py (Core Audio): vale para cualquier dispositivo, no solo el de por defecto, y guarda el volumen y la ganancia en dB. Windows no expone ese dato, así que ahí se anota a mano. Sin el nivel, medir.py avisa y lo guarda como null: esa captura sirve para mirarla, no para compararla.
 
 El pico, el RMS y el espectro salen de analizador.py, el mismo código que verifica calibrar.py.
 
 Instalación:
 
 ```
-python3 -m venv .venv
+python3 -m venv .venv                                              en la Mac
 .venv/bin/pip install sounddevice numpy matplotlib scipy
+
+py -m venv .venv                                                   en Windows
+.venv/Scripts/pip install sounddevice numpy matplotlib scipy
 ```
+
+En Windows el python del entorno está en `.venv/Scripts/python`, no en `.venv/bin/python`: donde el resto de este README diga `.venv/bin/python`, en Windows va `.venv/Scripts/python`.
 
 ## Los valores son dBFS
 
 Pico y RMS están en dBFS, decibeles relativos al fondo de escala del conversor, donde 0 dBFS es la muestra más grande que se puede representar. No son niveles absolutos de presión sonora (dB SPL) ni voltajes. El mismo sonido da otro número con otro dispositivo u otro volumen de entrada, y para pasar a voltios hace falta calibrar la entrada con una señal conocida. El RMS se calcula contra 1.0, así que una senoidal a fondo de escala da -3 dBFS.
 
-## Volumen de entrada
+## Nivel de entrada
 
-El volumen de entrada del sistema está en 71 y no se toca. Si cambia, las mediciones dejan de ser comparables entre sí. Cada condiciones.json guarda el valor que tenía en esa corrida.
+El nivel del control de entrada se anota una vez y no se vuelve a mover. Si cambia, las mediciones dejan de ser comparables entre sí y hay que repetirlas. En la Mac está en 71 y se lee solo. En Windows hay que anotarlo a mano, y en la ASUS es el nivel de la tarjeta de sonido USB, no el del micrófono interno: docs/configuracion-windows.md dice dónde está y qué más hay que apagar para que Windows no toque la señal.
+
+Cada condiciones.json guarda el valor y de dónde salió, para que se vea si el número es leído o anotado.
+
+## Las entradas de audio y sus APIs
+
+```
+.venv/bin/python dispositivos.py           en la Mac
+.venv/Scripts/python dispositivos.py       en Windows
+```
+
+Una fila por entrada, con índice, nombre, API de audio, canales, frecuencia y si acepta un canal a 48 kHz, y marca cuál es la entrada por defecto del sistema.
+
+En Windows el mismo aparato aparece una vez por cada API: MME, DirectSound, WASAPI y WDM-KS son caminos distintos hacia el mismo conversor. La tabla marca con un asterisco las filas de WASAPI, que es la que habla con el driver sin remuestrear ni mezclar por el medio, y es la que hay que elegir. MME además recorta los nombres a 31 caracteres, así que la misma tarjeta puede aparecer con dos nombres. En la Mac hay una sola API, Core Audio, y cada entrada aparece una vez.
+
+medir.py y la app toman de dispositivos.py el sistema operativo, la API de audio y el nivel de entrada que guardan en condiciones.json.
 
 Cada dispositivo tiene su propio volumen. device_volume.py lo lee de Core Audio para cualquier entrada, sea o no la de por defecto, y también la ganancia en dB, porque el volumen solo engaña: la tarjeta USB marca 0, y eso es 0 dB de ganancia, el mínimo de su rango de 0 a 23.8 dB, no silencio. Solo lee, no cambia nada de la Mac. Al 2026-09-19 la tarjeta está en 0 (0 dB) y tampoco se toca.
 
@@ -232,7 +258,7 @@ make -C build-externo -j4
 
 ### Firmware de verificación del reloj
 
-Probado en el Pico el 2026-09-19, en las etapas 1 y 2 del primer encendido (docs/bitacora.md, entrada 31). firmware/verificar_reloj.c hace los pasos 1 y 2 de la verificación sin osciloscopio de docs/reloj.md. Configura el reloj igual que el firmware principal y cada 2 s imprime por USB un informe con:
+Probado en el Pico el 2026-09-19, en las etapas 1 y 2 del primer encendido (docs/bitacora.md, entrada 32). firmware/verificar_reloj.c hace los pasos 1 y 2 de la verificación sin osciloscopio de docs/reloj.md. Configura el reloj igual que el firmware principal y cada 2 s imprime por USB un informe con:
 
 - los registros del PLL y de GPOUT0 leídos de vuelta: REFDIV, FBDIV, POSTDIV1, POSTDIV2, PLL enganchado, ENABLE, DC50, fuente y divisor de GPOUT0
 - la salida del PLL medida con el contador de frecuencia del RP2040, contra el cristal
@@ -285,7 +311,7 @@ cmake -S . -B build
 make -C build tono_usb -j4
 ```
 
-Probado en el Pico el 2026-09-19 (docs/bitacora.md, entrada 32). Se carga con BOOTSEL o, si el Pico corre el firmware de verificación, con picotool load -f -x firmware/build/tono_usb.uf2. Para grabarlo:
+Probado en el Pico el 2026-09-19 (docs/bitacora.md, entrada 33). Se carga con BOOTSEL o, si el Pico corre el firmware de verificación, con picotool load -f -x firmware/build/tono_usb.uf2. Para grabarlo:
 
 ```
 .venv/bin/python medir.py tono-usb --dispositivo feuoir --canal 1
@@ -301,6 +327,7 @@ Probado en el Pico el 2026-09-19 (docs/bitacora.md, entrada 32). Se carga con BO
 - docs/entrada-analogica.md: la etapa analógica de entrada en sus dos versiones, las condiciones para simularla y los efectos que hay que conocer
 - docs/simulador-spice.md: por qué ngspice y no LTspice, cómo se instala sin Homebrew, cómo se verifica contra la teoría y qué hay que saber de los modelos del TL072
 - docs/primer-encendido.md: lista paso a paso para el primer encendido, con qué medir y qué esperar en cada etapa
+- docs/configuracion-windows.md: cómo dejar Windows sin tocar la señal antes de medir, y por qué el nivel de entrada se anota y no se mueve
 - docs/app.md: la app de medición en vivo: cómo abrirla, cómo está hecha, qué calcula, sus mediciones, el contrato del WebSocket y las pruebas
 - docs/app-cascara.md: por qué la app es una ventana de pywebview con Python detrás, y qué se descartó
 - docs/app-ideas.md: ideas para la app, anotadas en vez de construidas

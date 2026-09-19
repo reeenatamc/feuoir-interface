@@ -21,12 +21,14 @@ From the interface to Python:
   clear_clipping  resets the clipping warning
   refresh_devices reads the Mac's inputs and outputs again
   list_saved      asks for the list of saved measurements
-  open_saved      {"folder": name or null}: opens that measurement, or the measurements folder, in Finder
+  open_saved      {"folder": name or null}: opens that measurement, or the measurements folder, in the file manager
 """
 import asyncio
 import json
+import os
 import queue
 import subprocess
+import sys
 import threading
 from collections import deque
 from pathlib import Path
@@ -43,6 +45,16 @@ FRAMES_PER_SECOND = 30
 UI_DIST = Path(__file__).resolve().parent / "ui" / "dist"
 
 
+def open_in_file_manager(path):
+    """Opens a folder in Finder, in the Explorer or in the desktop's file manager."""
+    if sys.platform == "darwin":
+        subprocess.run(["open", str(path)], check=False)
+    elif os.name == "nt":
+        os.startfile(str(path))     # the folder was already checked against destination
+    else:
+        subprocess.run(["xdg-open", str(path)], check=False)
+
+
 class Engine:
     """Owns the source, the block queue and the processor. A thread takes blocks off the queue and processes them."""
 
@@ -57,7 +69,7 @@ class Engine:
         self.outputs = sources.list_outputs()
         self.output_id = "default"
         self.measuring = None
-        self.open_path = lambda path: subprocess.run(["open", str(path)], check=False)   # the test replaces it
+        self.open_path = open_in_file_manager   # the test replaces it
         self._stop = threading.Event()
         self._thread = threading.Thread(target=self._process, name="processing", daemon=True)
         self._thread.start()
