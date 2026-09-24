@@ -103,8 +103,10 @@ STEPS = [
     ("dec", None, "Dos lentejitas más con 104 impreso",
      "Una con una patita en la tira roja y la otra en la azul\ndel mismo costado. Lo mismo con la otra, en el otro costado."),
     ("pot", None, "La perilla que gira, clavada en la tabla",
-     "Sus tres patitas en a3, a5 y a7, con el eje hacia la fila 1.\n"
-     "Luego tres cables: b3 a b14, b5 a d14 y b7 a b15.\n"
+     "Sus tres patitas en a3, a5 y a7, con el cuerpo redondo colgando\n"
+     "hacia afuera de la tabla, para que no tape las letras b c d e.\n"
+     "Luego tres cables: b3 a b14, b5 a d14 y b7 a b15. Si el cuerpo\n"
+     "tapa alguno, usa c, d o e de esa misma fila, es el mismo punto.\n"
      "Si no quieres perilla: un tubito de a14 a b15 y nada más."),
     ("ext", None, "La guitarra entra y la señal sale",
      "Vivo de la guitarra a a22, su malla a una tira de tierra.\nSalida j11 al cable de la tarjeta, su malla a tierra."),
@@ -228,8 +230,10 @@ def draw_pot(ax, live):
         x, y = hole_xy(hole)
         ax.plot(x, y, "o", color=color, ms=7, zorder=7)
     if live:
-        ax.add_patch(FancyBboxPatch((X["a"] - 1.1, -7.9), 2.2, 6.0, boxstyle="round,pad=0.3",
+        ax.add_patch(FancyBboxPatch((X["a"] - 3.2, -7.9), 3.0, 6.0, boxstyle="round,pad=0.3",
                                     fc="#b0855b", ec="#6d4c41", alpha=0.35, zorder=1))
+        ax.text(X["a"] - 1.7, -10.2, "el cuerpo redondo\ncuelga por fuera", ha="center", va="top", fontsize=9,
+                color="#6d4c41")
         zoom_knob(ax, -7.4, -15.0)
 
 
