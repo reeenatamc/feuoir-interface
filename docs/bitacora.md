@@ -740,3 +740,12 @@ Decisiones del armado, que son de trazado y no tocan el diseño:
 docs/compras.md no tenía las pasivas de la etapa, solo el TL072 y las pilas. Quedan anotadas: 1 MΩ, 1 kΩ y 4.7 kΩ, el potenciómetro de 10 kΩ lineal, y los condensadores de 100 nF, 1 nF y 2.2 µF, con la nota de que el de 2.2 µF es el único que puede venir polarizado y va con el lado marcado hacia el PCM1808.
 
 Verificación por mutaciones con el modelo de guitarra nuevo: las 53 mutaciones hacen fallar sus pruebas (calibraciones/2026-09-23-mutaciones-2). La corrida anterior se había cortado por un control de la app que compara la ganancia en dB de la entrada por defecto con la conversión de Core Audio: con unos audífonos Bluetooth como entrada por defecto, el aparato reporta -2.13 dB por un lado y -9.41 por el otro. No es del repo, pero conviene recordarlo: esa prueba depende de qué entrada tenga el sistema puesta.
+
+## Entrada 37: el armado en una imagen por paso (2026-09-23)
+
+El dibujo completo de la protoboard sirve para comprobar, no para armar: Renata lo mira y ve veinte cosas a la vez. docs/armado/draw_input_stage_steps.py parte el mismo armado en 21 pasos, uno por pieza, y saca una imagen de cada uno en docs/armado/pasos/ más las 21 juntas en docs/armado/etapa_entrada_pasos.pdf. En cada imagen, lo que ya está puesto va en gris claro, la pieza del paso va en color y lo que viene después no se dibuja. Debajo, la frase con los agujeritos exactos.
+
+El guion importa LAYOUT, WIRES y check() de draw_input_stage_breadboard, así que los pasos salen de la misma placa verificada contra input_stage_split y no pueden separarse de ella. El orden es: la piecita negra, las pasivas, los cables, la unión de las dos tierras, el desacoplo, el potenciómetro, las puntas de entrada y salida, y las pilas al final.
+
+Dos cosas que se arrastran al armado: el de 2.2 µF no ha llegado, viene en el pedido 2, y su paso dice que se puede dejar el hueco o poner en su lugar uno de 10 µF, que sí es polarizado y va con la raya hacia h11. Y las etiquetas no nombran componentes: describen la forma, porque es como Renata los distingue en la mesa.
+
