@@ -103,7 +103,9 @@ STEPS = [
     ("dec", None, "Dos lentejitas más con 104 impreso",
      "Una con una patita en la tira roja y la otra en la azul\ndel mismo costado. Lo mismo con la otra, en el otro costado."),
     ("pot", None, "La perilla que gira, por fuera de la tabla",
-     "Sus tres patitas con tres cables: una punta a a14,\nla del medio a b14, la otra punta a d15."),
+     "Tres cables sueltos, uno por patita: la de un extremo a a14,\n"
+     "la del medio a b14, la del otro extremo a d15.\n"
+     "Si no quieres perilla: un tubito de a14 a b15 y listo."),
     ("ext", None, "La guitarra entra y la señal sale",
      "Vivo de la guitarra a a22, su malla a una tira de tierra.\nSalida j11 al cable de la tarjeta, su malla a tierra."),
     ("bat", None, "Las cajitas con pilas, AL FINAL Y APAGADAS",
@@ -223,8 +225,10 @@ def draw_pot(ax, live):
         x, y = hole_xy(hole)
         ax.plot(x, y, "o", color=color, ms=7, zorder=7)
     if live:
-        ax.annotate("la perilla\nva por fuera", xy=(X["a"], -14), xytext=(-6.6, -10.0), fontsize=10,
-                    ha="center", color=color, arrowprops=dict(arrowstyle="->", color=color), zorder=9)
+        ax.annotate("no se clava en la tabla:\nva por fuera, con tres cables", xy=(X["a"], -14),
+                    xytext=(-6.0, -4.2), fontsize=10, ha="center", color=color,
+                    arrowprops=dict(arrowstyle="->", color=color), zorder=9)
+        zoom_knob(ax, -7.4, -13.0)
 
 
 def draw_ext(ax, live):
@@ -292,6 +296,27 @@ def zoom_barrel(ax, cx, cy):
                 ha="center", color="#c62828", arrowprops=dict(arrowstyle="->", color="#c62828"))
 
 
+def zoom_knob(ax, cx, cy):
+    """The knob seen from the back, with its three tabs numbered the way Renata reads them left to right."""
+    ax.add_patch(FancyBboxPatch((cx - 1.6, cy - 1.6), 3.2, 3.2, boxstyle="round,pad=0.4",
+                                fc="#b0855b", ec="#6d4c41", zorder=3))
+    ax.add_patch(FancyBboxPatch((cx - 0.45, cy + 1.6), 0.9, 1.5, boxstyle="round,pad=0.1",
+                                fc="#9e9e9e", ec="#616161", zorder=2))
+    ax.text(cx, cy + 3.5, "el eje que giras\nqueda atrás", ha="center", fontsize=9, color="#555")
+    dests = [("1", "a14", "#6a1b9a"), ("2", "b14", "#6a1b9a"), ("3", "d15", "#c62828")]
+    for k, (num, dest, color) in enumerate(dests):
+        lx = cx - 1.0 + k * 1.0
+        ax.add_patch(FancyBboxPatch((lx - 0.22, cy - 2.6), 0.44, 1.0, boxstyle="round,pad=0.06",
+                                    fc="#c9a227", ec="#8d6e63", zorder=4))
+        ax.plot(lx, cy - 2.1, "o", color="#6d4c41", ms=4, zorder=5)
+        ax.text(lx, cy - 1.95, num, ha="center", va="center", fontsize=7, color="white", zorder=6)
+        ax.plot([lx, lx, cx - 2.6], [cy - 2.6, cy - 3.4 - k * 0.9, cy - 3.4 - k * 0.9], color=color, lw=2.0, zorder=3)
+        ax.text(cx - 2.8, cy - 3.4 - k * 0.9, f"patita {num} a {dest}", ha="right", va="center",
+                fontsize=9.5, color=color)
+    ax.text(cx, cy - 7.0, "las patitas 1 y 2 llegan\na la misma fila 14", ha="center", va="top",
+            fontsize=9, color="#6a1b9a")
+
+
 def draw_zoom(ax, name):
     cx = -7.4
     if name in BANDS5:
@@ -328,11 +353,11 @@ def page(i):
     if kind == "part":
         draw_zoom(ax, payload)
     ax.set_xlim(-11.0, 21.0)
-    ax.set_ylim(-ROWS - 13.5, 6.0)
+    ax.set_ylim(-ROWS - 15.0, 6.0)
     ax.text(5.1, 5.2, f"Paso {i + 1} de {len(STEPS)}", ha="center", fontsize=16, fontweight="bold")
     ax.text(5.1, 3.6, title, ha="center", fontsize=13.5, color="#1565c0")
     ax.text(5.1, -ROWS - 6.2, sentence, ha="center", va="top", fontsize=13, linespacing=1.6)
-    ax.text(5.1, -ROWS - 10.4, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.\n"
+    ax.text(5.1, -ROWS - 11.8, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.\n"
             "Los agujeritos de las cuatro tiras de los bordes no coinciden con los números: toda una tira es\n"
             "un mismo punto, así que en ellas sirve cualquier agujerito.",
             ha="center", va="top", fontsize=8.5, color="#777", linespacing=1.5)
