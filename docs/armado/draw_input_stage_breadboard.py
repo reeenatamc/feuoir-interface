@@ -26,12 +26,13 @@ VPOS, VNEG, GND = "riel +9", "riel -9", "riel tierra"
 PINS = {1: ("e", 14), 2: ("e", 15), 3: ("e", 16), 4: ("e", 17),
         5: ("f", 17), 6: ("f", 16), 7: ("f", 15), 8: ("f", 14)}
 
-# Each part, in the order its nodes appear in the netlist. The potentiometer is outside the board: its wiper and one
-# end share the hole row of the output, and the other end goes to the inverting input.
+# Each part, in the order its nodes appear in the netlist. The potentiometer plugs into the board: its three pins are
+# 5 mm apart, which is two holes, so they land in rows 3, 5 and 7 of one column, clear of everything else. Its wiper
+# and one end are wired to the output row, and the other end to the inverting input.
 LAYOUT = {
     "C1": (("b", 22), ("b", 20)),
     "R1": (("c", 20), ("c", 24)),
-    "Rpot": (("a", 14), ("d", 15)),
+    "Rpot": (("a", 3), ("a", 7)),
     "R4": (("c", 15), ("c", 11)),
     "XA": (PINS[3], PINS[2], PINS[8], PINS[4], PINS[1]),
     "R5": (("h", 20), ("h", 24)),
@@ -53,7 +54,9 @@ WIRES = [
     (("g", 15), ("g", 16), "pin 7 con pin 6: seguidor"),
     (("g", 14), VPOS, "pin 8 a +9 V"),
     (("d", 17), VNEG, "pin 4 a -9 V"),
-    (("b", 14), ("a", 14), "punta media del potenciómetro"),
+    (("b", 3), ("b", 14), "un extremo del potenciómetro a la salida"),
+    (("b", 5), ("d", 14), "la punta media del potenciómetro, al mismo sitio"),
+    (("b", 7), ("b", 15), "el otro extremo del potenciómetro a la entrada inversora"),
 ]
 
 # Where the outside world lands on the board.
@@ -245,10 +248,10 @@ def draw():
         side = -1 if hole[0] in "abcde" else 1
         ax.annotate(text, xy=(x, y), xytext=(x + side * 3.2, y + 1.8), fontsize=8.5, ha="center",
                     arrowprops=dict(arrowstyle="->", color="#2e7d32"), color="#2e7d32")
-    ax.annotate("potenciómetro:\ntres cables,\nver la lista", xy=(X["a"], -14), xytext=(X["a"] - 3.2, -9.0),
+    ax.annotate("potenciómetro:\nse clava en a3, a5 y a7", xy=(X["a"], -5), xytext=(X["a"] - 3.2, -9.0),
                 fontsize=8.5, ha="center", color="#6a1b9a",
                 arrowprops=dict(arrowstyle="->", color="#6a1b9a"), zorder=9)
-    for hole in (("a", 14), ("b", 14), ("d", 15)):
+    for hole in (("a", 3), ("a", 5), ("a", 7)):
         x, y = hole_xy(hole)
         ax.plot(x, y, "o", color="#6a1b9a", ms=6.5, zorder=7)
     ax.set_xlim(-6.0, 15.6)
@@ -272,7 +275,7 @@ def print_list():
         if name.startswith("Cdec"):
             print(f"  {PART_LABEL[name]}: de riel a riel, cerca del TL072")
         elif name == "Rpot":
-            print(f"  {PART_LABEL[name]}: una punta a a14, la punta del medio a b14, la otra punta a d15")
+            print(f"  {PART_LABEL[name]}: sus tres patitas en a3, a5 y a7, con la del medio en a5")
         else:
             (c1, r1), (c2, r2) = holes
             print(f"  {PART_LABEL[name]}: de {c1}{r1} a {c2}{r2}")
@@ -287,7 +290,7 @@ def print_list():
         print(f"  {hole[0]}{hole[1]}: {text}")
     print("  la malla del cable de la guitarra y la del cable a la tarjeta: riel de tierra")
     print("  pila 1: + al riel +9 V, - al riel de tierra; pila 2: + al riel de tierra, - al riel -9 V")
-    print("\nSin potenciómetro: en su lugar una resistencia fija de a14 a a10 y un cable de b10 a b15.")
+    print("\nSin potenciómetro: en su lugar una resistencia fija de a14 a b15, sin los tres cables.")
     print("  Con 10 kΩ la ganancia queda en 11, con 4.7 kΩ en 5.7 y con 1 kΩ en 2.")
 
 

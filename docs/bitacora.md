@@ -755,3 +755,11 @@ El de 2.2 µF no está en la caja, viene en el pedido 2, así que la etapa se ar
 
 De paso, la de 103 que apareció entre las cerámicas es de 10 nF, una de las cinco del pedido, no sirve para ese sitio.
 
+## Entrada 39: el potenciómetro se clava en la protoboard (2026-09-23)
+
+El que llegó dice B10K: 10 kΩ y lineal, el que pedía el diseño, y no trae lengüetas de soldar sino tres patitas rectas separadas 5 mm, que son dos agujeritos de la protoboard. Así que deja de ir por fuera con tres cables sueltos y se clava en la placa.
+
+Va en a3, a5 y a7, una zona vacía y lejos de todo, con la del medio en a5. De ahí salen tres cables: b3 a b14 y b5 a d14, que llevan un extremo y la punta media al nodo de salida de la etapa A, y b7 a b15, que lleva el otro extremo a la entrada inversora. No se puede clavar más cerca del TL072 porque las filas 14 a 17 del lado a..e son sus cuatro primeros pines.
+
+LAYOUT y WIRES de draw_input_stage_breadboard cambiaron con él y la comprobación contra input_stage_split sigue dando 11 partes y 10 nodos, así que el circuito es el mismo. Sin potenciómetro, la alternativa queda más simple que antes: una resistencia fija de a14 a b15 y ningún cable.
+

@@ -102,10 +102,10 @@ STEPS = [
      "Un cable largo de una tira azul a la otra tira azul,\npor debajo de la tabla. Cualquier agujerito de cada una."),
     ("dec", None, "Dos lentejitas más con 104 impreso",
      "Una con una patita en la tira roja y la otra en la azul\ndel mismo costado. Lo mismo con la otra, en el otro costado."),
-    ("pot", None, "La perilla que gira, por fuera de la tabla",
-     "Tres cables sueltos, uno por patita: la de un extremo a a14,\n"
-     "la del medio a b14, la del otro extremo a d15.\n"
-     "Si no quieres perilla: un tubito de a14 a b15 y listo."),
+    ("pot", None, "La perilla que gira, clavada en la tabla",
+     "Sus tres patitas en a3, a5 y a7, con el eje hacia la fila 1.\n"
+     "Luego tres cables: b3 a b14, b5 a d14 y b7 a b15.\n"
+     "Si no quieres perilla: un tubito de a14 a b15 y nada más."),
     ("ext", None, "La guitarra entra y la señal sale",
      "Vivo de la guitarra a a22, su malla a una tira de tierra.\nSalida j11 al cable de la tarjeta, su malla a tierra."),
     ("bat", None, "Las cajitas con pilas, AL FINAL Y APAGADAS",
@@ -219,16 +219,18 @@ def draw_dec(ax, live):
 
 
 def draw_pot(ax, live):
+    """The knob plugs into a3, a5 and a7, and three jumpers take its pins to the rows the circuit needs."""
     color = "#6a1b9a" if live else PALE
-    draw_wire(ax, ("b", 14), ("a", 14), color, 2.4 if live else 1.8)
-    for hole in (("a", 14), ("b", 14), ("d", 15)):
+    for a, b, what in base.WIRES:
+        if "potenciómetro" in what:
+            draw_wire(ax, a, b, color, 2.4 if live else 1.8)
+    for hole in (("a", 3), ("a", 5), ("a", 7)):
         x, y = hole_xy(hole)
         ax.plot(x, y, "o", color=color, ms=7, zorder=7)
     if live:
-        ax.annotate("no se clava en la tabla:\nva por fuera, con tres cables", xy=(X["a"], -14),
-                    xytext=(-6.0, -4.2), fontsize=10, ha="center", color=color,
-                    arrowprops=dict(arrowstyle="->", color=color), zorder=9)
-        zoom_knob(ax, -7.4, -13.0)
+        ax.add_patch(FancyBboxPatch((X["a"] - 1.1, -7.9), 2.2, 6.0, boxstyle="round,pad=0.3",
+                                    fc="#b0855b", ec="#6d4c41", alpha=0.35, zorder=1))
+        zoom_knob(ax, -7.4, -15.0)
 
 
 def draw_ext(ax, live):
@@ -297,23 +299,21 @@ def zoom_barrel(ax, cx, cy):
 
 
 def zoom_knob(ax, cx, cy):
-    """The knob seen from the back, with its three tabs numbered the way Renata reads them left to right."""
-    ax.add_patch(FancyBboxPatch((cx - 1.6, cy - 1.6), 3.2, 3.2, boxstyle="round,pad=0.4",
-                                fc="#b0855b", ec="#6d4c41", zorder=3))
-    ax.add_patch(FancyBboxPatch((cx - 0.45, cy + 1.6), 0.9, 1.5, boxstyle="round,pad=0.1",
-                                fc="#9e9e9e", ec="#616161", zorder=2))
-    ax.text(cx, cy + 3.5, "el eje que giras\nqueda atrás", ha="center", fontsize=9, color="#555")
-    dests = [("1", "a14", "#6a1b9a"), ("2", "b14", "#6a1b9a"), ("3", "d15", "#c62828")]
-    for k, (num, dest, color) in enumerate(dests):
-        lx = cx - 1.0 + k * 1.0
-        ax.add_patch(FancyBboxPatch((lx - 0.22, cy - 2.6), 0.44, 1.0, boxstyle="round,pad=0.06",
-                                    fc="#c9a227", ec="#8d6e63", zorder=4))
-        ax.plot(lx, cy - 2.1, "o", color="#6d4c41", ms=4, zorder=5)
-        ax.text(lx, cy - 1.95, num, ha="center", va="center", fontsize=7, color="white", zorder=6)
-        ax.plot([lx, lx, cx - 2.6], [cy - 2.6, cy - 3.4 - k * 0.9, cy - 3.4 - k * 0.9], color=color, lw=2.0, zorder=3)
-        ax.text(cx - 2.8, cy - 3.4 - k * 0.9, f"patita {num} a {dest}", ha="right", va="center",
-                fontsize=9.5, color=color)
-    ax.text(cx, cy - 7.0, "las patitas 1 y 2 llegan\na la misma fila 14", ha="center", va="top",
+    """The knob seen from the front, with its three pins and the hole each one goes into."""
+    ax.add_patch(FancyBboxPatch((cx - 1.7, cy - 0.2), 3.4, 3.4, boxstyle="round,pad=0.5",
+                                fc="#cfd8dc", ec="#78909c", zorder=3))
+    ax.add_patch(FancyBboxPatch((cx - 0.5, cy + 3.4), 1.0, 1.6, boxstyle="round,pad=0.1",
+                                fc="#90a4ae", ec="#546e7a", zorder=2))
+    ax.text(cx, cy + 5.6, "el eje que giras", ha="center", fontsize=9, color="#555")
+    ax.text(cx, cy + 1.5, "B10K", ha="center", va="center", fontsize=11, color="#37474f", zorder=4)
+    for k, dest in enumerate(("a3", "a5", "a7")):
+        lx = cx - 1.1 + k * 1.1
+        ax.plot([lx, lx], [cy - 0.2, cy - 2.2], color="#b0bec5", lw=4.5, zorder=4, solid_capstyle="round")
+        ax.plot([lx, lx, cx - 2.4], [cy - 2.2, cy - 3.0 - k * 0.9, cy - 3.0 - k * 0.9], color="#6a1b9a", lw=1.8,
+                zorder=3)
+        ax.text(cx - 2.6, cy - 3.0 - k * 0.9, f"esta patita en {dest}", ha="right", va="center",
+                fontsize=9.5, color="#6a1b9a")
+    ax.text(cx, cy - 6.4, "las tres patitas entran\nen la tabla, sin soldar", ha="center", va="top",
             fontsize=9, color="#6a1b9a")
 
 
