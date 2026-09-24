@@ -21,6 +21,8 @@ Etapa B: seguidor con la segunda mitad del TL072, ganancia 1, y C3 = 2.2 µF de 
 
 Desacoplo: 100 nF en cada riel contra tierra.
 
+El esquema está en docs/armado/etapa_entrada.png, y el armado sobre la protoboard, con el agujero de cada pata y de cada cable, en docs/armado/etapa_entrada_protoboard.png.
+
 ## Versión de 9 V simples
 
 Es la del diseño original, que se simula para compararla con la partida. Una pila de 9 V, con la polarización en 4.5 V: R2 = R3 = 100 kΩ de divisor y C4 = 47 µF a tierra. R1 va al nodo de polarización, y R4 en serie con C2 = 47 µF también. El resto es igual.

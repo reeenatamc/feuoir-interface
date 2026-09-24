@@ -723,3 +723,19 @@ Qué queda abierto:
 - Confirmar la posición 2 tocando una cuerda, como se hizo con la 1.
 - La comparación de pastillas por su ruido, cuando haya un piso más bajo que el de la tarjeta.
 
+## Entrada 36: el armado de la etapa de entrada, dibujado y verificado contra la simulación (2026-09-23)
+
+Los módulos no llegan, y la etapa analógica de entrada no los necesita: se puede armar y probar contra la tarjeta USB, comparándola con las tomas de la guitarra conectada directo. Falta decidir cómo entra y sale la señal de la protoboard, que es lo único que no está resuelto.
+
+docs/armado/draw_input_stage_breadboard.py dibuja el armado agujero por agujero y, antes de dibujar, lo comprueba. El dibujo no es una interpretación del esquema: el guion tiene la posición de cada pata en LAYOUT, deriva los nodos de la conectividad de la propia protoboard (las cinco columnas de una fila son un nodo, cada riel es otro) y exige que el circuito resultante sea el mismo que simula input_stage_split, parte por parte y nodo por nodo. Un cable en el agujero equivocado falla ahí. Salen 11 partes y 10 nodos.
+
+Decisiones del armado, que son de trazado y no tocan el diseño:
+
+- El TL072 cruza el canal en las filas 14 a 17, con la muesca hacia arriba.
+- El potenciómetro queda fuera de la protoboard, con tres cables: una punta y la del medio al nodo de salida de la etapa A, la otra a la entrada inversora. Así sirve tanto uno de perilla como uno de ajuste. Sin potenciómetro, una resistencia fija entre esos dos nodos deja la ganancia en un valor: 10 kΩ da 11, 4.7 kΩ da 5.7 y 1 kΩ da 2.
+- Tierra en los dos rieles de los bordes, unidos entre sí, para que ninguna pata tenga que cruzar la placa.
+- Donde un cable cruza un riel sin conectarse, el dibujo salta por encima, para que un cruce no se lea como una unión.
+
+docs/compras.md no tenía las pasivas de la etapa, solo el TL072 y las pilas. Quedan anotadas: 1 MΩ, 1 kΩ y 4.7 kΩ, el potenciómetro de 10 kΩ lineal, y los condensadores de 100 nF, 1 nF y 2.2 µF, con la nota de que el de 2.2 µF es el único que puede venir polarizado y va con el lado marcado hacia el PCM1808.
+
+Verificación por mutaciones con el modelo de guitarra nuevo: las 53 mutaciones hacen fallar sus pruebas (calibraciones/2026-09-23-mutaciones-2). La corrida anterior se había cortado por un control de la app que compara la ganancia en dB de la entrada por defecto con la conversión de Core Audio: con unos audífonos Bluetooth como entrada por defecto, el aparato reporta -2.13 dB por un lado y -9.41 por el otro. No es del repo, pero conviene recordarlo: esa prueba depende de qué entrada tenga el sistema puesta.
