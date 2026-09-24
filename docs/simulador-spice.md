@@ -150,3 +150,32 @@ Si alguno falla, el script termina con código 1. tests/mutaciones.py le inyecta
 - LTspice, versión actual: https://ltspice.analog.com/download/updates.txt
 - TI, modelo del TL072: https://www.ti.com/lit/zip/SLOJ067 (página del producto: https://www.ti.com/product/TL072)
 - TI, modelo del TL072H: https://www.ti.com/lit/zip/SLOM513 (página del producto: https://www.ti.com/product/TL072H)
+
+## Cómo se corre
+
+El circuito de entrada se simula con ngspice 47 en modo batch, desde Python y dentro del repo. Los netlists son texto plano en spice/netlists/. ngspice se compila una vez desde su código fuente en ~/spice, sin Homebrew; el procedimiento y el porqué de cada opción están en docs/simulador-spice.md.
+
+Antes de creerle en el circuito real, se verifica contra la teoría con un divisor resistivo y un filtro RC de primer orden:
+
+```
+.venv/bin/python -m spice.verify
+```
+
+Guarda cada chequeo con sus condiciones en calibraciones/<fecha>-spice/resultados.json y termina con código 1 si alguno se sale de tolerancia. Si no pasa, ninguna otra simulación vale.
+
+Se usan los dos modelos del TL072 de TI: el del clásico para todo lo lineal y el del TL072H solo para el ruido. Antes de usarlos se caracterizan: el ruido del H contra la hoja, la inversión de fase del clásico y el offset del H.
+
+```
+.venv/bin/python -m spice.characterize
+```
+
+Qué modelo se usa para qué y por qué: docs/simulador-spice.md.
+
+Las simulaciones de la etapa de entrada, en sus dos versiones: respuesta en frecuencia con cinco ganancias, transitorio con 1.5 V de pico, ruido con la entrada al aire y con la guitarra, y la guitarra sola cargada con 1 MΩ y con 10 kΩ.
+
+```
+.venv/bin/python -m spice.simulate_input
+```
+
+Cada una guarda su carpeta en mediciones/<fecha>-sim-<nombre>/ con sus condiciones, los datos, los netlists que corrió y las gráficas, y aparece en Guardadas de la app. Compara cada corrida con cálculos a mano del circuito y termina con código 1 si no coinciden. Qué dieron: docs/entrada-analogica.md.
+

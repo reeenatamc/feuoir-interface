@@ -790,3 +790,17 @@ cinco pitaron a la primera.
 
 Queda la alimentación. Antes de conectar las cajitas hay que medir cada pila suelta: si alguna da menos de 8 V no
 sirve. Después de conectar, medir las patitas de la piecita negra antes de enchufar la guitarra y la tarjeta.
+
+## Entrada 42: el README se parte y queda corto
+
+El README había crecido hasta 436 líneas: llevaba dentro la tabla de estado completa, la descripción de cada script,
+el firmware, la instalación del toolchain del Pico y un párrafo enorme que se fue alargando cada vez que aparecía un
+dibujo nuevo del armado. Eso no es un README, es la bitácora otra vez.
+
+Queda en 87 líneas: qué es el proyecto, cómo está armado, dos frases de estado, la estructura de carpetas, las
+convenciones, los comandos principales y el índice de documentación. Lo demás se movió sin cambiarlo a
+`docs/estado.md`, `docs/herramientas.md`, `docs/firmware.md`, `docs/toolchain-pico.md`, `docs/armado/README.md`, y la
+sección de cómo correr las simulaciones a `docs/simulador-spice.md`.
+
+El párrafo de los dibujos pasó a ser una tabla en `docs/armado/README.md`, con una fila por dibujo y el guion que lo
+rehace, para que añadir uno nuevo no vuelva a alargar una frase.
