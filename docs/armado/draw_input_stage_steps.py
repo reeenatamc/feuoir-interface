@@ -32,6 +32,12 @@ RAILS = [(GND_L, "#1565c0", "tierra"), (VNEG_X, "#c62828", "-9"),
          (GND_R, "#1565c0", "tierra"), (VPOS_X, "#c62828", "+9")]
 ALL_RAIL_X = [GND_L, VNEG_X, GND_R, VPOS_X]
 TOP, BOTTOM = -0.3, -ROWS - 0.7
+RAIL_HOLES = [-(1 + g * 6 + k) for g in range(5) for k in range(5)]
+
+
+def snap(row):
+    """The strip's holes do not line up with the numbered rows, so a wire takes the nearest one."""
+    return min(RAIL_HOLES, key=lambda y: abs(y + row))
 
 BAND_COLOR = {"café": "#6d4c41", "negro": "#212121", "rojo": "#c62828", "amarillo": "#fdd835",
               "violeta": "#7b1fa2", "dorada": "#c9a227", "verde": "#2e7d32"}
@@ -83,19 +89,19 @@ STEPS = [
     ("wire", wire_of("filtro al pin 5"), "Cable", "De g24 a g17."),
     ("wire", wire_of("pin 7 con pin 6"), "Cable cortito", "De g15 a g16."),
     ("wire", wire_of("R1 a tierra"), "Cable a una tira del borde",
-     "De a24 a la tira de tierra del lado de las letras a b c d e."),
+     "De a24 a la tira AZUL del lado de las letras a b c d e.\nSirve cualquier agujerito de esa tira: usa uno cerca de la fila 24."),
     ("wire", wire_of("R4 a tierra"), "Cable a una tira del borde",
-     "De a11 a esa misma tira de tierra."),
+     "De a11 a esa misma tira azul.\nCualquier agujerito de ella: usa uno cerca de la fila 11."),
     ("wire", wire_of("C5 a tierra"), "Cable a una tira del borde",
-     "De j26 a la tira de tierra del lado de las letras f g h i j."),
+     "De j26 a la tira AZUL del lado de las letras f g h i j.\nCualquier agujerito de ella: usa uno cerca de la fila 26."),
     ("wire", wire_of("pin 8 a +9 V"), "Cable a una tira del borde",
-     "De g14 a la tira de +9, la roja del lado de las letras f g h i j."),
+     "De g14 a la tira ROJA del lado de las letras f g h i j.\nCualquier agujerito de ella: usa uno cerca de la fila 14."),
     ("wire", wire_of("pin 4 a -9 V"), "Cable a una tira del borde",
-     "De d17 a la tira de -9, la roja del lado de las letras a b c d e."),
+     "De d17 a la tira ROJA del lado de las letras a b c d e.\nCualquier agujerito de ella: usa uno cerca de la fila 17."),
     ("gndlink", None, "Cable largo que une las dos tiras de tierra",
-     "De la tira de tierra de un lado a la del otro.\nUna sola vez, en cualquier agujerito de cada una."),
+     "Un cable largo de una tira azul a la otra tira azul,\npor debajo de la tabla. Cualquier agujerito de cada una."),
     ("dec", None, "Dos lentejitas más con 104 impreso",
-     "Una entre la tira de +9 y la de tierra de su mismo lado.\nLa otra entre la de -9 y la de tierra de su lado."),
+     "Una con una patita en la tira roja y la otra en la azul\ndel mismo costado. Lo mismo con la otra, en el otro costado."),
     ("pot", None, "La perilla que gira, por fuera de la tabla",
      "Sus tres patitas con tres cables: una punta a a14,\nla del medio a b14, la otra punta a d15."),
     ("ext", None, "La guitarra entra y la señal sale",
@@ -121,6 +127,8 @@ def draw_board(ax):
             ax.add_patch(Rectangle((X[c] - 0.12, -r - 0.12), 0.24, 0.24, color="#9a9a9a"))
     for x, color, text in RAILS:
         ax.plot([x, x], [TOP, BOTTOM], color=color, lw=2.4, solid_capstyle="round")
+        for y in RAIL_HOLES:
+            ax.add_patch(Rectangle((x - 0.12, y - 0.12), 0.24, 0.24, color="#9a9a9a", zorder=3))
         ax.text(x, 0.5, text, ha="center", va="bottom", fontsize=9, color=color, rotation=90)
 
 
@@ -140,9 +148,11 @@ def draw_wire(ax, a, b, color, lw=2.4):
     if isinstance(a, str) or isinstance(b, str):
         rail, hole = (a, b) if isinstance(a, str) else (b, a)
         x, y = hole_xy(hole)
-        rx = rail_x(rail, hole[0])
+        rx, ry = rail_x(rail, hole[0]), snap(hole[1])
         horizontal(ax, y, x, rx, color, lw)
-        ax.plot([x, rx], [y, y], "o", color=color, ms=6, zorder=7)
+        if abs(ry - y) > 0.01:
+            ax.plot([rx, rx], [y, ry], color=color, lw=lw, solid_capstyle="round", zorder=6)
+        ax.plot([x, rx], [y, ry], "o", color=color, ms=6, zorder=7)
         return
     (xa, ya), (xb, yb) = hole_xy(a), hole_xy(b)
     if abs(xa - xb) < 0.01:
@@ -187,16 +197,16 @@ def draw_part(ax, name, live):
 
 def draw_gndlink(ax, live):
     color = "#1565c0" if live else PALE
-    y = -ROWS - 1.8
-    ax.plot([GND_L, GND_L, GND_R, GND_R], [BOTTOM, y, y, BOTTOM], color=color, lw=2.4 if live else 1.8,
+    y, top = -ROWS - 1.8, snap(29)
+    ax.plot([GND_L, GND_L, GND_R, GND_R], [top, y, y, top], color=color, lw=2.4 if live else 1.8,
             solid_capstyle="round", zorder=6)
-    ax.plot([GND_L, GND_R], [BOTTOM, BOTTOM], "o", color=color, ms=6, zorder=7)
+    ax.plot([GND_L, GND_R], [top, top], "o", color=color, ms=6, zorder=7)
 
 
 def draw_dec(ax, live):
     leg = "#8d6e63" if live else PALE
     for x_a, x_b in ((VPOS_X, GND_R), (VNEG_X, GND_L)):
-        y = -28
+        y = snap(26)
         ax.plot([x_a, x_b], [y, y], color=leg, lw=1.6, zorder=2)
         ax.plot([x_a, x_b], [y, y], "o", color=leg, ms=6.5, zorder=5)
         cx = (x_a + x_b) / 2
@@ -239,9 +249,9 @@ def draw_bat(ax, live):
                                     fc="#37474f", ec="#111", zorder=5))
         ax.text(bx, by, label, color="white", ha="center", va="center", fontsize=8.5, zorder=6)
         for k, (lead_x, color, name) in enumerate(((red_x, "#c62828", "rojo"), (black_x, "#111111", "negro"))):
-            ax.plot([bx, lead_x, lead_x], [by + 0.5, by + 0.5, BOTTOM - 0.4], color=color, lw=2.4, zorder=5,
+            ax.plot([bx, lead_x, lead_x], [by + 0.5, by + 0.5, snap(28)], color=color, lw=2.4, zorder=5,
                     solid_capstyle="round")
-            ax.plot([lead_x], [BOTTOM - 0.4], "o", color=color, ms=6, zorder=6)
+            ax.plot([lead_x], [snap(28)], "o", color=color, ms=6, zorder=6)
             ax.text(lead_x + 0.5, BOTTOM - 1.2 - k * 0.9, name, ha="left", va="center", fontsize=9, color=color)
 
 
@@ -318,12 +328,14 @@ def page(i):
     if kind == "part":
         draw_zoom(ax, payload)
     ax.set_xlim(-11.0, 21.0)
-    ax.set_ylim(-ROWS - 9.8, 6.0)
+    ax.set_ylim(-ROWS - 13.5, 6.0)
     ax.text(5.1, 5.2, f"Paso {i + 1} de {len(STEPS)}", ha="center", fontsize=16, fontweight="bold")
     ax.text(5.1, 3.6, title, ha="center", fontsize=13.5, color="#1565c0")
     ax.text(5.1, -ROWS - 6.2, sentence, ha="center", va="top", fontsize=13, linespacing=1.6)
-    ax.text(5.1, -ROWS - 9.5, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.",
-            ha="center", fontsize=8.5, color="#777")
+    ax.text(5.1, -ROWS - 10.4, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.\n"
+            "Los agujeritos de las cuatro tiras de los bordes no coinciden con los números: toda una tira es\n"
+            "un mismo punto, así que en ellas sirve cualquier agujerito.",
+            ha="center", va="top", fontsize=8.5, color="#777", linespacing=1.5)
     return fig
 
 
