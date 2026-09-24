@@ -23,6 +23,18 @@ PALE = "#d2cec7"
 WIRE = "#1565c0"
 BODY_R, BODY_C = "#e0c9a6", "#f9a825"
 
+# The colour rings of each little tube, top to bottom, in the words Renata reads. The kit is metal film, so five
+# rings is the likely one, but four-ring ones are given too because a kit can mix them.
+BAND_COLOR = {"café": "#6d4c41", "negro": "#212121", "rojo": "#c62828", "amarillo": "#fdd835",
+              "violeta": "#7b1fa2", "dorada": "#c9a227", "verde": "#2e7d32"}
+BANDS5 = {"R1": ["café", "negro", "negro", "amarillo", "café"],
+          "R4": ["café", "negro", "negro", "café", "café"],
+          "R5": ["amarillo", "violeta", "negro", "café", "café"]}
+BANDS4 = {"R1": ["café", "negro", "verde", "dorada"],
+          "R4": ["café", "negro", "rojo", "dorada"],
+          "R5": ["amarillo", "violeta", "rojo", "dorada"]}
+MARK = {"C1": "104", "C5": "102", "C3": "2.2"}
+
 
 def wire_of(text):
     """The WIRES entry whose description starts with text, as (a, b)."""
@@ -46,8 +58,8 @@ STEPS = [
      "Una patita en h20 y la otra en h24.\nNo tiene lado."),
     ("part", "C5", "Lentejita con 102 impreso",
      "Una patita en i24 y la otra en i26.\nNo tiene lado."),
-    ("part", "C3", "La de 2.2 uF (esta todavia no llega)",
-     "Va de h15 a h11. Deja el hueco y sigue, o pon en su lugar\nla barrilito de 10 uF: esa SI tiene lado, la raya va en h11."),
+    ("part", "C3", "La de 2.2 µF (esta todavía no llega)",
+     "Va de h15 a h11. Deja el hueco y sigue, o pon en su lugar\nel barrilito de 10 µF: ese SÍ tiene lado, la raya va en h11."),
     ("wire", wire_of("entrada al pin 3"), "Cable corto", "De d20 a d16."),
     ("wire", wire_of("salida del pin 1"), "Cable", "De c14 a g20."),
     ("wire", wire_of("filtro al pin 5"), "Cable", "De g24 a g17."),
@@ -64,11 +76,11 @@ STEPS = [
      "De d17 a la raya de -9 de abajo."),
     ("gndlink", None, "Cable largo que une las dos rayas de tierra",
      "De la raya de tierra de arriba a la de abajo.\nUna sola vez, en cualquier punto de cada raya."),
-    ("dec", None, "Dos lentejitas mas con 104 impreso",
+    ("dec", None, "Dos lentejitas más con 104 impreso",
      "Una entre la raya de +9 y la de tierra de arriba.\nLa otra entre la raya de -9 y la de tierra de abajo."),
     ("pot", None, "La perilla que gira, por fuera de la tabla",
      "Sus tres patitas con tres cables: una punta a a14,\nla del medio a b14, la otra punta a d15."),
-    ("ext", None, "La guitarra entra y la senal sale",
+    ("ext", None, "La guitarra entra y la señal sale",
      "Vivo de la guitarra a a22, su malla a una raya de tierra.\nSalida j11 al cable de la tarjeta, su malla a tierra."),
     ("bat", None, "Las cajitas con pilas, AL FINAL Y APAGADAS",
      "Cajita 1: rojo a la raya de +9, negro a la de tierra.\nCajita 2: rojo a la raya de tierra, negro a la de -9."),
@@ -144,13 +156,19 @@ def draw_part(ax, name, live):
     ax.plot([x1, x2], [y1, y2], "o", color=leg, ms=6.5, zorder=5)
     cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
     if name.startswith("R"):
-        fc = BODY_R if live else PALE
-        ax.add_patch(FancyBboxPatch((cx - 0.22, cy - 1.0), 0.44, 2.0, boxstyle="round,pad=0.06",
+        fc = "#cfe0f0" if live else PALE
+        ax.add_patch(FancyBboxPatch((cx - 0.24, cy - 1.0), 0.48, 2.0, boxstyle="round,pad=0.06",
                                     fc=fc, ec=leg, zorder=3))
+        if live:
+            for k, ring in enumerate(BANDS5[name]):
+                y = cy + [0.72, 0.45, 0.18, -0.09, -0.72][k]
+                ax.add_patch(Rectangle((cx - 0.3, y - 0.09), 0.6, 0.18, color=BAND_COLOR[ring], zorder=4))
     else:
         fc = BODY_C if live else PALE
-        ax.add_patch(FancyBboxPatch((cx - 0.26, cy - 0.55), 0.52, 1.1, boxstyle="round,pad=0.08",
+        ax.add_patch(FancyBboxPatch((cx - 0.3, cy - 0.6), 0.6, 1.2, boxstyle="round,pad=0.08",
                                     fc=fc, ec=leg, zorder=3))
+        if live and name in MARK:
+            ax.text(cx, cy, MARK[name], ha="center", va="center", fontsize=7, zorder=4, color="#333")
 
 
 def draw_gndlink(ax, live):
@@ -210,6 +228,40 @@ def draw_bat(ax, live):
         ax.text(bx - 1.3, black_y, "negro", ha="right", va="center", fontsize=8, color="#111111")
 
 
+def zoom_tube(ax, cx, cy, rings, title):
+    """One little tube drawn big and lying down, with the name of each ring written under it."""
+    ax.plot([cx - 2.9, cx + 2.9], [cy, cy], color="#8d6e63", lw=2.0, zorder=2)
+    ax.add_patch(FancyBboxPatch((cx - 2.1, cy - 0.62), 4.2, 1.24, boxstyle="round,pad=0.12",
+                                fc="#cfe0f0", ec="#8d6e63", zorder=3))
+    offsets = [-1.6, -1.1, -0.6, -0.1, 1.5] if len(rings) == 5 else [-1.6, -1.0, -0.4, 1.5]
+    for dx, ring in zip(offsets, rings):
+        ax.add_patch(Rectangle((cx + dx - 0.16, cy - 0.72), 0.32, 1.44, color=BAND_COLOR[ring], zorder=4))
+        ax.text(cx + dx, cy - 0.95, ring, rotation=90, ha="center", va="top", fontsize=8.5, color="#333")
+    ax.text(cx, cy + 1.05, title, ha="center", fontsize=9.5, color="#555")
+
+
+def zoom_disc(ax, cx, cy, mark, note):
+    """One little flat piece drawn big, with the number printed on it."""
+    ax.plot([cx - 0.6, cx - 0.6], [cy - 1.9, cy - 0.7], color="#8d6e63", lw=2.0, zorder=2)
+    ax.plot([cx + 0.6, cx + 0.6], [cy - 1.9, cy - 0.7], color="#8d6e63", lw=2.0, zorder=2)
+    ax.add_patch(FancyBboxPatch((cx - 1.3, cy - 0.9), 2.6, 2.2, boxstyle="round,pad=0.2",
+                                fc=BODY_C, ec="#8d6e63", zorder=3))
+    ax.text(cx, cy + 0.2, mark, ha="center", va="center", fontsize=17, color="#333", zorder=4)
+    ax.text(cx, cy - 2.4, note, ha="center", va="top", fontsize=9.5, color="#555")
+
+
+def draw_zoom(ax, name):
+    cx = -5.6
+    if name in BANDS5:
+        zoom_tube(ax, cx, -9.0, BANDS5[name], "si tiene 5 rayitas")
+        zoom_tube(ax, cx, -17.0, BANDS4[name], "si tiene 4 rayitas")
+        ax.text(cx, -4.8, "así se ve\nel tubito de\neste paso", ha="center", fontsize=10, color="#1565c0")
+    elif name in MARK:
+        note = "impreso en la cara" if name != "C3" else "esta es la que falta"
+        zoom_disc(ax, cx, -11.0, MARK[name], note)
+        ax.text(cx, -5.6, "así se ve\nla lentejita de\neste paso", ha="center", fontsize=10, color="#1565c0")
+
+
 DRAW = {"chip": lambda ax, live, p: draw_chip(ax, live),
         "part": lambda ax, live, p: draw_part(ax, p, live),
         "wire": lambda ax, live, p: draw_wire(ax, p[0], p[1], WIRE if live else PALE, 2.4 if live else 1.8),
@@ -229,12 +281,14 @@ def page(i):
     for k, p, _, _ in STEPS[:i]:
         DRAW[k](ax, False, p)
     DRAW[kind](ax, True, payload)
+    if kind == "part":
+        draw_zoom(ax, payload)
     ax.set_xlim(-9.6, 16.0)
     ax.set_ylim(-ROWS - 8.6, 6.4)
     ax.text(4.4, 5.6, f"Paso {i + 1} de {len(STEPS)}", ha="center", fontsize=15, fontweight="bold")
     ax.text(4.4, 4.2, title, ha="center", fontsize=13, color="#1565c0")
     ax.text(4.4, -ROWS - 4.2, sentence, ha="center", va="top", fontsize=13, linespacing=1.6)
-    ax.text(4.4, -ROWS - 8.1, "Lo gris claro ya esta puesto. Cuenta las filas desde la punta donde la tabla dice 1.",
+    ax.text(4.4, -ROWS - 8.1, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.",
             ha="center", fontsize=8.5, color="#777")
     return fig
 
