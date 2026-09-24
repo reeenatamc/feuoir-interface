@@ -763,3 +763,16 @@ Va en a3, a5 y a7, una zona vacía y lejos de todo, con la del medio en a5. De a
 
 LAYOUT y WIRES de draw_input_stage_breadboard cambiaron con él y la comprobación contra input_stage_split sigue dando 11 partes y 10 nodos, así que el circuito es el mismo. Sin potenciómetro, la alternativa queda más simple que antes: una resistencia fija de a14 a b15 y ningún cable.
 
+
+## Entrada 40: un mapa de qué hay en cada agujerito
+
+Al armar la etapa de entrada aparecieron dos preguntas seguidas: si b14 daba igual que c14, y qué agujeritos estaban
+ya ocupados. Lo primero sí: los cinco agujeritos de una fila del mismo lado de la zanja son un solo punto, así que la
+letra la elige quien arma y lo que no se puede cambiar es el número de fila. Lo segundo pedía una lista, y llevarla a
+mano se desfasa del circuito al primer cambio.
+
+`docs/armado/mapa_agujeritos.py` la genera de LAYOUT, WIRES y EXTERNAL, los mismos datos que usa el dibujo que se
+comprueba contra input_stage_split, y corre esa comprobación antes de escribir. Deja `docs/armado/mapa_de_agujeritos.md`
+con una tabla por fila, los dos lados de la zanja separados, y debajo los agujeritos que quedan libres en cada fila
+que ya se usa. La patita del medio del potenciómetro, que va en a5, se añade a mano: en la netlist el potenciómetro
+tiene dos terminales y el cursor no aparece.
