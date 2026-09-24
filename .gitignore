@@ -9,3 +9,5 @@ firmware/build*/
 # interfaz de la app: se instala y se compila con npm
 app/ui/node_modules/
 app/ui/dist/
+
+.DS_Store

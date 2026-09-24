@@ -1,0 +1,19 @@
+* Input stage, single supply, 9.0 V batteries: 1.5 V peak at 1000 Hz with gain 11
+.include opamp_tl072.cir
+.include input_stage.cir
+
+Vbat bpos 0 DC 9.0
+Rbat bpos vpos 2.0
+Vin in 0 DC 0 SIN(0 1.5 1000)
+Xstage in adc vpos input_stage_single params: rpot=10000
+Rload adc 0 60000
+
+.control
+set noaskquit
+set filetype=ascii
+tran 5u 10m 0 5u
+write tran.raw v(in) v(adc) v(vpos) v(xstage.inp) v(xstage.outa) v(xstage.outb)
+quit
+.endc
+
+.end

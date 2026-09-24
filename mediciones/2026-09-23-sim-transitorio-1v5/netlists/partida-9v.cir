@@ -1,0 +1,21 @@
+* Input stage, split supply, 9.0 V batteries: 1.5 V peak at 1000 Hz with gain 11
+.include opamp_tl072.cir
+.include input_stage.cir
+
+Vbat_pos bpos 0 DC 9.0
+Rbat_pos bpos vpos 2.0
+Vbat_neg 0 bneg DC 9.0
+Rbat_neg bneg vneg 2.0
+Vin in 0 DC 0 SIN(0 1.5 1000)
+Xstage in adc vpos vneg input_stage_split params: rpot=10000
+Rload adc 0 60000
+
+.control
+set noaskquit
+set filetype=ascii
+tran 5u 10m 0 5u
+write tran.raw v(in) v(adc) v(vpos) v(vneg) v(xstage.inp) v(xstage.outa) v(xstage.outb)
+quit
+.endc
+
+.end

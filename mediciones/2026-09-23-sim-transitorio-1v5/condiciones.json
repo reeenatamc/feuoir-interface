@@ -1,0 +1,46 @@
+{
+  "fecha_hora": "2026-09-23T20:22:12-05:00",
+  "etiqueta": "sim-transitorio-1v5",
+  "medicion": "Simulación: transitorio con 1.5 V de pico",
+  "simulador": {
+    "version": "ngspice-47",
+    "ruta": "/Users/renata/spice/ngspice-47/bin/ngspice",
+    "temperatura_c": 27
+  },
+  "netlists_sha256": {
+    "opamp_tl072.cir": "6b97c153de03895c61b210d9ac815e86cd641aef511a82f9f88d834494365822",
+    "input_stage.cir": "149a443b7623e977977edc807074871df02b2912792fc1607ae5db3d83991a09"
+  },
+  "modelo_del_opamp": {
+    "archivo": "TL072.301",
+    "sha256": "74e89d558163615ac7a19f0c783101a6f8af77fb6d80bd3c20c6ab66426561cd",
+    "uso": "lineal: respuesta en frecuencia, ganancia, transitorio y margen"
+  },
+  "fuente": "senoidal ideal de 1.5 V de pico y 1000 Hz a la entrada",
+  "ganancia": 11,
+  "potenciometro_ohm": 10000.0,
+  "tramo_analizado_ms": [
+    5,
+    10
+  ],
+  "pilas": {
+    "fresca": {
+      "vbat": 9.0,
+      "rbat": 2.0
+    },
+    "gastada": {
+      "vbat": 7.0,
+      "rbat": 10.0
+    }
+  },
+  "carga_pcm1808_ohm": 60000.0,
+  "rango_de_entrada_del_tl072": "de (VCC-) + 4 V a (VCC+) + 0.1 V, tabla 5.3 de su hoja",
+  "entrada_del_pcm1808": "fondo de escala 3 Vpp con VCC = 5 V, centro en 2.5 V y máximo absoluto de -0.3 V a 5.3 V en el pin, tablas 6.1, 6.3 y 6.5 de su hoja",
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "resumen": "Simulación: margen de entrada del TL072 con 1.5 V de pico, +3.46 V con ±9 V, +1.37 V con ±7 V, -1.01 V con 9 V simples",
+  "notas": "El modelo del TL072 no reproduce la inversión de fase (calibraciones/2026-09-14-modelos-tl072): que la versión de 9 V simples salga limpia no prueba que no ocurra. El modelo del TL072 clásico consume 8.4 mA por amplificador con ±9 V (RP = 2.143 kΩ entre sus rieles), contra 1.4 mA típicos en la tabla 5.8 de la hoja: los rieles bajan más que en el circuito real y el margen simulado queda un poco por debajo del real."
+}

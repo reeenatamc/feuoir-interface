@@ -49,14 +49,14 @@ Es la del diseño original, que se simula para compararla con la partida. Una pi
 
 ## Qué dio la simulación
 
-Del 2026-09-14, con spice/simulate_input.py (docs/simulador-spice.md, simulaciones de la etapa de entrada). Las carpetas están en mediciones/2026-09-14-sim-respuesta-en-frecuencia, 2026-09-14-sim-transitorio-1v5, 2026-09-14-sim-ruido y 2026-09-14-sim-carga-guitarra. Detalle en la entrada 28.
+Del 2026-09-23, con spice/simulate_input.py (docs/simulador-spice.md, simulaciones de la etapa de entrada), repetida con la resistencia real de las pastillas, 12.6 kΩ, en vez de los 8 kΩ supuestos. Las carpetas están en mediciones/2026-09-23-sim-respuesta-en-frecuencia, 2026-09-23-sim-transitorio-1v5, 2026-09-23-sim-ruido y 2026-09-23-sim-carga-guitarra. Detalle en las entradas 28 y 35.
 
 - Ganancia a 1 kHz: 0, 9.54, 13.97, 18.06 y 20.82 dB con el potenciómetro en 0, 2, 4, 7 y 10 kΩ, lo mismo que 1 + Rpot/R4.
 - Forma con ±9 V: no cambia con la ganancia en la banda de audio. Entre ganancia 1 y 11 la diferencia de 20 Hz a 20 kHz es de 0.01 dB como mucho. El corte de abajo queda en 2.18 Hz con cualquier ganancia y el de arriba baja de 33.8 kHz a 33.5 kHz. Las curvas se separan recién por encima de 100 kHz, donde con más ganancia el TL072 tiene menos ancho de banda.
 - Forma con 9 V simples: cambia con la ganancia en graves. El corte de abajo pasa de 1.89 Hz con ganancia 1 a 7.89 Hz con ganancia 11, y en 20 Hz la ganancia 11 cae 0.61 dB, contra 0.14 dB de la ganancia 1. Con ±9 V, en 20 Hz cae 0.04 dB con cualquier ganancia.
 - Margen de entrada con 1.5 V de pico y ganancia 11, contra los 4 V sobre el riel negativo de la tabla 5.3: +3.46 V con ±9 V y pilas frescas, +1.37 V con ±7 V y pilas gastadas y -1.01 V con 9 V simples, fuera del rango. Con ±7 V el margen sigue sobrando. El modelo consume más que el chip, así que con pilas gastadas el margen real es un poco mayor.
-- Ruido de 20 Hz a 20 kHz en la entrada del PCM1808, con ±9 V: con ganancia 1, 21.0 µV al aire y 6.5 µV con la guitarra y 300 pF (-97.1 y -107.2 dBFS); con ganancia 11, 226.8 µV al aire y 56.7 µV con la guitarra (-76.4 y -88.4 dBFS). Con la guitarra conectada hay entre 10 y 13 dB menos ruido que al aire. Con la entrada al aire el modelo exagera el ruido entre 1.2 y 1.3 dB a 1 kHz (docs/simulador-spice.md).
-- Carga de la guitarra: con 1 MΩ la pastilla resuena en 3.55 kHz con +14.8 dB (cable de 300 pF) y en 2.69 kHz con +15.0 dB (600 pF). Con 10 kΩ pierde 5.2 dB desde abajo, cae 3 dB más en 593 Hz y no resuena. A 3.55 kHz queda 36 dB por debajo de la carga de 1 MΩ.
+- Ruido de 20 Hz a 20 kHz en la entrada del PCM1808, con ±9 V: con ganancia 1, 21.0 µV al aire y 6.5 µV con la guitarra y 300 pF (-97.1 y -107.3 dBFS); con ganancia 11, 226.8 µV al aire y 56.3 µV con la guitarra (-76.4 y -88.5 dBFS). Con la guitarra conectada hay entre 10 y 13 dB menos ruido que al aire. Con la entrada al aire el modelo exagera el ruido entre 1.2 y 1.3 dB a 1 kHz (docs/simulador-spice.md).
+- Carga de la guitarra: con 1 MΩ la pastilla resuena en 3.55 kHz con +13.0 dB (cable de 300 pF) y en 2.69 kHz con +12.6 dB (600 pF). Con 10 kΩ pierde 7.2 dB desde abajo, cae 3 dB más en 737 Hz y no resuena. A 3.55 kHz queda 34 dB por debajo de la carga de 1 MΩ. Con los 8 kΩ supuestos la resonancia daba entre 1.8 y 2.4 dB más alta: la pastilla real se amortigua más.
 
 ## Para discutir
 

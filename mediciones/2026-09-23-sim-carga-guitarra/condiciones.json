@@ -1,0 +1,35 @@
+{
+  "fecha_hora": "2026-09-23T20:22:12-05:00",
+  "etiqueta": "sim-carga-guitarra",
+  "medicion": "Simulación: carga de la guitarra",
+  "simulador": {
+    "version": "ngspice-47",
+    "ruta": "/Users/renata/spice/ngspice-47/bin/ngspice",
+    "temperatura_c": 27
+  },
+  "netlists_sha256": {
+    "guitar.cir": "97f25cfeb7e40f6970792e54725a5c2761d10d21d42c320ceb5cd90c0e658581"
+  },
+  "guitarra": "bobina de 5 H en serie con 8 kΩ, 100 pF en paralelo",
+  "cables_pf": [
+    300,
+    600
+  ],
+  "cargas_ohm": [
+    1000000.0,
+    10000.0
+  ],
+  "fuente": "AC 1 V como tensión de la pastilla",
+  "barrido_hz": [
+    1,
+    1000000.0
+  ],
+  "puntos_por_decada": 100,
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "resumen": "Simulación: con 10 kΩ la pastilla cae 3 dB en 737 Hz; con 1 MΩ resuena en 3.55 kHz",
+  "notas": ""
+}

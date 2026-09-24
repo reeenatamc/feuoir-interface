@@ -1,0 +1,53 @@
+{
+  "fecha_hora": "2026-09-23T20:22:12-05:00",
+  "etiqueta": "sim-ruido",
+  "medicion": "Simulación: ruido",
+  "simulador": {
+    "version": "ngspice-47",
+    "ruta": "/Users/renata/spice/ngspice-47/bin/ngspice",
+    "temperatura_c": 27
+  },
+  "netlists_sha256": {
+    "opamp_tl072h.cir": "4654a2a41a6aac94d505c9b7f57a4b2eb5806c2750986a719ba0deb9355936da",
+    "input_stage.cir": "149a443b7623e977977edc807074871df02b2912792fc1607ae5db3d83991a09",
+    "guitar.cir": "97f25cfeb7e40f6970792e54725a5c2761d10d21d42c320ceb5cd90c0e658581"
+  },
+  "modelo_del_opamp": {
+    "archivo": "tl07xh_tl08xh.lib",
+    "sha256": "f214c2d611ab9d1364d5f1ed66d0376df6c703261f6214164788a2aada2a6824",
+    "uso": "solo el ruido"
+  },
+  "alimentacion": "partida",
+  "pilas": {
+    "vbat": 9.0,
+    "rbat": 2.0
+  },
+  "ganancias": [
+    1,
+    11
+  ],
+  "carga_pcm1808_ohm": 60000.0,
+  "barrido_hz": [
+    1,
+    1000000.0
+  ],
+  "puntos_por_decada": 50,
+  "punto_de_salida": "entrada del PCM1808, detrás de C3",
+  "entrada_al_aire": "nada conectado a C1, con 1 GΩ a tierra para que ese nodo tenga camino de continua",
+  "guitarra": "spice/netlists/guitar.cir con cable de 300 y 600 pF",
+  "banda_integrada_hz": [
+    20.0,
+    20000.0
+  ],
+  "fondo_de_escala_pcm1808_v_pico": 1.5,
+  "dbfs": "20·log10(ruido RMS / 1.5 V): 0 dBFS es la muestra de valor 1.0, como en analizador.py",
+  "ruido_de_corriente_del_modelo_fa": 79.2,
+  "ruido_de_corriente_del_dip8_en_la_hoja_fa": 10.0,
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "resumen": "Simulación: ruido de 20 Hz a 20 kHz con ganancia 11, 227 µV al aire y 56 µV con la guitarra y 300 pF",
+  "notas": "El modelo del TL072H tiene 79 fA/√Hz de ruido de corriente, como su hoja (tabla 5.7), pero la tabla 5.9 da 10 fA/√Hz para el TL07xC, el DIP-8. Pesa donde la impedancia en la entrada es alta: con la entrada al aire, sobre 1 MΩ, esta simulación exagera el ruido."
+}

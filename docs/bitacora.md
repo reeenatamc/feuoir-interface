@@ -670,3 +670,56 @@ Qué queda abierto:
 - En los agudos, las tomas de la app bajan a -115 a -120 dBFS por bin, bajo el piso de la tarjeta grabado con medir.py, que está en -107. El piso para comparar tiene que grabarse con la misma herramienta que la toma.
 - captura-3: qué se tocó. El análisis dice Sol4.
 - El modelo de la guitarra en la simulación no se ajusta con estas tomas: la entrada de micrófono carga la pastilla, así que se esperan los valores de la calibración de la tarjeta.
+
+## Entrada 35: tomas por posición del selector y resistencia de las pastillas (2026-09-19 y 2026-09-23)
+
+Qué se hizo: las tomas que pedía la entrada 34, una por cada posición del selector, y la medida con multímetro de la resistencia de las pastillas. Con esa medida el modelo de la guitarra deja de ser genérico.
+
+Condiciones de las tomas: Yamaha ERG121C, selector de cinco posiciones, volumen y tono al máximo, cuerdas apagadas con la mano, sin tocar el cable entre tomas. Mac a batería, tarjeta USB en 0 dB, cable en la entrada de micrófono, 10 segundos por toma, medir.py. En mediciones/2026-09-19-selector-1 a -5.
+
+Resultado de las tomas:
+
+| Posición | RMS | Residuo sin la red | Zumbido de 60 Hz |
+|---|---|---|---|
+| 1, mástil | -73.2 dBFS | -73.2 dBFS | -110 dBFS |
+| 2 | -72.9 dBFS | -72.9 dBFS | -110 dBFS |
+| 3, medio | -73.5 dBFS | -73.6 dBFS | -98 dBFS |
+| 4 | -73.4 dBFS | -73.4 dBFS | -99 dBFS |
+| 5, puente | -73.1 dBFS | -73.1 dBFS | -94 dBFS |
+
+- El residuo es el mismo en las cinco posiciones y coincide con la tarjeta sola, -73.1 dBFS. El ruido propio de las pastillas queda bajo el piso de la tarjeta: con este aparato no se puede comparar simple contra doble, que era la pregunta abierta de la entrada 34. Hace falta un piso más bajo, o sea la interfaz armada con su ganancia delante del PCM1808.
+- El zumbido sí ordena las posiciones: nada del lado del mástil, algo en el medio, más en el puente. Son diferencias de 12 a 16 dB entre extremos, pero todas 20 dB o más bajo el piso, así que sirven para ver que la guitarra estaba conectada, no para comparar pastillas.
+- La posición 1 se confirmó tocando una cuerda al aire justo después: Mi4 a 330.1 Hz, 18 dB sobre el piso. En la 2 no se hizo esa comprobación.
+
+Dos fallas de la sesión, las dos por confiar en algo que no se verificó:
+
+- El plug de la guitarra perdió contacto y no se notó. Con mal contacto entra el zumbido por la malla pero no la señal: la toma se ve como guitarra conectada y silenciosa. Se descubrió al tocar una cuerda y ver que no aparecía la nota. La primera toma de la posición 1 se repitió por eso.
+- Al conectar y quitar unos audífonos Bluetooth, la Mac reordenó los dispositivos de audio y el índice 1 dejó de ser la tarjeta y pasó a ser el micrófono de la Mac. Dos grabaciones libres y el monitoreo en vivo salieron del micrófono sin que se notara, con acople por las bocinas. Se borraron. La tarjeta se elige siempre por nombre, que es lo que hace medir.py por defecto, y el nombre queda guardado en condiciones.json de cada toma: ahí se verifica.
+
+Resistencia de las pastillas, medida el 2026-09-23 con un multímetro Truper MUT-830 en la escala de 20k, en el plug del cable conectado a la guitarra, con volumen y tono al máximo. Las puntas dan entre 0 y 0.8 Ω:
+
+| Posición | Medida | Qué es |
+|---|---|---|
+| 1, mástil | 12.18 kΩ | doble sola |
+| 2 | 4.96 kΩ | mástil y medio en paralelo |
+| 3, medio | 8.16 kΩ | simple sola |
+| 4 | 5.02 kΩ | medio y puente en paralelo |
+| 5, puente | 12.60 kΩ | doble sola |
+
+Las posiciones 2 y 4 comprueban a las otras tres: 12.18 con 8.16 en paralelo da 4.89 contra 4.96 medido, y 12.60 con 8.16 da 4.95 contra 5.02. Menos de 2% en las dos, contando las puntas y el potenciómetro de volumen.
+
+Cambio en el modelo: spice/netlists/guitar.cir pasa de 8 kΩ fijos a un parámetro rcoil con 12.6 kΩ por defecto, la del puente, que es la que se graba con más ganancia. Las cinco medidas quedan en el comentario del archivo para simular cualquiera. GUITAR_R_OHM de spice/simulate_input.py acompaña el cambio, porque el cálculo a mano tiene que usar el mismo valor.
+
+Simulaciones repetidas con el modelo nuevo, los 32 chequeos contra el cálculo a mano pasan (mediciones/2026-09-23-sim-respuesta-en-frecuencia, -sim-transitorio-1v5, -sim-ruido y -sim-carga-guitarra):
+
+- La resonancia de la pastilla con 1 MΩ baja de +14.8 a +13.0 dB con cable de 300 pF, y de +15.0 a +12.6 dB con 600 pF. Las frecuencias no se mueven, 3.55 y 2.69 kHz: la resistencia amortigua el pico pero no lo corre.
+- Con 10 kΩ de carga, la caída de 3 dB pasa de 593 a 737 Hz y la pérdida desde abajo de 5.2 a 7.2 dB. Una entrada de baja impedancia maltrata todavía más a esta guitarra que a la supuesta.
+- El ruido casi no cambia: con ganancia 11 y cable de 300 pF, 56.3 µV en vez de 56.7.
+- docs/entrada-analogica.md queda con estos números.
+
+Qué queda abierto:
+
+- La bobina de 5 H sigue siendo un supuesto. El MUT-830 no mide inductancia ni capacidad, así que tampoco se midió el cable, que sigue entre 300 y 600 pF. El cable se puede medir con la tarjeta: un tono desde la salida a través de una resistencia conocida y la frecuencia de caída despeja la capacidad. Hace falta una resistencia de 100 kΩ.
+- Confirmar la posición 2 tocando una cuerda, como se hizo con la 1.
+- La comparación de pastillas por su ruido, cuando haya un piso más bajo que el de la tarjeta.
+

@@ -1,11 +1,15 @@
 * Guitar pickup model, in its own file so it can change once the real guitar is measured.
-* A 5 H coil in series with 8 kOhm, 100 pF in parallel with the pickup, and the cable capacitance as a parameter
+* The resistance is Renata's guitar, a Yamaha ERG121C (HSH), measured with a multimeter at the plug on 2026-09-23,
+* volume and tone at maximum: neck 12.18 kOhm, neck with middle 4.96, middle 8.16, middle with bridge 5.02,
+* bridge 12.60. The default is the bridge, the one recorded with the most gain; change it to simulate another one.
+* The coil's 5 H is still an assumption: it cannot be measured with that multimeter.
+* A 5 H coil in series with that resistance, 100 pF in parallel with the pickup, and the cable capacitance as a parameter
 * between 300 and 600 pF. The pickup's voltage is applied at emf; the guitar's output, at the end of the cable, is out.
 * The simulations always pass ccable; the default is only the middle of the range.
 
-.subckt guitar emf out params: ccable=450p
+.subckt guitar emf out params: ccable=450p rcoil=12.6k
 Lcoil emf coil 5
-Rcoil coil out 8k
+Rcoil coil out {rcoil}
 Cpickup out 0 100p
 Ccable out 0 {ccable}
 .ends guitar

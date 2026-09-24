@@ -1,0 +1,52 @@
+{
+  "fecha_hora": "2026-09-23T20:22:12-05:00",
+  "etiqueta": "sim-respuesta-en-frecuencia",
+  "medicion": "Simulación: respuesta en frecuencia",
+  "simulador": {
+    "version": "ngspice-47",
+    "ruta": "/Users/renata/spice/ngspice-47/bin/ngspice",
+    "temperatura_c": 27
+  },
+  "netlists_sha256": {
+    "opamp_tl072.cir": "6b97c153de03895c61b210d9ac815e86cd641aef511a82f9f88d834494365822",
+    "input_stage.cir": "149a443b7623e977977edc807074871df02b2912792fc1607ae5db3d83991a09"
+  },
+  "modelo_del_opamp": {
+    "archivo": "TL072.301",
+    "sha256": "74e89d558163615ac7a19f0c783101a6f8af77fb6d80bd3c20c6ab66426561cd",
+    "uso": "lineal: respuesta en frecuencia, ganancia, transitorio y margen"
+  },
+  "barrido_hz": [
+    1,
+    1000000.0
+  ],
+  "puntos_por_decada": 50,
+  "fuente": "ideal a la entrada, AC 1 V",
+  "ganancias": [
+    1,
+    3,
+    5,
+    8,
+    11
+  ],
+  "potenciometro_ohm": [
+    0.0,
+    2000.0,
+    4000.0,
+    7000.0,
+    10000.0
+  ],
+  "potenciometro_en_0_ohm": "modelado como 1 mΩ",
+  "pilas": {
+    "vbat": 9.0,
+    "rbat": 2.0
+  },
+  "carga_pcm1808_ohm": 60000.0,
+  "versiones": {
+    "python": "3.12.0",
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "resumen": "Simulación: de 0.0 a 20.8 dB a 1 kHz con ±9 V, -3 dB en 2.18 Hz y 33.5 kHz",
+  "notas": ""
+}

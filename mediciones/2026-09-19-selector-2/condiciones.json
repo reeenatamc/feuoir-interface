@@ -1,0 +1,23 @@
+{
+  "fecha_hora": "2026-09-19T13:43:53-05:00",
+  "etiqueta": "selector-2",
+  "sistema_operativo": "macOS 26.5.2",
+  "dispositivo": {
+    "nombre": "USB PnP Sound Device",
+    "indice": 1,
+    "api": "Core Audio"
+  },
+  "canal": 1,
+  "frecuencia_muestreo_hz": 48000,
+  "duracion_s": 10.0,
+  "descartado_al_inicio_s": 1.0,
+  "nivel_entrada": {
+    "valor": null,
+    "origen": "el dispositivo no es la entrada por defecto del sistema"
+  },
+  "volumen_entrada_sistema": 0,
+  "ganancia_entrada_db": 0.0,
+  "pico_dbfs": -59.18,
+  "rms_dbfs": -72.85,
+  "notas": "Yamaha ERG121C, selector de 5 posiciones en la 2 (entre el mástil y el medio, contando desde el mástil), volumen y tono al máximo, cuerdas apagadas con la mano, Mac a batería, cable en la entrada de micrófono de la tarjeta"
+}
