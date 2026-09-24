@@ -2,8 +2,9 @@
 
 Reuses the layout and the SPICE check of draw_input_stage_breadboard, so the steps can never drift from the verified
 board. What is already placed is drawn pale, the piece of the step in color, and what comes later is not drawn at all.
-Saves pasos/paso_NN.png and the whole set as etapa_entrada_pasos.pdf. Labels in Spanish, described by shape and never
-by component name, because Renata follows the picture on the bench.
+The four edge strips are drawn where the MB-102 really has them, running down the two long sides, so the picture can
+be laid next to the board and read hole by hole. Saves pasos/paso_NN.png and the set as etapa_entrada_pasos.pdf.
+Labels in Spanish, described by shape and never by component name, because Renata follows the picture on the bench.
 
     .venv/bin/python docs/armado/draw_input_stage_steps.py
 """
@@ -16,15 +17,22 @@ from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
 from matplotlib.patches import Arc, FancyBboxPatch, Rectangle  # noqa: E402
 
 import draw_input_stage_breadboard as base  # noqa: E402
-from draw_input_stage_breadboard import COLS, GND, LAYOUT, PINS, ROWS, VNEG, VPOS, X, hole_xy, rail_y  # noqa: E402
+from draw_input_stage_breadboard import COLS, GND, LAYOUT, PINS, ROWS, VNEG, VPOS, X  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 PALE = "#d2cec7"
 WIRE = "#1565c0"
-BODY_R, BODY_C = "#e0c9a6", "#f9a825"
+BODY_C = "#f9a825"
 
-# The colour rings of each little tube, top to bottom, in the words Renata reads. The kit is metal film, so five
-# rings is the likely one, but four-ring ones are given too because a kit can mix them.
+# The strips run down the long sides. On the MB-102 the left block has its blue line outside and its red line next to
+# the letters, and the right block is mirrored, so naming them by the painted line is enough to tell them apart.
+GND_L, VNEG_X, GND_R, VPOS_X = -3.8, -2.6, 12.8, 14.0
+RAIL_X = {GND: None, VNEG: VNEG_X, VPOS: VPOS_X}
+RAILS = [(GND_L, "#1565c0", "tierra"), (VNEG_X, "#c62828", "-9"),
+         (GND_R, "#1565c0", "tierra"), (VPOS_X, "#c62828", "+9")]
+ALL_RAIL_X = [GND_L, VNEG_X, GND_R, VPOS_X]
+TOP, BOTTOM = -0.3, -ROWS - 0.7
+
 BAND_COLOR = {"café": "#6d4c41", "negro": "#212121", "rojo": "#c62828", "amarillo": "#fdd835",
               "violeta": "#7b1fa2", "dorada": "#c9a227", "verde": "#2e7d32"}
 BANDS5 = {"R1": ["café", "negro", "negro", "amarillo", "café"],
@@ -36,8 +44,18 @@ BANDS4 = {"R1": ["café", "negro", "verde", "dorada"],
 MARK = {"C1": "104", "C5": "102"}
 
 
+def hole_xy(hole):
+    return X[hole[0]], -hole[1]
+
+
+def rail_x(rail, col):
+    """Ground has a strip on each side; a hole uses the one on its own half of the board."""
+    if rail == GND:
+        return GND_L if col in "abcde" else GND_R
+    return RAIL_X[rail]
+
+
 def wire_of(text):
-    """The WIRES entry whose description starts with text, as (a, b)."""
     for a, b, what in base.WIRES:
         if what.startswith(text):
             return a, b
@@ -59,80 +77,79 @@ STEPS = [
     ("part", "C5", "Lentejita con 102 impreso",
      "Una patita en i24 y la otra en i26.\nNo tiene lado."),
     ("part", "C3", "El barrilito de 10 µF",
-     "Va de h15 a h11, y SI tiene lado: la patita del lado\nde la raya impresa va en h15, la otra en h11."),
+     "Va de h15 a h11, y SÍ tiene lado: la patita del lado\nde la raya impresa va en h15, la otra en h11."),
     ("wire", wire_of("entrada al pin 3"), "Cable corto", "De d20 a d16."),
     ("wire", wire_of("salida del pin 1"), "Cable", "De c14 a g20."),
     ("wire", wire_of("filtro al pin 5"), "Cable", "De g24 a g17."),
     ("wire", wire_of("pin 7 con pin 6"), "Cable cortito", "De g15 a g16."),
-    ("wire", wire_of("R1 a tierra"), "Cable a una raya del borde",
-     "De a24 a la raya de tierra de abajo."),
-    ("wire", wire_of("R4 a tierra"), "Cable a una raya del borde",
-     "De a11 a la raya de tierra de arriba."),
-    ("wire", wire_of("C5 a tierra"), "Cable a una raya del borde",
-     "De j26 a la raya de tierra de abajo."),
-    ("wire", wire_of("pin 8 a +9 V"), "Cable a una raya del borde",
-     "De g14 a la raya de +9 de arriba."),
-    ("wire", wire_of("pin 4 a -9 V"), "Cable a una raya del borde",
-     "De d17 a la raya de -9 de abajo."),
-    ("gndlink", None, "Cable largo que une las dos rayas de tierra",
-     "De la raya de tierra de arriba a la de abajo.\nUna sola vez, en cualquier punto de cada raya."),
+    ("wire", wire_of("R1 a tierra"), "Cable a una tira del borde",
+     "De a24 a la tira de tierra del lado de las letras a b c d e."),
+    ("wire", wire_of("R4 a tierra"), "Cable a una tira del borde",
+     "De a11 a esa misma tira de tierra."),
+    ("wire", wire_of("C5 a tierra"), "Cable a una tira del borde",
+     "De j26 a la tira de tierra del lado de las letras f g h i j."),
+    ("wire", wire_of("pin 8 a +9 V"), "Cable a una tira del borde",
+     "De g14 a la tira de +9, la roja del lado de las letras f g h i j."),
+    ("wire", wire_of("pin 4 a -9 V"), "Cable a una tira del borde",
+     "De d17 a la tira de -9, la roja del lado de las letras a b c d e."),
+    ("gndlink", None, "Cable largo que une las dos tiras de tierra",
+     "De la tira de tierra de un lado a la del otro.\nUna sola vez, en cualquier agujerito de cada una."),
     ("dec", None, "Dos lentejitas más con 104 impreso",
-     "Una entre la raya de +9 y la de tierra de arriba.\nLa otra entre la raya de -9 y la de tierra de abajo."),
+     "Una entre la tira de +9 y la de tierra de su mismo lado.\nLa otra entre la de -9 y la de tierra de su lado."),
     ("pot", None, "La perilla que gira, por fuera de la tabla",
      "Sus tres patitas con tres cables: una punta a a14,\nla del medio a b14, la otra punta a d15."),
     ("ext", None, "La guitarra entra y la señal sale",
-     "Vivo de la guitarra a a22, su malla a una raya de tierra.\nSalida j11 al cable de la tarjeta, su malla a tierra."),
+     "Vivo de la guitarra a a22, su malla a una tira de tierra.\nSalida j11 al cable de la tarjeta, su malla a tierra."),
     ("bat", None, "Las cajitas con pilas, AL FINAL Y APAGADAS",
-     "Cajita 1: rojo a la raya de +9, negro a la de tierra.\nCajita 2: rojo a la raya de tierra, negro a la de -9."),
+     "Cajita 1: rojo a la tira de +9, negro a la tierra de ese lado.\n"
+     "Cajita 2: rojo a la tierra del otro lado, negro a la de -9."),
 ]
 
 
 def draw_board(ax):
-    ax.add_patch(FancyBboxPatch((-1.6, -ROWS - 0.6), 13.4, ROWS + 0.2, boxstyle="round,pad=0.25",
+    ax.add_patch(FancyBboxPatch((-1.2, -ROWS - 0.6), 12.8, ROWS + 0.2, boxstyle="round,pad=0.25",
                                 fc="#f6f4ef", ec="#bbb"))
     for c in COLS:
-        ax.text(X[c], 0.35, c, ha="center", fontsize=9, color="#666")
+        ax.text(X[c], 0.3, c, ha="center", fontsize=10, color="#444")
     for r in range(1, ROWS + 1):
         big = r % 5 == 0 or r in (1, 11, 14, 15, 16, 17, 20, 22, 24, 26)
-        for label_x in (-1.1, 11.3):
+        for label_x in (-0.75, 11.15):
             ax.text(label_x, -r, str(r), ha="center", va="center", fontsize=8 if big else 6.5,
-                    color="#222" if big else "#999", fontweight="bold" if big else "normal")
+                    color="#222" if big else "#999", fontweight="bold" if big else "normal", zorder=8,
+                    bbox=dict(fc="#f6f4ef", ec="none", pad=0.6))
         for c in COLS:
             ax.add_patch(Rectangle((X[c] - 0.12, -r - 0.12), 0.24, 0.24, color="#9a9a9a"))
-    for y, color, text in ((base.RAIL_Y[VPOS], "#c62828", "raya de +9"),
-                           (base.RAIL_Y["gnd_arriba"], "#000000", "raya de tierra"),
-                           (base.RAIL_Y["gnd_abajo"], "#000000", "raya de tierra"),
-                           (base.RAIL_Y[VNEG], "#1565c0", "raya de -9")):
-        ax.plot([-2.6, 13.2], [y, y], color=color, lw=2.2, solid_capstyle="round")
-        ax.text(13.4, y, text, va="center", fontsize=8.5, color=color)
+    for x, color, text in RAILS:
+        ax.plot([x, x], [TOP, BOTTOM], color=color, lw=2.4, solid_capstyle="round")
+        ax.text(x, 0.5, text, ha="center", va="bottom", fontsize=9, color=color, rotation=90)
 
 
-def vertical(ax, x, y1, y2, color, lw):
-    lo, hi = sorted((y1, y2))
-    crossed = sorted(y for y in base.RAIL_Y.values() if lo + 0.3 < y < hi - 0.3)
-    cuts = [lo] + [c for y in crossed for c in (y - 0.3, y + 0.3)] + [hi]
+def horizontal(ax, y, x1, x2, color, lw):
+    """A horizontal run that hops over any strip it only crosses, so a crossing never looks like a joint."""
+    lo, hi = sorted((x1, x2))
+    crossed = sorted(x for x in ALL_RAIL_X if lo + 0.3 < x < hi - 0.3)
+    cuts = [lo] + [c for x in crossed for c in (x - 0.3, x + 0.3)] + [hi]
     for a, b in zip(cuts[::2], cuts[1::2]):
-        ax.plot([x, x], [a, b], color=color, lw=lw, solid_capstyle="round", zorder=6)
-    for y in crossed:
-        ax.add_patch(Arc((x, y), 0.6, 0.6, theta1=-90, theta2=90, color=color, lw=lw, zorder=6))
+        ax.plot([a, b], [y, y], color=color, lw=lw, solid_capstyle="round", zorder=6)
+    for x in crossed:
+        ax.add_patch(Arc((x, y), 0.6, 0.6, theta1=0, theta2=180, color=color, lw=lw, zorder=6))
 
 
 def draw_wire(ax, a, b, color, lw=2.4):
-    xa, ya = hole_xy(a) if isinstance(a, tuple) else (None, None)
-    xb, yb = hole_xy(b) if isinstance(b, tuple) else (None, None)
-    if xa is None:
-        xa, ya = xb, rail_y(a, b[1])
-    if xb is None:
-        xb, yb = xa, rail_y(b, a[1])
-    if abs(ya - yb) < 0.01:
+    """Hole to hole turns in the gap between rows; hole to strip goes straight out sideways."""
+    if isinstance(a, str) or isinstance(b, str):
+        rail, hole = (a, b) if isinstance(a, str) else (b, a)
+        x, y = hole_xy(hole)
+        rx = rail_x(rail, hole[0])
+        horizontal(ax, y, x, rx, color, lw)
+        ax.plot([x, rx], [y, y], "o", color=color, ms=6, zorder=7)
+        return
+    (xa, ya), (xb, yb) = hole_xy(a), hole_xy(b)
+    if abs(xa - xb) < 0.01:
         ax.plot([xa, xb], [ya, yb], color=color, lw=lw, solid_capstyle="round", zorder=6)
-    elif abs(xa - xb) < 0.01:
-        vertical(ax, xa, ya, yb, color, lw)
     else:
         ymid = min(ya, yb) - 0.5
-        vertical(ax, xa, ya, ymid, color, lw)
-        ax.plot([xa, xb], [ymid, ymid], color=color, lw=lw, solid_capstyle="round", zorder=6)
-        vertical(ax, xb, ymid, yb, color, lw)
+        ax.plot([xa, xa, xb, xb], [ya, ymid, ymid, yb], color=color, lw=lw, solid_capstyle="round", zorder=6)
     ax.plot([xa, xb], [ya, yb], "o", color=color, ms=6, zorder=7)
 
 
@@ -149,42 +166,44 @@ def draw_chip(ax, live):
 
 
 def draw_part(ax, name, live):
-    holes = LAYOUT[name]
-    (x1, y1), (x2, y2) = hole_xy(holes[0]), hole_xy(holes[1])
+    (x1, y1), (x2, y2) = hole_xy(LAYOUT[name][0]), hole_xy(LAYOUT[name][1])
     leg = "#8d6e63" if live else PALE
     ax.plot([x1, x2], [y1, y2], color=leg, lw=1.6, zorder=2)
     ax.plot([x1, x2], [y1, y2], "o", color=leg, ms=6.5, zorder=5)
     cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
     if name.startswith("R"):
-        fc = "#cfe0f0" if live else PALE
         ax.add_patch(FancyBboxPatch((cx - 0.24, cy - 1.0), 0.48, 2.0, boxstyle="round,pad=0.06",
-                                    fc=fc, ec=leg, zorder=3))
+                                    fc="#cfe0f0" if live else PALE, ec=leg, zorder=3))
         if live:
             for k, ring in enumerate(BANDS5[name]):
                 y = cy + [0.72, 0.45, 0.18, -0.09, -0.72][k]
                 ax.add_patch(Rectangle((cx - 0.3, y - 0.09), 0.6, 0.18, color=BAND_COLOR[ring], zorder=4))
     else:
-        fc = BODY_C if live else PALE
         ax.add_patch(FancyBboxPatch((cx - 0.3, cy - 0.6), 0.6, 1.2, boxstyle="round,pad=0.08",
-                                    fc=fc, ec=leg, zorder=3))
+                                    fc=BODY_C if live else PALE, ec=leg, zorder=3))
         if live and name in MARK:
             ax.text(cx, cy, MARK[name], ha="center", va="center", fontsize=7, zorder=4, color="#333")
 
 
 def draw_gndlink(ax, live):
-    color = "#000000" if live else PALE
-    vertical(ax, -2.6, base.RAIL_Y["gnd_arriba"], base.RAIL_Y["gnd_abajo"], color, 2.4 if live else 1.8)
+    color = "#1565c0" if live else PALE
+    y = -ROWS - 1.8
+    ax.plot([GND_L, GND_L, GND_R, GND_R], [BOTTOM, y, y, BOTTOM], color=color, lw=2.4 if live else 1.8,
+            solid_capstyle="round", zorder=6)
+    ax.plot([GND_L, GND_R], [BOTTOM, BOTTOM], "o", color=color, ms=6, zorder=7)
 
 
 def draw_dec(ax, live):
     leg = "#8d6e63" if live else PALE
-    fc = BODY_C if live else PALE
-    for rail in (VPOS, VNEG):
-        y = base.RAIL_Y[rail]
-        gy = base.RAIL_Y["gnd_arriba"] if rail == VPOS else base.RAIL_Y["gnd_abajo"]
-        ax.plot([12.4, 12.4], [y, gy], color=leg, lw=1.6, zorder=2)
-        ax.add_patch(FancyBboxPatch((12.14, (y + gy) / 2 - 0.22), 0.52, 0.44, boxstyle="round,pad=0.08",
-                                    fc=fc, ec=leg, zorder=3))
+    for x_a, x_b in ((VPOS_X, GND_R), (VNEG_X, GND_L)):
+        y = -28
+        ax.plot([x_a, x_b], [y, y], color=leg, lw=1.6, zorder=2)
+        ax.plot([x_a, x_b], [y, y], "o", color=leg, ms=6.5, zorder=5)
+        cx = (x_a + x_b) / 2
+        ax.add_patch(FancyBboxPatch((cx - 0.3, y - 0.45), 0.6, 0.9, boxstyle="round,pad=0.08",
+                                    fc=BODY_C if live else PALE, ec=leg, zorder=3))
+        if live:
+            ax.text(cx, y - 1.1, "104", ha="center", va="top", fontsize=8, color="#555")
 
 
 def draw_pot(ax, live):
@@ -194,7 +213,7 @@ def draw_pot(ax, live):
         x, y = hole_xy(hole)
         ax.plot(x, y, "o", color=color, ms=7, zorder=7)
     if live:
-        ax.annotate("la perilla\nva por fuera", xy=(X["a"], -14), xytext=(X["a"] - 3.4, -9.5), fontsize=9,
+        ax.annotate("la perilla\nva por fuera", xy=(X["a"], -14), xytext=(-6.6, -10.0), fontsize=10,
                     ha="center", color=color, arrowprops=dict(arrowstyle="->", color=color), zorder=9)
 
 
@@ -202,30 +221,28 @@ def draw_ext(ax, live):
     color = "#2e7d32" if live else PALE
     for hole, text in base.EXTERNAL:
         x, y = hole_xy(hole)
-        side = -1 if hole[0] in "abcde" else 1
         ax.plot(x, y, "o", color=color, ms=7, zorder=7)
         if live:
-            ax.annotate(text, xy=(x, y), xytext=(x + side * 3.4, y + 2.0), fontsize=9, ha="center",
+            tx = -6.6 if hole[0] in "abcde" else 18.0
+            ax.annotate(text, xy=(x, y), xytext=(tx, y + 2.2), fontsize=9.5, ha="center",
                         arrowprops=dict(arrowstyle="->", color=color), color=color)
 
 
 def draw_bat(ax, live):
-    """Box 1 sits above the top rails, box 2 below the bottom ones. Red always goes to the more positive rail."""
+    """Box 1 feeds the two strips on the f..j side, box 2 the two on the a..e side."""
     if not live:
         return
-    boxes = [("cajita 1", base.RAIL_Y[VPOS] + 2.6, base.RAIL_Y[VPOS], base.RAIL_Y["gnd_arriba"]),
-             ("cajita 2", base.RAIL_Y[VNEG] - 2.6, base.RAIL_Y["gnd_abajo"], base.RAIL_Y[VNEG])]
-    for label, by, red_y, black_y in boxes:
-        bx = -6.0
-        ax.add_patch(FancyBboxPatch((bx - 1.0, by - 0.45), 2.0, 0.9, boxstyle="round,pad=0.1",
+    boxes = [("cajita 1", 15.6, VPOS_X, GND_R), ("cajita 2", -5.4, GND_L, VNEG_X)]
+    for label, bx, red_x, black_x in boxes:
+        by = -ROWS - 4.2
+        ax.add_patch(FancyBboxPatch((bx - 1.1, by - 0.5), 2.2, 1.0, boxstyle="round,pad=0.1",
                                     fc="#37474f", ec="#111", zorder=5))
         ax.text(bx, by, label, color="white", ha="center", va="center", fontsize=8.5, zorder=6)
-        for lead_x, lead_y, color in ((bx + 0.45, red_y, "#c62828"), (bx - 0.45, black_y, "#111111")):
-            ax.plot([lead_x, lead_x, -2.5], [by, lead_y, lead_y], color=color, lw=2.4, zorder=5,
+        for k, (lead_x, color, name) in enumerate(((red_x, "#c62828", "rojo"), (black_x, "#111111", "negro"))):
+            ax.plot([bx, lead_x, lead_x], [by + 0.5, by + 0.5, BOTTOM - 0.4], color=color, lw=2.4, zorder=5,
                     solid_capstyle="round")
-            ax.plot([-2.5], [lead_y], "o", color=color, ms=6, zorder=6)
-        ax.text(bx - 1.3, red_y, "rojo", ha="right", va="center", fontsize=8, color="#c62828")
-        ax.text(bx - 1.3, black_y, "negro", ha="right", va="center", fontsize=8, color="#111111")
+            ax.plot([lead_x], [BOTTOM - 0.4], "o", color=color, ms=6, zorder=6)
+            ax.text(lead_x + 0.5, BOTTOM - 1.2 - k * 0.9, name, ha="left", va="center", fontsize=9, color=color)
 
 
 def zoom_tube(ax, cx, cy, rings, title):
@@ -240,18 +257,17 @@ def zoom_tube(ax, cx, cy, rings, title):
     ax.text(cx, cy + 1.05, title, ha="center", fontsize=9.5, color="#555")
 
 
-def zoom_disc(ax, cx, cy, mark, note):
-    """One little flat piece drawn big, with the number printed on it."""
+def zoom_disc(ax, cx, cy, mark):
     ax.plot([cx - 0.6, cx - 0.6], [cy - 1.9, cy - 0.7], color="#8d6e63", lw=2.0, zorder=2)
     ax.plot([cx + 0.6, cx + 0.6], [cy - 1.9, cy - 0.7], color="#8d6e63", lw=2.0, zorder=2)
     ax.add_patch(FancyBboxPatch((cx - 1.3, cy - 0.9), 2.6, 2.2, boxstyle="round,pad=0.2",
                                 fc=BODY_C, ec="#8d6e63", zorder=3))
     ax.text(cx, cy + 0.2, mark, ha="center", va="center", fontsize=17, color="#333", zorder=4)
-    ax.text(cx, cy - 2.4, note, ha="center", va="top", fontsize=9.5, color="#555")
+    ax.text(cx, cy - 2.4, "impreso en la cara", ha="center", va="top", fontsize=9.5, color="#555")
 
 
 def zoom_barrel(ax, cx, cy):
-    """The little barrel drawn big, standing as it goes on the board, with its printed stripe on the h15 side."""
+    """The little barrel drawn big, with its printed stripe on the h15 side."""
     ax.add_patch(FancyBboxPatch((cx - 1.3, cy - 1.8), 2.6, 3.6, boxstyle="round,pad=0.2",
                                 fc="#37474f", ec="#111", zorder=3))
     ax.add_patch(Rectangle((cx - 1.45, cy - 1.9), 0.75, 3.8, color="#cfd8dc", zorder=4))
@@ -267,7 +283,7 @@ def zoom_barrel(ax, cx, cy):
 
 
 def draw_zoom(ax, name):
-    cx = -5.6
+    cx = -7.4
     if name in BANDS5:
         zoom_tube(ax, cx, -9.0, BANDS5[name], "si tiene 5 rayitas")
         zoom_tube(ax, cx, -17.0, BANDS4[name], "si tiene 4 rayitas")
@@ -276,8 +292,7 @@ def draw_zoom(ax, name):
         zoom_barrel(ax, cx, -13.0)
         ax.text(cx, -6.0, "así se ve\nel barrilito", ha="center", fontsize=10, color="#1565c0")
     elif name in MARK:
-        note = "impreso en la cara" if name != "C3" else "esta es la que falta"
-        zoom_disc(ax, cx, -11.0, MARK[name], note)
+        zoom_disc(ax, cx, -11.0, MARK[name])
         ax.text(cx, -5.6, "así se ve\nla lentejita de\neste paso", ha="center", fontsize=10, color="#1565c0")
 
 
@@ -293,7 +308,7 @@ DRAW = {"chip": lambda ax, live, p: draw_chip(ax, live),
 
 def page(i):
     kind, payload, title, sentence = STEPS[i]
-    fig, ax = plt.subplots(figsize=(10, 14))
+    fig, ax = plt.subplots(figsize=(11, 13))
     ax.set_aspect("equal")
     ax.axis("off")
     draw_board(ax)
@@ -302,12 +317,12 @@ def page(i):
     DRAW[kind](ax, True, payload)
     if kind == "part":
         draw_zoom(ax, payload)
-    ax.set_xlim(-9.6, 16.0)
-    ax.set_ylim(-ROWS - 8.6, 6.4)
-    ax.text(4.4, 5.6, f"Paso {i + 1} de {len(STEPS)}", ha="center", fontsize=15, fontweight="bold")
-    ax.text(4.4, 4.2, title, ha="center", fontsize=13, color="#1565c0")
-    ax.text(4.4, -ROWS - 4.2, sentence, ha="center", va="top", fontsize=13, linespacing=1.6)
-    ax.text(4.4, -ROWS - 8.1, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.",
+    ax.set_xlim(-11.0, 21.0)
+    ax.set_ylim(-ROWS - 9.8, 6.0)
+    ax.text(5.1, 5.2, f"Paso {i + 1} de {len(STEPS)}", ha="center", fontsize=16, fontweight="bold")
+    ax.text(5.1, 3.6, title, ha="center", fontsize=13.5, color="#1565c0")
+    ax.text(5.1, -ROWS - 6.2, sentence, ha="center", va="top", fontsize=13, linespacing=1.6)
+    ax.text(5.1, -ROWS - 9.5, "Lo gris claro ya está puesto. Cuenta las filas desde la punta donde la tabla dice 1.",
             ha="center", fontsize=8.5, color="#777")
     return fig
 
@@ -316,16 +331,13 @@ def main():
     base.check()
     out = HERE / "pasos"
     out.mkdir(exist_ok=True)
-    pdf_path = HERE / "etapa_entrada_pasos.pdf"
-    with PdfPages(pdf_path) as pdf:
+    with PdfPages(HERE / "etapa_entrada_pasos.pdf") as pdf:
         for i in range(len(STEPS)):
             fig = page(i)
-            png = out / f"paso_{i + 1:02d}.png"
-            fig.savefig(png, dpi=130, bbox_inches="tight", facecolor="white")
+            fig.savefig(out / f"paso_{i + 1:02d}.png", dpi=130, bbox_inches="tight", facecolor="white")
             pdf.savefig(fig, bbox_inches="tight", facecolor="white")
             plt.close(fig)
-            print(png)
-    print(pdf_path)
+    print(f"{len(STEPS)} pasos en {out} y en {HERE / 'etapa_entrada_pasos.pdf'}")
 
 
 if __name__ == "__main__":
