@@ -749,3 +749,9 @@ El guion importa LAYOUT, WIRES y check() de draw_input_stage_breadboard, así qu
 
 Dos cosas que se arrastran al armado: el de 2.2 µF no ha llegado, viene en el pedido 2, y su paso dice que se puede dejar el hueco o poner en su lugar uno de 10 µF, que sí es polarizado y va con la raya hacia h11. Y las etiquetas no nombran componentes: describen la forma, porque es como Renata los distingue en la mesa.
 
+## Entrada 38: el sentido del acoplo de salida estaba al revés (2026-09-23)
+
+El de 2.2 µF no está en la caja, viene en el pedido 2, así que la etapa se arma con uno de 10 µF: el corte baja de 1.21 Hz a 0.27 Hz y no molesta. Al escribir su paso salió a la luz un error que venía de docs/compras.md: decía que el lado marcado del electrolítico va hacia el PCM1808. En un electrolítico de aluminio la raya impresa marca el negativo, y el negativo va del lado del seguidor, que está centrado en 0 V, no del lado del módulo, que está en 2.5 V. Corregido en compras.md y en el paso 7, que ahora dibuja el barrilito en grande con la raya del lado de h15.
+
+De paso, la de 103 que apareció entre las cerámicas es de 10 nF, una de las cinco del pedido, no sirve para ese sitio.
+

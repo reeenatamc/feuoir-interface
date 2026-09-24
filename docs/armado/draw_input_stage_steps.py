@@ -33,7 +33,7 @@ BANDS5 = {"R1": ["café", "negro", "negro", "amarillo", "café"],
 BANDS4 = {"R1": ["café", "negro", "verde", "dorada"],
           "R4": ["café", "negro", "rojo", "dorada"],
           "R5": ["amarillo", "violeta", "rojo", "dorada"]}
-MARK = {"C1": "104", "C5": "102", "C3": "2.2"}
+MARK = {"C1": "104", "C5": "102"}
 
 
 def wire_of(text):
@@ -58,8 +58,8 @@ STEPS = [
      "Una patita en h20 y la otra en h24.\nNo tiene lado."),
     ("part", "C5", "Lentejita con 102 impreso",
      "Una patita en i24 y la otra en i26.\nNo tiene lado."),
-    ("part", "C3", "La de 2.2 µF (esta todavía no llega)",
-     "Va de h15 a h11. Deja el hueco y sigue, o pon en su lugar\nel barrilito de 10 µF: ese SÍ tiene lado, la raya va en h11."),
+    ("part", "C3", "El barrilito de 10 µF",
+     "Va de h15 a h11, y SI tiene lado: la patita del lado\nde la raya impresa va en h15, la otra en h11."),
     ("wire", wire_of("entrada al pin 3"), "Cable corto", "De d20 a d16."),
     ("wire", wire_of("salida del pin 1"), "Cable", "De c14 a g20."),
     ("wire", wire_of("filtro al pin 5"), "Cable", "De g24 a g17."),
@@ -250,12 +250,31 @@ def zoom_disc(ax, cx, cy, mark, note):
     ax.text(cx, cy - 2.4, note, ha="center", va="top", fontsize=9.5, color="#555")
 
 
+def zoom_barrel(ax, cx, cy):
+    """The little barrel drawn big, standing as it goes on the board, with its printed stripe on the h15 side."""
+    ax.add_patch(FancyBboxPatch((cx - 1.3, cy - 1.8), 2.6, 3.6, boxstyle="round,pad=0.2",
+                                fc="#37474f", ec="#111", zorder=3))
+    ax.add_patch(Rectangle((cx - 1.45, cy - 1.9), 0.75, 3.8, color="#cfd8dc", zorder=4))
+    for k in range(3):
+        ax.text(cx - 1.08, cy + 0.9 - k * 0.9, "-", ha="center", va="center", fontsize=15, color="#37474f", zorder=5)
+    ax.text(cx + 0.35, cy, "10", ha="center", va="center", fontsize=13, color="white", zorder=5)
+    ax.plot([cx - 0.6, cx - 0.6, cx - 2.1], [cy - 1.9, cy - 2.9, cy - 3.3], color="#8d6e63", lw=2.0, zorder=2)
+    ax.plot([cx + 0.6, cx + 0.6, cx + 1.9], [cy - 1.9, cy - 2.9, cy - 3.3], color="#8d6e63", lw=2.0, zorder=2)
+    ax.text(cx - 2.1, cy - 3.5, "esta patita\nva en h15", ha="center", va="top", fontsize=9.5, color="#c62828")
+    ax.text(cx + 1.9, cy - 3.5, "esta patita\nva en h11", ha="center", va="top", fontsize=9.5, color="#555")
+    ax.annotate("la raya\nimpresa", xy=(cx - 1.1, cy + 1.2), xytext=(cx - 1.0, cy + 3.0), fontsize=9.5,
+                ha="center", color="#c62828", arrowprops=dict(arrowstyle="->", color="#c62828"))
+
+
 def draw_zoom(ax, name):
     cx = -5.6
     if name in BANDS5:
         zoom_tube(ax, cx, -9.0, BANDS5[name], "si tiene 5 rayitas")
         zoom_tube(ax, cx, -17.0, BANDS4[name], "si tiene 4 rayitas")
         ax.text(cx, -4.8, "así se ve\nel tubito de\neste paso", ha="center", fontsize=10, color="#1565c0")
+    elif name == "C3":
+        zoom_barrel(ax, cx, -13.0)
+        ax.text(cx, -6.0, "así se ve\nel barrilito", ha="center", fontsize=10, color="#1565c0")
     elif name in MARK:
         note = "impreso en la cara" if name != "C3" else "esta es la que falta"
         zoom_disc(ax, cx, -11.0, MARK[name], note)

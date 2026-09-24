@@ -49,7 +49,7 @@ Los de la etapa de entrada, con los valores de docs/entrada-analogica.md. El nú
 | 1 nF (102) | 1 | 5 | C5 del filtro entre etapas, contra tierra |
 | 2.2 µF | 1 | 5 | C3 de acoplo hacia el PCM1808 |
 
-El de 2.2 µF es el único que puede venir polarizado. Si es electrolítico, el lado marcado va hacia el PCM1808, porque la salida del seguidor está centrada en 0 V y la entrada del módulo en 2.5 V. Uno de poliéster evita la duda y no tiene lado.
+El de 2.2 µF es el único que puede venir polarizado. Si es electrolítico, la raya impresa es el negativo y va hacia el seguidor, y el positivo hacia el PCM1808, porque la salida del seguidor está centrada en 0 V y la entrada del módulo en 2.5 V. Uno de poliéster evita la duda y no tiene lado. Mientras el de 2.2 µF no llegue, sirve uno de 10 µF con la misma orientación: la frecuencia de corte baja de 1.21 Hz a 0.27 Hz.
 
 ## Jumpers y cableado
 
