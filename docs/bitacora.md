@@ -731,6 +731,7 @@ docs/armado/draw_input_stage_breadboard.py dibuja el armado agujero por agujero 
 
 Decisiones del armado, que son de trazado y no tocan el diseño:
 
+- La etapa va en la MB-102 que está sin usar. El Pico se queda en su propia protoboard, porque ocupa veinte filas y no cabrían las dos cosas. Las filas del dibujo son las que vienen impresas en la placa.
 - El TL072 cruza el canal en las filas 14 a 17, con la muesca hacia arriba.
 - El potenciómetro queda fuera de la protoboard, con tres cables: una punta y la del medio al nodo de salida de la etapa A, la otra a la entrada inversora. Así sirve tanto uno de perilla como uno de ajuste. Sin potenciómetro, una resistencia fija entre esos dos nodos deja la ganancia en un valor: 10 kΩ da 11, 4.7 kΩ da 5.7 y 1 kΩ da 2.
 - Tierra en los dos rieles de los bordes, unidos entre sí, para que ninguna pata tenga que cruzar la placa.

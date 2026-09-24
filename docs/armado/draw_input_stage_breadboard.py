@@ -255,6 +255,9 @@ def draw():
     ax.set_ylim(-ROWS - 3.4, 3.4)
     ax.set_title("Etapa de entrada de ±9 V sobre la protoboard\nCon las pilas desconectadas mientras se arma",
                  fontsize=12)
+    ax.text(5.1, -ROWS - 2.9, "La MB-102 tiene 63 filas: aquí se dibujan solo las 30 primeras.\n"
+                              "Cuenta desde el extremo donde la protoboard dice 1.",
+            ha="center", fontsize=8.5, color="#555")
     out = HERE / "etapa_entrada_protoboard.png"
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")
     print(out)
@@ -277,6 +280,8 @@ def print_list():
     for a, b, what in WIRES:
         fmt = lambda h: h if isinstance(h, str) else f"{h[0]}{h[1]}"  # noqa: E731
         print(f"  {fmt(a)} a {fmt(b)}: {what}")
+    print("\nLas filas son las que vienen impresas en la MB-102, contando desde el extremo donde dice 1.")
+    print("El Pico se queda en su propia protoboard: esta etapa va en la MB-102 vacía.")
     print("\nFuera de la protoboard:")
     for hole, text in EXTERNAL:
         print(f"  {hole[0]}{hole[1]}: {text}")
