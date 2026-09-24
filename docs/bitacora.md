@@ -776,3 +776,17 @@ comprueba contra input_stage_split, y corre esa comprobación antes de escribir.
 con una tabla por fila, los dos lados de la zanja separados, y debajo los agujeritos que quedan libres en cada fila
 que ya se usa. La patita del medio del potenciómetro, que va en a5, se añade a mano: en la netlist el potenciómetro
 tiene dos terminales y el cursor no aparece.
+
+## Entrada 41: la etapa de entrada pasa la revisión de continuidad
+
+Con la etapa armada hasta el paso 19, la foto de la placa no servía para revisar agujerito por agujerito: los cables
+hacen lazos largos que tapan casi todo. La revisión se hizo con el multímetro en continuidad, que además es la que
+importa antes de alimentar. Está dibujada en `docs/armado/prueba_pitido.png`, y el símbolo que hay que buscar en la
+perilla del aparato en `docs/armado/simbolo_pitido.png`.
+
+Las tres medidas que no deben pitar quedaron calladas: +9 contra tierra, +9 contra -9, y -9 contra tierra. De las seis
+que sí deben pitar falló solo la de a11 contra tierra; el pincho no hacía contacto y al reasentarlo pitó. Las otras
+cinco pitaron a la primera.
+
+Queda la alimentación. Antes de conectar las cajitas hay que medir cada pila suelta: si alguna da menos de 8 V no
+sirve. Después de conectar, medir las patitas de la piecita negra antes de enchufar la guitarra y la tarjeta.
